@@ -1,114 +1,113 @@
 {
   "format": "mohar-proof/1",
   "chainId": 84532,
-  "signer": "0xF20f3BB05942a232de3065EcfaC49c53044498E2",
-  "documentRoot": "0xe471e8fa8e20ca9450084075c17a025297a271debdef7530174ff0cf26a5b9de",
+  "signer": "0x367eab3eF1cB7097334dAEB682c6673d23C9Ba0f",
+  "documentRoot": "0xbd092959b57937002f401d8ef5f0450e3a41a21576839be3664302adf4518243",
   "expiresAt": 0,
   "anchor": {
     "kind": "batch",
-    "batchRoot": "0x0d4d2456e49057fb2015e888e56e01ddf4a208124a7aea9959f95c319e201794",
+    "batchRoot": "0xd416e618e0973167b3e8b571cd7d40d1296c696178a98f145c6ff5a12ffb308c",
     "proof": [
-      "0x86ed16a1e5abdc102f4e0ebfbcf94a90d97e0cd66db53324fe07ba5a08c298fc",
-      "0xef0ffe1c775854f411eb9acc3925ffc00433e53a0947cd2fcb0803adc9ea8b4e",
-      "0xd5fd5db61d4b4c16e08cde6490bdb12bbc8e116cdb8ebee57420b799626f5aa3"
+      "0xf8160f0cfc4290b5140ef46c8383e9b984dd6a473abf86e3deefe8b51ad95222",
+      "0xea6761cb094067a6bd367cd793651afbb69b641f5f59c178ef57a3c03c00dd3c"
     ]
   },
   "fields": {
     "credential.expiresOn": {
       "value": "null",
-      "salt": "0x74930f74648b36c821546be2baf2f39b39d926dee56a9bc12f49661b588ed3e0",
+      "salt": "0x01e7f782ab427ecb9646fde3f139a3c8905857fa33a7b61426f348b4e1241a5e",
       "proof": [
-        "0x65a1c43d7d268ddcd589f051ca1542d700452cc6ab22fe93821701baec4f44bf",
-        "0xda4faf24702a9ce05149b4538499dfd1079a522787f8bdbfd2667d7c9227d8ae",
-        "0x008eeacd7c9fe11d88d279eaa94c16a05a79733d7c452c577cd3be0500db3057",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0x8b105a5cad5ee5976c2d2e0cfcde1ed5e471446c23ea45ed053d3789a07aff51",
+        "0x0bb9575d95ab9fb079d7589f51c198a06bca583abeb318908cc217102d3840bd",
+        "0x591344831cb22bc08a9dc3fe05de928db3cdb7ba5fe532b97038b7a1f46ce04c"
       ]
     },
     "credential.grade": {
       "value": "\"A\"",
-      "salt": "0xdf3deab77e66e493f8d2f195e57ff66d597ded130e9f8903e6a154b1111075aa",
+      "salt": "0xf3307054335f7841599f3b8e80a59e6cb7cb5dea1109ce2923bbe1c0126898bf",
       "proof": [
-        "0x9dbda200373427539d52060c062b66a778e2dd1fd9bff54a7884549a49675a20",
-        "0xfa46d298bb559a704e9d6b379bf197b3c18baaf40e947984709d043758f89f2d",
-        "0x55cbe981564d01f9da811923767590893564038b43834d73bb422c3bd821b041"
+        "0x4d16b148ec9d75ffbac853bbf07af2d2d833eca82eaa247b4d57977aa4793370",
+        "0x7c6106e03ffbd6421a6d0f164bc4530afb24d2146abe70d942c66746eaa1dbc2",
+        "0x0a0834a50aab6471616e89984b8f89cf4d30947124fd7e0c3c962ff34faa12ee",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "credential.issuedOn": {
       "value": "\"2026-06-01\"",
-      "salt": "0x24d4f45ac5259cda73da9b897a0686ac67ae84968a8b7b9bbf1012c8260ff252",
+      "salt": "0xa759cf6113aa8c7d198ef55947619f88a145c821944358792a295ee61425e8ed",
       "proof": [
-        "0xdb21d0bc629a3b0f4ed3b9eb9114df1bba3472ca19f0584a291a1c5b308f2e70",
-        "0x7cc970e2078625a7e209e8f101b08e1c5d7d9a21cea2c7c2deca63c6b709c6f7",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0x591a8ec56f6ece9b2fea8aacaa6fd674911665298e742fd2c66eb50405956281",
+        "0xb9e8583ab57cb15f2a74db272603d90440541136fb4820b7126605c4ca3d6505",
+        "0x591344831cb22bc08a9dc3fe05de928db3cdb7ba5fe532b97038b7a1f46ce04c"
       ]
     },
     "credential.title": {
       "value": "\"Demo Batch Certificate (synthetic data)\"",
-      "salt": "0x8f43c6c096a409d6237c732a6e71a4e8905cd438c9f8164c3405e381da3b46f7",
+      "salt": "0x97b69deb755eed1e4fb4e16839ff71c2b526a5e14c6318d078c246dcc7cbed00",
       "proof": [
-        "0x910f4edd25fd368a2ba0b1cc29bf0dfa4157785f351531d41efa1f2a5dcd7139",
-        "0x2579c5fa6bb0370f35d67f9aade8e75c4ead3a180cede9c54db102fc2064a36b",
-        "0x55cbe981564d01f9da811923767590893564038b43834d73bb422c3bd821b041"
+        "0x570c9d82590981223f6d070c67bcf6a0a074dbc22a40cf81c11b6549f427a953",
+        "0x7c6106e03ffbd6421a6d0f164bc4530afb24d2146abe70d942c66746eaa1dbc2",
+        "0x0a0834a50aab6471616e89984b8f89cf4d30947124fd7e0c3c962ff34faa12ee",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "issuer.address": {
-      "value": "\"0xF20f3BB05942a232de3065EcfaC49c53044498E2\"",
-      "salt": "0xf9f2f93846ed4157d0ce15fd0f308bb2a06b2fa10cd4e0013e6fc82452fad9f3",
+      "value": "\"0x367eab3eF1cB7097334dAEB682c6673d23C9Ba0f\"",
+      "salt": "0x096019e0fe5eccd034de9dde9882b990818548df70d9509554cf07c0d4410cd3",
       "proof": [
-        "0xfb4caf01035caa829e4ab241ab9caec638335ba1cab33b76b7fdbdd10b2a9b27",
-        "0x7cc970e2078625a7e209e8f101b08e1c5d7d9a21cea2c7c2deca63c6b709c6f7",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0xebf1c0c73c48946ba37f532ee08691741bbee0a7303f16b088751b0048680318",
+        "0x2a35955d2873dee45f34e3315533351a4ba3514fe2407cb63d4afcb79abf5fc8",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "issuer.domain": {
-      "value": "\"mohar-theta.vercel.app\"",
-      "salt": "0x81b3ae084933c779379435e1cc2ec5c2857bf36a1f547fae5deb2c9f18d72955",
+      "value": "\"mohar-demo.duckdns.org\"",
+      "salt": "0xdb2973479f9d31bdfff9e221f3c6c2c281ad37eff4b1f8c27182e2e7fe13fbc4",
       "proof": [
-        "0x3396adafbeafbe5e0ef3707bf00f2c1acc226c1edbfa5bbc872309c92ae6d72f",
-        "0xda4faf24702a9ce05149b4538499dfd1079a522787f8bdbfd2667d7c9227d8ae",
-        "0x008eeacd7c9fe11d88d279eaa94c16a05a79733d7c452c577cd3be0500db3057",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0x3e69527bfff6a8721dcbfd2b3ca4b79a75af5cf36f2296abc72d19c236936dc8",
+        "0xf6ba1ce8d02d20ec202f7620cfd190d0d25531d5284ecc232bbb4abe09f05217",
+        "0x0a0834a50aab6471616e89984b8f89cf4d30947124fd7e0c3c962ff34faa12ee",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "issuer.name": {
       "value": "\"Demo Institute (demo)\"",
-      "salt": "0x942e7423ac1804edb21bc63105928c8c719cdae8750a9fdd46008e99fe968e57",
+      "salt": "0x05fa100411b72b5905ae41c87e1fe461e19d2593069c2d55548f9f5976a96e62",
       "proof": [
-        "0xc89bfe1804c9f434e5b77a8cb68447c426b9477a89d603fe605da26f561bc1a7",
-        "0xfa46d298bb559a704e9d6b379bf197b3c18baaf40e947984709d043758f89f2d",
-        "0x55cbe981564d01f9da811923767590893564038b43834d73bb422c3bd821b041"
+        "0xf9cfc6799e8472ffd6eba9d390295e486887e1489f91ad668cad4667d2a21b0a",
+        "0x2a35955d2873dee45f34e3315533351a4ba3514fe2407cb63d4afcb79abf5fc8",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "recipient.name": {
       "value": "\"Batch Two\"",
-      "salt": "0xda9fe6d2b4264a8f9e48be5ab400b3d2642c1d6ba6db1dfa2baba1f402a512a3",
+      "salt": "0x92d04adc5fa6f695e023ffe15304e3a556c004a5562f0e83a30303534c68ca60",
       "proof": [
-        "0x9aa332d12181612cfbb92a3a526dc0dad8df16989638ba1ae1057d7e31675c92",
-        "0x2579c5fa6bb0370f35d67f9aade8e75c4ead3a180cede9c54db102fc2064a36b",
-        "0x55cbe981564d01f9da811923767590893564038b43834d73bb422c3bd821b041"
+        "0x646375b254f6c13cf31edeb085e70829edf69f8385ab3ba65cff267517d9c9f5",
+        "0x0bb9575d95ab9fb079d7589f51c198a06bca583abeb318908cc217102d3840bd",
+        "0x591344831cb22bc08a9dc3fe05de928db3cdb7ba5fe532b97038b7a1f46ce04c"
       ]
     },
     "version": {
       "value": "\"mohar/1\"",
-      "salt": "0x1152276068fd2b1a38ef481bd0dfc3c4f20604027c1f020ecf35f6972b5fc4cf",
+      "salt": "0xc6cf4746cb4dd9153c202b9c09a1ac4068b7559fb5fe53421db179f4e683859d",
       "proof": [
-        "0x8da6d09768e26a08e3b76aa7bb565262d95c3f49161fbf4b169641298de567d9",
-        "0xa200abe7ed880d6e3a8de79cee0f92297eec667c11ac8cb29b440540ad5487c2",
-        "0x008eeacd7c9fe11d88d279eaa94c16a05a79733d7c452c577cd3be0500db3057",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0x4c03c2acf5139b1af88440e8e7a69dfa05565fd81042010776a35460fb8f75ba",
+        "0xf6ba1ce8d02d20ec202f7620cfd190d0d25531d5284ecc232bbb4abe09f05217",
+        "0x0a0834a50aab6471616e89984b8f89cf4d30947124fd7e0c3c962ff34faa12ee",
+        "0xe811504caedd129ec26ae77104f2e2eda893787851e1fb17b3efe161c6bf3ef2"
       ]
     },
     "meta.fieldCount": {
       "value": "\"9\"",
-      "salt": "0x5d883dd886931c19788b8ff684a563e163c565472dcacc91f08607d0dbcf22fa",
+      "salt": "0xbf4635ddd478a269df32cb3aeb65b0e9544829bfd14d99068939c5a257b2a07f",
       "proof": [
-        "0x73137a86ed2cd7591d9c43b65104dcdcb26b2ead0d010a216f72eee9ec1aed36",
-        "0xa200abe7ed880d6e3a8de79cee0f92297eec667c11ac8cb29b440540ad5487c2",
-        "0x008eeacd7c9fe11d88d279eaa94c16a05a79733d7c452c577cd3be0500db3057",
-        "0x4579713fcd9711f92e7eb257effe7c4580167b458dc5487e5e861712d72ca088"
+        "0x607980819caabd05c77499c8aa9973410ee3b57d5cd2d47c3a30c99df44f285a",
+        "0xb9e8583ab57cb15f2a74db272603d90440541136fb4820b7126605c4ca3d6505",
+        "0x591344831cb22bc08a9dc3fe05de928db3cdb7ba5fe532b97038b7a1f46ce04c"
       ]
     }
   },
   "partial": false,
-  "txHash": "0x0de62ed85d060dc4a3cff66cbb3384c863f1d892e26f3d7d97c62e22f1f5118b"
+  "txHash": "0xcc0492b4a854555a89991244f750cfecaa5eb412401b4eee0d589effb4777175"
 }

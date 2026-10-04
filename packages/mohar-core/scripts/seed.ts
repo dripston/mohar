@@ -10,7 +10,7 @@
  * institutions are generated once and kept in .seed-keys.json (git-ignored).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { createPublicClient, createWalletClient, defineChain, formatEther, http, parseEther, type Address, type Hex, type PublicClient } from "viem";
+import { nonceManager, createPublicClient, createWalletClient, defineChain, formatEther, http, parseEther, type Address, type Hex, type PublicClient } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import QRCode from "qrcode";
 import {
@@ -51,14 +51,21 @@ const DOMAIN = process.env.DOMAIN ?? "acharya.ac.in";
 const ORIGIN = process.env.APP_ORIGIN ?? "http://localhost:3000";
 const chain = defineChain({ id: dep.chainId, name: NETWORK, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: RPCS } } });
 const pub = createPublicClient({ chain, transport: http(RPCS[0]) }) as PublicClient;
-const root = privateKeyToAccount(DEPLOYER);
+const root = privateKeyToAccount(DEPLOYER, { nonceManager });
 const rootWallet = createWalletClient({ account: root, chain, transport: http(RPCS[0]) });
 
 const KEYS_FILE = new URL(`../.seed-keys.${NETWORK}.json`, import.meta.url);
 const keys: Record<string, Hex> = existsSync(KEYS_FILE) ? JSON.parse(readFileSync(KEYS_FILE, "utf8")) : {};
 const keyFor = (name: string) => (keys[name] ??= generatePrivateKey());
 
-const wait = (hash: Hex) => pub.waitForTransactionReceipt({ hash });
+// Public RPCs are load balanced: for a few seconds after a transaction some nodes still report the old nonce / state.
+// On a real network we let that settle between steps instead of racing it.
+const settle = () => (NETWORK === "anvil" ? Promise.resolve() : new Promise((r) => setTimeout(r, 4000)));
+const wait = async (hash: Hex) => {
+  const r = await pub.waitForTransactionReceipt({ hash });
+  await settle();
+  return r;
+};
 async function rootTx(functionName: string, args: unknown[]) {
   const hash = await rootWallet.writeContract({ address: dep.issuerRegistry, abi: issuerRegistryAbi, functionName, args, chain } as any);
   const r = await wait(hash);
@@ -66,7 +73,7 @@ async function rootTx(functionName: string, args: unknown[]) {
   return r;
 }
 async function ensureIssuer(name: string, display: string, type: number, source: string) {
-  const account = privateKeyToAccount(keyFor(name));
+  const account = privateKeyToAccount(keyFor(name), { nonceManager });
   const balance = await pub.getBalance({ address: account.address });
   const want = NETWORK === "anvil" ? parseEther("10") : parseEther("0.002");
   if (balance < want / 2n) await wait(await rootWallet.sendTransaction({ to: account.address, value: want, chain } as any));
@@ -103,6 +110,7 @@ async function main() {
     const p = prepareCertificate(doc(who.account, who.name, recipient, over) as any);
     if (expiresAt) p.expiresAt = expiresAt;
     const { txHash } = await anchorSingle(who.w, p);
+    await settle();
     return singleProofFile(dep, who.account.address, p, txHash);
   };
 
@@ -137,6 +145,7 @@ async function main() {
 
   const batch = prepareBatch(["Batch One", "Batch Two", "Batch Three", "Batch Four", "Batch Five"].map((n) => doc(A.account, A.name, n, { title: "Demo Batch Certificate (synthetic data)" }) as any));
   const { txHash, gasPerCert } = await anchorBatch(A.w, batch);
+  await settle();
   const bfiles = batchProofFiles(dep, A.account.address, batch, txHash);
   const bt = bfiles[2]!.anchor as Extract<ProofFile["anchor"], { kind: "batch" }>;
   await revokeCert(A.w, { kind: "batch", identity: A.account.address, batchRoot: bt.batchRoot, documentRoot: bfiles[2]!.documentRoot, expiresAt: 0, proof: bt.proof }, 3);

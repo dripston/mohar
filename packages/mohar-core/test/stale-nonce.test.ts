@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { anchorSingle, prepareCertificate } from "../src";
+import { anchorSingle, prepareCertificate, revokeCert } from "../src";
 
 /** A load-balanced RPC can return the OLD nonce right after our transaction. The signer must retry, not give up. */
 describe("stale nonce from a lagging RPC node", () => {
@@ -33,5 +33,23 @@ describe("stale nonce from a lagging RPC node", () => {
     expect(sends).toBe(2);
     expect(nonces).toEqual([0n, 1n]);
     expect(r.txHash).toMatch(/^0x/);
+  });
+
+  it("retries a lifecycle action when a lagging node says UnknownBatch", async () => {
+    let calls = 0;
+    const w: any = {
+      deployment: { chainId: 84532, certificateRegistry: "0x2222222222222222222222222222222222222222" },
+      publicClient: { waitForTransactionReceipt: async () => ({ status: "success", blockNumber: 1n }) },
+      wallet: {
+        chain: undefined,
+        writeContract: async () => {
+          if (++calls < 3) throw new Error("revokeFromBatch reverted. Error: UnknownBatch()");
+          return `0x${"ef".repeat(32)}`;
+        },
+      },
+    };
+    const h = await revokeCert(w, { kind: "single", rid: `0x${"00".repeat(32)}` }, 1);
+    expect(calls).toBe(3);
+    expect(h).toMatch(/^0x/);
   });
 });

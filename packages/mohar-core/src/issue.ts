@@ -201,17 +201,27 @@ export type CertRef =
   | { kind: "single"; rid: Hex }
   | { kind: "batch"; identity: Address; batchRoot: Hex; documentRoot: Hex; expiresAt: number; proof: Hex[] };
 
+/** A node that has not yet seen the batch / cert we just wrote answers "Unknown...". Ask again before believing it. */
+const isLag = (e: unknown) => /UnknownBatch|UnknownCert/.test(String((e as Error)?.message ?? e));
+
 async function send(w: Writer, functionName: string, args: readonly unknown[]) {
-  const hash = await w.wallet.writeContract({
-    address: w.deployment.certificateRegistry,
-    abi: certificateRegistryAbi,
-    functionName: functionName as any,
-    args: args as any,
-    chain: w.wallet.chain,
-  });
-  const receipt = await w.publicClient.waitForTransactionReceipt({ hash });
-  if (receipt.status !== "success") throw new Error(`${functionName} reverted`);
-  return hash;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const hash = await w.wallet.writeContract({
+        address: w.deployment.certificateRegistry,
+        abi: certificateRegistryAbi,
+        functionName: functionName as any,
+        args: args as any,
+        chain: w.wallet.chain,
+      });
+      const receipt = await w.publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error(`${functionName} reverted`);
+      return hash;
+    } catch (e) {
+      if (!isLag(e) || attempt >= 30) throw e;
+      await sleep(1000);
+    }
+  }
 }
 
 export const revokeCert = (w: Writer, ref: CertRef, reason: number) =>
