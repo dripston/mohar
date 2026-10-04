@@ -138,11 +138,6 @@ body::after {
     background: linear-gradient(90deg, transparent, rgb(var(--line)), transparent);
     height: 1px;
   }
-  .glow-seal {
-    box-shadow:
-      0 0 0 1px rgb(var(--seal) / 0.5),
-      0 10px 40px -8px rgb(var(--seal) / 0.55);
-  }
   .paper-texture {
     background-color: rgb(var(--paper));
     background-image:
