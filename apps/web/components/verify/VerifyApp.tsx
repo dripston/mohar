@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { ResultSkeleton, ResultView, type ShownResult } from "./ResultView";
 import { ScanDialog } from "./ScanDialog";
 
-const MAX_FILE = 20 * 1024 * 1024;
+const MAX_FILE = 5 * 1024 * 1024;
 
 function malformed(message: string): ShownResult {
   return {
@@ -122,7 +122,7 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
     async (file: File) => {
       const name = file.name.toLowerCase();
       if (file.size > MAX_FILE) {
-        setState({ phase: "done", result: malformed("That file is larger than 20 MB. A Mohar certificate is far smaller.") });
+        setState({ phase: "done", result: malformed("That file is larger than 5 MB. A Mohar certificate is far smaller.") });
         return;
       }
       setState({ phase: "loading", what: file.name });

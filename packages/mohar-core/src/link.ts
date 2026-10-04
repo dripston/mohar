@@ -1,5 +1,5 @@
 import { bytesToHex, getAddress, hexToBytes, type Address, type Hex } from "viem";
-import { Gunzip, gzipSync, strFromU8, strToU8 } from "fflate";
+import { Gunzip, Unzlib, gzipSync, strFromU8, strToU8 } from "fflate";
 import type { Anchor, DisclosedField, ProofFile } from "./types";
 
 /**
@@ -199,12 +199,14 @@ export function encodePresentation(f: ProofFile): string {
   return "P" + toBase64Url(gzipSync(strToU8(JSON.stringify(f)), { level: 9 }));
 }
 
-/** Gunzip with a hard output cap, so a few hundred bytes of "zip bomb" cannot allocate gigabytes. */
-export function boundedGunzip(data: Uint8Array, maxBytes: number): Uint8Array {
+type Streamer = { push(chunk: Uint8Array, final?: boolean): void };
+
+/** Feed `data` through a streaming inflater in small slices, stopping the moment the output exceeds `maxBytes`. */
+function boundedStream(make: (onData: (chunk: Uint8Array) => void) => Streamer, data: Uint8Array, maxBytes: number): Uint8Array {
   const chunks: Uint8Array[] = [];
   let total = 0;
   let overflow = false;
-  const gz = new Gunzip((chunk) => {
+  const z = make((chunk) => {
     total += chunk.length;
     if (total > maxBytes) {
       overflow = true;
@@ -212,10 +214,9 @@ export function boundedGunzip(data: Uint8Array, maxBytes: number): Uint8Array {
     }
     chunks.push(chunk);
   });
-  // feed in small slices so we can stop as soon as the cap is exceeded
   const STEP = 4096;
-  for (let i = 0; i < data.length && !overflow; i += STEP) gz.push(data.subarray(i, i + STEP), i + STEP >= data.length);
-  if (overflow) throw new Error("presentation too large");
+  for (let i = 0; i < data.length && !overflow; i += STEP) z.push(data.subarray(i, i + STEP), i + STEP >= data.length);
+  if (overflow) throw new Error("too large");
   const out = new Uint8Array(total);
   let o = 0;
   for (const c of chunks) {
@@ -223,6 +224,20 @@ export function boundedGunzip(data: Uint8Array, maxBytes: number): Uint8Array {
     o += c.length;
   }
   return out;
+}
+
+/** Gunzip with a hard output cap, so a few hundred bytes of "zip bomb" cannot allocate gigabytes. */
+export function boundedGunzip(data: Uint8Array, maxBytes: number): Uint8Array {
+  try {
+    return boundedStream((cb) => new Gunzip(cb), data, maxBytes);
+  } catch (e) {
+    throw new Error((e as Error).message === "too large" ? "presentation too large" : (e as Error).message);
+  }
+}
+
+/** zlib (PDF FlateDecode) inflate with the same cap. */
+export function boundedUnzlib(data: Uint8Array, maxBytes: number): Uint8Array {
+  return boundedStream((cb) => new Unzlib(cb), data, maxBytes);
 }
 
 export function decodePresentation(frag: string): ProofFile {

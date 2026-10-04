@@ -1,0 +1,137 @@
+{
+  "ranAt": "2026-10-04T10:03:50.886Z",
+  "rows": [
+    {
+      "name": "3 fields | link (single issued)",
+      "bytes": 134,
+      "ecc": {
+        "L": 6,
+        "M": 8,
+        "Q": 9
+      },
+      "modules": 49,
+      "minPxClean": 1
+    },
+    {
+      "name": "3 fields | link (batch of 200)",
+      "bytes": 520,
+      "ecc": {
+        "L": 15,
+        "M": 18,
+        "Q": 22
+      },
+      "modules": 89,
+      "minPxClean": 1
+    },
+    {
+      "name": "3 fields | FULL proof, gzip (#P)",
+      "bytes": 1039,
+      "ecc": {
+        "L": 23,
+        "M": 26,
+        "Q": 32
+      },
+      "modules": 121,
+      "minPxClean": 1
+    },
+    {
+      "name": "3 fields | FULL proof, raw JSON base64url",
+      "bytes": 2213,
+      "ecc": {
+        "L": 35,
+        "M": 39,
+        "Q": ">40"
+      },
+      "modules": 173,
+      "minPxClean": 1
+    },
+    {
+      "name": "8 fields | link (single issued)",
+      "bytes": 134,
+      "ecc": {
+        "L": 6,
+        "M": 8,
+        "Q": 9
+      },
+      "modules": 49,
+      "minPxClean": 1
+    },
+    {
+      "name": "8 fields | link (batch of 200)",
+      "bytes": 520,
+      "ecc": {
+        "L": 15,
+        "M": 18,
+        "Q": 22
+      },
+      "modules": 89,
+      "minPxClean": 1
+    },
+    {
+      "name": "8 fields | FULL proof, gzip (#P)",
+      "bytes": 2007,
+      "ecc": {
+        "L": 33,
+        "M": 38,
+        "Q": ">40"
+      },
+      "modules": 169,
+      "minPxClean": 1
+    },
+    {
+      "name": "8 fields | FULL proof, raw JSON base64url",
+      "bytes": 5584,
+      "ecc": {
+        "L": ">40",
+        "M": ">40",
+        "Q": ">40"
+      },
+      "modules": null,
+      "minPxClean": null
+    },
+    {
+      "name": "15 fields | link (single issued)",
+      "bytes": 134,
+      "ecc": {
+        "L": 6,
+        "M": 8,
+        "Q": 9
+      },
+      "modules": 49,
+      "minPxClean": 1
+    },
+    {
+      "name": "15 fields | link (batch of 200)",
+      "bytes": 520,
+      "ecc": {
+        "L": 15,
+        "M": 18,
+        "Q": 22
+      },
+      "modules": 89,
+      "minPxClean": 1
+    },
+    {
+      "name": "15 fields | FULL proof, gzip (#P)",
+      "bytes": 3431,
+      "ecc": {
+        "L": ">40",
+        "M": ">40",
+        "Q": ">40"
+      },
+      "modules": null,
+      "minPxClean": null
+    },
+    {
+      "name": "15 fields | FULL proof, raw JSON base64url",
+      "bytes": 10970,
+      "ecc": {
+        "L": ">40",
+        "M": ">40",
+        "Q": ">40"
+      },
+      "modules": null,
+      "minPxClean": null
+    }
+  ]
+}

@@ -9,7 +9,10 @@ test.describe("every verdict state, driven through the real UI against the real 
   test("E1 genuine certificate (file)", async ({ page }) => {
     await submitFile(page, "good.json", jsonOf(F.good.file));
     expect(await verdictOf(page)).toBe("VERIFIED");
-    for (const n of [1, 2, 3, 4, 5]) await expect(page.getByTestId(`check-${n}`)).toHaveAttribute("data-status", "pass");
+    for (const n of [1, 3, 4, 5]) await expect(page.getByTestId(`check-${n}`)).toHaveAttribute("data-status", "pass");
+    // the local demo zone is not real DNS, so the checklist says so instead of showing a green tick
+    await expect(page.getByTestId("check-2")).toHaveAttribute("data-status", "warn");
+    await expect(page.getByTestId("check-2")).toContainText("DEMO ONLY");
     await expect(page.getByTestId("independent-panel")).toBeVisible();
     await evidence(page, "E1-verified-full", "Genuine certificate, full proof file", "VERIFIED", "VERIFIED");
   });

@@ -7,10 +7,9 @@ import {
   PDFString,
   PDFHexString,
   StandardFonts,
-  decodePDFRawStream,
   rgb,
 } from "pdf-lib";
-import { certId, parseProofFile, proofFileToJson, shortCode, type ProofFile } from "@mohar/core";
+import { LIMITS, boundedUnzlib, certId, parseProofFile, proofFileToJson, shortCode, type ProofFile } from "@mohar/core";
 import { qrDataUrl } from "./qr";
 import { stripUnsafe } from "./utils";
 
@@ -138,7 +137,14 @@ export async function extractProofFromPdf(bytes: ArrayBuffer | Uint8Array): Prom
     const ef = spec.lookup(PDFName.of("EF"), PDFDict);
     const stream = ef.lookup(PDFName.of("F"));
     if (!(stream instanceof PDFRawStream)) throw new Error("Embedded proof is unreadable.");
-    const data = decodePDFRawStream(stream).decode();
+    // never inflate an attachment without a ceiling: a FlateDecode stream can expand a thousand-fold
+    const filter = stream.dict.lookup(PDFName.of("Filter"));
+    const raw = stream.getContents();
+    let data: Uint8Array;
+    if (!filter) data = raw;
+    else if (filter instanceof PDFName && filter.decodeText() === "FlateDecode") data = boundedUnzlib(raw, LIMITS.maxFileBytes);
+    else throw new Error("Embedded proof uses an unsupported encoding.");
+    if (data.length > LIMITS.maxFileBytes) throw new Error("Embedded proof is too large.");
     return parseProofFile(new TextDecoder().decode(data));
   }
   throw new Error("This PDF has no embedded Mohar proof file.");

@@ -10,7 +10,12 @@ import anvil from "../../../deployments/anvil.json";
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK ?? "anvil";
 
 const RPCS: Record<string, string[]> = {
-  anvil: [process.env.NEXT_PUBLIC_RPC_URL ?? "http://127.0.0.1:8545"],
+  // NEXT_PUBLIC_EXTRA_RPC_URLS lets the e2e suite point extra "providers" at the same node and then fail / lie through
+  // them, to exercise the quorum UI. Only honoured on the local chain.
+  anvil: [
+    process.env.NEXT_PUBLIC_RPC_URL ?? "http://127.0.0.1:8545",
+    ...(process.env.NEXT_PUBLIC_EXTRA_RPC_URLS ? process.env.NEXT_PUBLIC_EXTRA_RPC_URLS.split(",") : []),
+  ],
   // Free public endpoints change over time: confirm each one answers before a demo.
   "base-sepolia": [
     process.env.NEXT_PUBLIC_RPC_URL ?? "https://sepolia.base.org",

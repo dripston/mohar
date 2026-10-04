@@ -97,14 +97,23 @@ export function validateCert(v: CertInput): CertErrors {
   const name = v.name.trim();
   if (!name) e.name = "Enter the recipient's full name.";
   else if (name.length > 120) e.name = "Keep the name under 120 characters.";
-  else e.name = textProblem(name);
+  else {
+    const p = textProblem(name);
+    if (p) e.name = p;
+  }
   if (v.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = "This does not look like an email address.";
   const title = v.title.trim();
   if (!title) e.title = "Enter the credential title, for example B.E. in AI Engineering.";
   else if (title.length > 200) e.title = "Keep the title under 200 characters.";
-  else e.title = textProblem(title);
+  else {
+    const p = textProblem(title);
+    if (p) e.title = p;
+  }
   if (v.grade.trim().length > 40) e.grade = "Keep the grade under 40 characters.";
-  else if (v.grade.trim()) e.grade = textProblem(v.grade.trim());
+  else if (v.grade.trim()) {
+    const p = textProblem(v.grade.trim());
+    if (p) e.grade = p;
+  }
   if (!v.issuedOn.trim()) e.issuedOn = "Choose the date of issue.";
   else if (!isRealDate(v.issuedOn.trim())) e.issuedOn = "Use the format YYYY-MM-DD, for example 2026-06-01.";
   if (v.expiresOn.trim()) {
