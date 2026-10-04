@@ -121,17 +121,17 @@ export function Hero() {
             className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Link
-              href="/scheme"
+              href="#try"
               className="group inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#ff6a52] to-[#d6331f] px-7 text-base font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_18px_40px_-12px_rgb(240_74_56/0.75)] transition hover:brightness-110"
             >
-              Screen applications
+              Try it in 3 minutes
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
             <Link
-              href="/verify"
+              href="/demo"
               className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-line bg-surface/70 px-7 text-base font-medium backdrop-blur transition hover:border-ink/25 hover:bg-raised"
             >
-              Verify a credential
+              Scan a live certificate
             </Link>
           </motion.div>
 

@@ -7,6 +7,7 @@ import { DEMO_ST_SCHOLARSHIP, readZip, reportCsv, screenBundles, type ScreenRow,
 import { Ambient, Badge, Button, Card, Eyebrow, Page } from "@/components/ui/primitives";
 import { DropZone } from "@/components/ui/DropZone";
 import { CODE_TEXT } from "./labels";
+import { SampleFiles } from "./SampleFiles";
 import { bulkDeps } from "@/lib/scheme";
 import { cn, downloadFile, stripUnsafe } from "@/lib/utils";
 
@@ -107,6 +108,7 @@ export function BulkApp() {
             title={state.busy ? "Screening…" : previous || s ? "Drop the next ZIP to re-screen" : "Drop applications.zip"}
             hint="Up to 5,000 files of 256 KB each. A broken or oversized file becomes a row error, never a crash."
           />
+          <SampleFiles kind="bulk" />
           {state.error && (
             <p role="alert" className="mt-3 text-sm text-bad" data-testid="bulk-error">
               {stripUnsafe(state.error)}

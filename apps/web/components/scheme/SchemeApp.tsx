@@ -38,6 +38,7 @@ import {
 import { Ambient, Badge, Button, Card, Eyebrow, Input, Label, Page } from "@/components/ui/primitives";
 import { DropZone } from "@/components/ui/DropZone";
 import { SchemeDrafter } from "./SchemeDrafter";
+import { SampleFiles } from "./SampleFiles";
 import { AGG, CODE_TEXT, TONE_CLASS, TYPE_META, isFlag, labelOf } from "./labels";
 import { singleDeps } from "@/lib/scheme";
 import { cn, downloadFile, formatDate, stripUnsafe } from "@/lib/utils";
@@ -161,6 +162,7 @@ function Student() {
         <StepTitle n={1} sub="Your enrolment, caste and income certificate files. They are read in this browser and never uploaded.">
           Add your credentials
         </StepTitle>
+        <SampleFiles kind="student" />
         <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
           <DropZone compact multiple accept=".json,.mohar" testId="student-files" onFiles={(f) => void add(f)} title="Drop certificate files here" hint="or click to choose. Use the complete files your issuers gave you." />
           <div className="grid gap-2 sm:grid-cols-3">
@@ -359,6 +361,7 @@ function Officer() {
               hint="Every check is recomputed from the blockchain. Nothing written inside the file is believed."
             />
           </div>
+          <SampleFiles kind="officer" />
         </Card>
       </div>
 
