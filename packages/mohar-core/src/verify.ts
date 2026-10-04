@@ -1,5 +1,5 @@
 import { getAddress, type Address, type Hex } from "viem";
-import { ChainUnreachable, type ChainCert, type ChainIssuer, type Reader, type UnreachableKind } from "./chain";
+import { ChainUnreachable, ISSUER_TYPE_LABEL, type ChainCert, type ChainIssuer, type IssuerKind, type Reader, type UnreachableKind } from "./chain";
 import type { DnsResolver } from "./dns";
 import { certId, recordId, shortCode } from "./ids";
 import { COUNT_PATH, type Anchor, type ProofFile } from "./types";
@@ -42,7 +42,7 @@ export interface VerifyResult {
   mode: Mode;
   headline: string;
   checks: Check[];
-  issuer?: { identity: Address; name: string; domain: string; signer: Address };
+  issuer?: { identity: Address; name: string; domain: string; signer: Address; issuerType?: IssuerKind; accreditationSource?: string };
   cert?: ChainCert;
   certId?: Hex;
   code?: string;
@@ -188,7 +188,12 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
       set(checks, 1, "fail", `Signing key ${header.signer} is not registered with the accreditation authority.`);
       return finish("UNKNOWN_ISSUER", mode, checks, now, { ...base, providers: providersOf(deps) });
     }
-    set(checks, 1, "pass", `${issuer.name} is accredited (key ${short(header.signer)}).`);
+    set(
+      checks,
+      1,
+      "pass",
+      `${issuer.name} is accredited as ${ISSUER_TYPE_LABEL[issuer.issuerType].toLowerCase()}${issuer.accreditationSource ? `, listed by ${issuer.accreditationSource}` : ""} (key ${short(header.signer)}).`,
+    );
     independent.identity = issuer.identity;
     if (header.anchor.kind === "single") independent.certId = recordId(issuer.identity, header.documentRoot);
 
@@ -217,7 +222,14 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
           : "Live DNS lookup failed and no on-chain domain confirmation exists.",
       );
     }
-    const issuerInfo = { identity: issuer.identity, name: issuer.name, domain: issuer.domain, signer: header.signer };
+    const issuerInfo = {
+      identity: issuer.identity,
+      name: issuer.name,
+      domain: issuer.domain,
+      signer: header.signer,
+      issuerType: issuer.issuerType,
+      accreditationSource: issuer.accreditationSource,
+    };
 
     // ------------------------------------------------------------------ chain record
     let cert: ChainCert;

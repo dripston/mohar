@@ -45,7 +45,7 @@ export default function AdminPage() {
   const [busy, setBusy] = useState<string>();
   const [msg, setMsg] = useState<{ tone: "ok" | "bad"; text: string }>();
 
-  const [reg, setReg] = useState({ address: "", domain: "", name: "", checked: true });
+  const [reg, setReg] = useState({ address: "", domain: "", name: "", checked: true, type: "1", source: "" });
   const [rev, setRev] = useState({ key: "", when: "", reason: "1" });
   const [rot, setRot] = useState({ oldKey: "", newKey: "" });
 
@@ -174,6 +174,27 @@ export default function AdminPage() {
               <Input id="rn" data-testid="admin-register-name" placeholder="Acharya Institute" value={reg.name} onChange={(e) => setReg({ ...reg, name: e.target.value })} />
             </div>
           </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="rt">Issuer type</Label>
+              <select
+                id="rt"
+                data-testid="admin-register-type"
+                value={reg.type}
+                onChange={(e) => setReg({ ...reg, type: e.target.value })}
+                className="h-11 w-full rounded-xl border border-line bg-surface/70 px-3 text-sm text-ink"
+              >
+                <option value="1">Institute</option>
+                <option value="2">Revenue office</option>
+                <option value="3">Employer</option>
+                <option value="0">Other</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="rs">Listed by (accreditation source)</Label>
+              <Input id="rs" data-testid="admin-register-source" maxLength={120} placeholder="Ministry notified list (demo)" value={reg.source} onChange={(e) => setReg({ ...reg, source: e.target.value })} />
+            </div>
+          </div>
           <label className="mt-4 flex items-center gap-2 text-sm">
             <input type="checkbox" checked={reg.checked} onChange={(e) => setReg({ ...reg, checked: e.target.checked })} className="accent-[rgb(var(--seal))]" />
             I have confirmed the DNS TXT record <Mono>mohar-issuer=&lt;address&gt;</Mono> on this domain
@@ -182,7 +203,7 @@ export default function AdminPage() {
             className="mt-4"
             data-testid="admin-register-submit"
             disabled={!!busy || !isAddress(reg.address) || !reg.domain || !reg.name}
-            onClick={() => run("Issuer registered", () => call("registerIssuer", [reg.address, reg.domain.trim(), reg.name.trim(), reg.checked]))}
+            onClick={() => run("Issuer registered", () => call("registerIssuer", [reg.address, reg.domain.trim(), reg.name.trim(), reg.checked, Number(reg.type), reg.source.trim()]))}
           >
             {busy === "Issuer registered" ? "Waiting for confirmation…" : "Register issuer"}
           </Button>

@@ -22,6 +22,15 @@ contract IssuerRegistry is AccessControl {
     uint8 public constant REASON_SUPERSEDED = 4;
     uint8 public constant REASON_OTHER = 5;
 
+    /// @dev What kind of body this issuer is. Schemes can require a credential to come from a specific type
+    ///      (a caste certificate from a REVENUE_OFFICE, an enrolment certificate from an INSTITUTE).
+    enum IssuerType {
+        OTHER,
+        INSTITUTE,
+        REVENUE_OFFICE,
+        EMPLOYER
+    }
+
     struct Issuer {
         string name;
         string domain;
@@ -30,6 +39,9 @@ contract IssuerRegistry is AccessControl {
         ///      Lets verifiers fall back to an on-chain answer when live DNS lookups fail.
         uint64 domainCheckedAt;
         bool exists;
+        IssuerType issuerType;
+        /// @dev Free text saying who vouches for this listing, e.g. "Ministry notified list (demo)". Set by root only.
+        string accreditationSource;
     }
 
     struct Key {
@@ -43,7 +55,10 @@ contract IssuerRegistry is AccessControl {
     mapping(address key => Key) private _keys;
     uint256 public rootCount;
 
-    event IssuerRegistered(address indexed issuer, string name, string domain, bool domainChecked);
+    event IssuerRegistered(
+        address indexed issuer, string name, string domain, bool domainChecked, IssuerType issuerType, string accreditationSource
+    );
+    event IssuerClassified(address indexed issuer, IssuerType issuerType, string accreditationSource);
     event DomainAttested(address indexed issuer, uint64 at);
     event KeyRevoked(address indexed key, address indexed issuer, uint64 effectiveFrom, uint8 reason);
     event KeyRotated(address indexed issuer, address indexed oldKey, address indexed newKey, uint64 at);
@@ -76,12 +91,45 @@ contract IssuerRegistry is AccessControl {
         external
         onlyRoot
     {
+        _register(issuer, domain, name, domainChecked, IssuerType.OTHER, "");
+    }
+
+    /// @notice Same as above, with the issuer's type and the source of the listing.
+    function registerIssuer(
+        address issuer,
+        string calldata domain,
+        string calldata name,
+        bool domainChecked,
+        IssuerType issuerType,
+        string calldata accreditationSource
+    ) external onlyRoot {
+        _register(issuer, domain, name, domainChecked, issuerType, accreditationSource);
+    }
+
+    /// @notice Root reclassifies an issuer or corrects where its listing came from. Public, evented, root-only.
+    function setIssuerType(address issuer, IssuerType issuerType, string calldata accreditationSource) external onlyRoot {
+        if (!_issuers[issuer].exists) revert UnknownIssuer();
+        if (bytes(accreditationSource).length > 120) revert EmptyField();
+        _issuers[issuer].issuerType = issuerType;
+        _issuers[issuer].accreditationSource = accreditationSource;
+        emit IssuerClassified(issuer, issuerType, accreditationSource);
+    }
+
+    function _register(
+        address issuer,
+        string calldata domain,
+        string calldata name,
+        bool domainChecked,
+        IssuerType issuerType,
+        string memory accreditationSource
+    ) private {
         if (issuer == address(0) || bytes(domain).length == 0 || bytes(name).length == 0) revert EmptyField();
+        if (bytes(accreditationSource).length > 120) revert EmptyField();
         if (_issuers[issuer].exists || _keys[issuer].exists) revert AlreadyRegistered();
         uint64 nowTs = uint64(block.timestamp);
-        _issuers[issuer] = Issuer(name, domain, nowTs, domainChecked ? nowTs : 0, true);
+        _issuers[issuer] = Issuer(name, domain, nowTs, domainChecked ? nowTs : 0, true, issuerType, accreditationSource);
         _keys[issuer] = Key(issuer, 0, 0, true);
-        emit IssuerRegistered(issuer, name, domain, domainChecked);
+        emit IssuerRegistered(issuer, name, domain, domainChecked, issuerType, accreditationSource);
         if (domainChecked) emit DomainAttested(issuer, nowTs);
     }
 

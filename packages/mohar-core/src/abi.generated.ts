@@ -155,6 +155,16 @@ export const issuerRegistryAbi = [
             "name": "exists",
             "type": "bool",
             "internalType": "bool"
+          },
+          {
+            "name": "issuerType",
+            "type": "uint8",
+            "internalType": "enum IssuerRegistry.IssuerType"
+          },
+          {
+            "name": "accreditationSource",
+            "type": "string",
+            "internalType": "string"
           }
         ]
       }
@@ -355,6 +365,44 @@ export const issuerRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "registerIssuer",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "domain",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "domainChecked",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "issuerType",
+        "type": "uint8",
+        "internalType": "enum IssuerRegistry.IssuerType"
+      },
+      {
+        "name": "accreditationSource",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "renounceRole",
     "inputs": [
       {
@@ -445,6 +493,29 @@ export const issuerRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "setIssuerType",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "issuerType",
+        "type": "uint8",
+        "internalType": "enum IssuerRegistry.IssuerType"
+      },
+      {
+        "name": "accreditationSource",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "supportsInterface",
     "inputs": [
       {
@@ -483,6 +554,31 @@ export const issuerRegistryAbi = [
   },
   {
     "type": "event",
+    "name": "IssuerClassified",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "issuerType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IssuerRegistry.IssuerType"
+      },
+      {
+        "name": "accreditationSource",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "IssuerRegistered",
     "inputs": [
       {
@@ -508,6 +604,18 @@ export const issuerRegistryAbi = [
         "type": "bool",
         "indexed": false,
         "internalType": "bool"
+      },
+      {
+        "name": "issuerType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IssuerRegistry.IssuerType"
+      },
+      {
+        "name": "accreditationSource",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
       }
     ],
     "anonymous": false

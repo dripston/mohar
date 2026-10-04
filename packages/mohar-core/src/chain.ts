@@ -27,8 +27,21 @@ export interface ChainCert {
   updatedAt: number;
 }
 
+/** Mirrors `IssuerRegistry.IssuerType`. */
+export const ISSUER_TYPES = ["OTHER", "INSTITUTE", "REVENUE_OFFICE", "EMPLOYER"] as const;
+export type IssuerKind = (typeof ISSUER_TYPES)[number];
+export const ISSUER_TYPE_LABEL: Record<IssuerKind, string> = {
+  OTHER: "Other issuer",
+  INSTITUTE: "Institute",
+  REVENUE_OFFICE: "Revenue office",
+  EMPLOYER: "Employer",
+};
+
 export interface ChainIssuer {
   identity: Address;
+  issuerType: IssuerKind;
+  /** who vouches for this listing, set by the root authority (free text) */
+  accreditationSource: string;
   name: string;
   domain: string;
   registeredAt: number;
@@ -188,6 +201,8 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
         ]);
         return {
           identity,
+          issuerType: ISSUER_TYPES[Number(issuer.issuerType)] ?? "OTHER",
+          accreditationSource: issuer.accreditationSource,
           name: issuer.name,
           domain: issuer.domain,
           registeredAt: toNum(issuer.registeredAt),

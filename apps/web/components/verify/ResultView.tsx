@@ -4,7 +4,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { FileCheck2, FileUp, Hash, Info, Layers, Link2, RefreshCw, RotateCcw, ScanSearch } from "lucide-react";
 import type { Mode, VerifyResult } from "@mohar/core";
 import { Button, Card, Skeleton } from "@/components/ui/primitives";
-import { cn } from "@/lib/utils";
+import { cn, stripUnsafe } from "@/lib/utils";
+import { ISSUER_TYPE_LABEL } from "@mohar/core";
 import { deployment } from "@/lib/config";
 import { Checklist, ChecklistSkeleton } from "./Checklist";
 import { FieldsCard } from "./FieldsCard";
@@ -145,6 +146,12 @@ export function ResultView({
               <dd className="mt-1 font-serif text-xl leading-tight text-ink" data-testid="issuer-name">
                 {result.issuer.name}
               </dd>
+              {result.issuer.issuerType && (
+                <p className="mt-1 text-xs text-muted" data-testid="issuer-type">
+                  {ISSUER_TYPE_LABEL[result.issuer.issuerType]}
+                  {result.issuer.accreditationSource ? `, listed by ${stripUnsafe(result.issuer.accreditationSource)}` : ""}
+                </p>
+              )}
             </div>
             <div className="min-w-0">
               <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Domain</dt>

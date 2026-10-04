@@ -562,3 +562,36 @@ describe.skipIf(!live)("review pass (live chain, real contracts)", () => {
     record("R7", "Relayer submits a signature the issuer cancelled", "REJECTED_ON_CHAIN", relayed);
   });
 });
+
+// ====================================================================================================================
+// Contract v2: issuer type + accreditation source reach the verifier.
+describe.skipIf(!live)("contract v2 (live chain)", () => {
+  it("V1 issuer type and accreditation source are read from the chain and shown by the verifier", async () => {
+    const key = generatePrivateKey();
+    const account = privateKeyToAccount(key);
+    await fund(account.address);
+    await rootTx("registerIssuer", [account.address, DOMAIN, "Demo Tehsil Office", true, 2, "Ministry notified list (demo)"]);
+    identities.add(account.address.toLowerCase());
+    const w: Writer = { wallet: createWalletClient({ account, chain, transport: http(RPC) }), publicClient: pub, deployment: dep };
+    const p = prepareCertificate(docFor(account.address) as any);
+    const { txHash } = await anchorSingle(w, p);
+    const r = await verify({ file: singleProofFile(dep, account.address, p, txHash) });
+    record("V1", "Revenue office listed by a (demo) ministry list verifies with its type", "VERIFIED", r);
+    expect(r.issuer?.issuerType).toBe("REVENUE_OFFICE");
+    expect(r.issuer?.accreditationSource).toBe("Ministry notified list (demo)");
+    expect(r.checks[0]!.detail).toContain("revenue office");
+  });
+
+  it("V2 a four-argument legacy registration defaults to type OTHER with no source", async () => {
+    const key = generatePrivateKey();
+    const account = privateKeyToAccount(key);
+    await fund(account.address);
+    await rootTx("registerIssuer", [account.address, DOMAIN, "Legacy Issuer", true]);
+    identities.add(account.address.toLowerCase());
+    const w: Writer = { wallet: createWalletClient({ account, chain, transport: http(RPC) }), publicClient: pub, deployment: dep };
+    const p = prepareCertificate(docFor(account.address) as any);
+    const { txHash } = await anchorSingle(w, p);
+    const r = await verify({ file: singleProofFile(dep, account.address, p, txHash) });
+    expect(r.issuer?.issuerType).toBe("OTHER");
+  });
+});
