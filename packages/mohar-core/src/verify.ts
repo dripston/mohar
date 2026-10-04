@@ -237,7 +237,7 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
       let detail = "";
       if (bad.length) {
         tampered = true;
-        detail = `${bad.length} field${bad.length > 1 ? "s" : ""} do not match what the issuer signed: ${bad.map((b) => b.path).join(", ")}.`;
+        detail = `${bad.length} field${bad.length > 1 ? "s do" : " does"} not match what the issuer signed: ${bad.map((b) => b.path).join(", ")}.`;
       }
       const countField = file.fields[COUNT_PATH];
       if (!file.partial) {

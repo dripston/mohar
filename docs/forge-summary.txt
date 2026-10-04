@@ -1,0 +1,5 @@
+﻿Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 176.73ms (155.30ms CPU time)
+Suite result: ok. 39 passed; 0 failed; 0 skipped; finished in 188.38ms (173.12ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 4.84s (13.55s CPU time)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 19.82s (19.78s CPU time)
+Ran 4 test suites in 19.85s (25.03s CPU time): 51 tests passed, 0 failed, 0 skipped (51 total tests)

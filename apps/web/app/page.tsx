@@ -43,7 +43,7 @@ export default function Home() {
         <Card className="p-6 md:col-span-2">
           <h2 className="font-serif text-xl font-semibold">A thousand certificates, one transaction</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Issuers anchor a single Merkle root for a whole batch. Each certificate carries its own short proof, so the cost per certificate is a few hundred gas and no personal data ever touches the chain.
+            Issuers anchor a single Merkle root for a whole batch. Each certificate carries its own short proof, so the cost per certificate is about 580 gas and no personal data ever touches the chain.
           </p>
         </Card>
         <Card className="p-6">

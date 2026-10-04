@@ -13,3 +13,4 @@ playwright-report/
 packages/contracts/out/
 packages/contracts/cache/
 packages/contracts/lib/
+e2e/.fixtures.json

@@ -5,8 +5,8 @@ export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 export const shortHex = (h: string, head = 6, tail = 4) => (h.length > head + tail + 2 ? `${h.slice(0, head)}…${h.slice(-tail)}` : h);
 
-export function downloadFile(name: string, data: BlobPart, type: string) {
-  const url = URL.createObjectURL(new Blob([data], { type }));
+export function downloadFile(name: string, data: BlobPart | Uint8Array, type: string) {
+  const url = URL.createObjectURL(new Blob([data as BlobPart], { type }));
   const a = document.createElement("a");
   a.href = url;
   a.download = name;

@@ -17,7 +17,8 @@ import { deployment, DEV_WALLET_ENABLED } from "./config";
  * The provider name "local-demo-zone" is shown in the checklist, so nobody mistakes it for real DNS.
  */
 const DEMO_ZONE: Record<string, string[]> = {
-  "acharya.ac.in": ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8"],
+  // anvil #1 (the demo issuer) and anvil #2 (used by e2e fixtures for the revoked-with-cutoff issuer)
+  "acharya.ac.in": ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"],
   ...(process.env.NEXT_PUBLIC_DEV_DNS_JSON ? JSON.parse(process.env.NEXT_PUBLIC_DEV_DNS_JSON) : {}),
 };
 

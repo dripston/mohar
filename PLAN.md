@@ -14,7 +14,7 @@ Algothon'26 · PS ID: ALG-BC-01 · Working name "Mohar" (seal). Rename anytime.
 | Must Have | Baseline teams | Mohar |
 |---|---|---|
 | Issuer workflow | Single form, single admin | Accredited issuer registry, DNS domain proof, single + bulk CSV issuance, templates |
-| Unique verification ID | Random ID in DB | Deterministic ID (`keccak256(documentRoot)`) + short human code (e.g. `MHR-7F3K-92QD-X4MP`) used as a pointer, never as proof |
+| Unique verification ID | Random ID in DB | Deterministic ID (`keccak256(documentRoot)`) + short human code (e.g. `MHR-7F3K-92QD-X4MP-C`) used as a pointer, never as proof |
 | QR/link verification | QR to a page | QR carries a small header + proof in the URL fragment (never hits a server); full field-level check uses the PDF/file. Verify works even if our backend is dead |
 | Public verification page | Shows "valid" | Live 5-point trust checklist read straight from chain, tamper diff showing exactly which field changed |
 | Status/revocation | Boolean flag | Revoke with reason code + timestamp, suspend/reinstate, expiry, issuer-level revocation with time cutoff |
@@ -86,7 +86,7 @@ Algothon'26 · PS ID: ALG-BC-01 · Working name "Mohar" (seal). Rename anytime.
 
 ### 2.5 Verification ID and short code
 - `certId = keccak256(documentRoot)` (32 bytes). This is the real identity. Single-issued certs are stored on chain under it; batch certs are not individually on chain (only `batchRoot` is), so their `certId` is proven by a Merkle proof up to the batch.
-- Short code = Crockford base32 of the first 8 bytes of `certId`, shown as `MHR-XXXX-XXXX-XXXX` (12 chars = 60 bits, plus 1 check char). The old 8-char format was only 40 bits, which collides after about a million certs. **The short code is a human-friendly pointer only, never the proof.** After any lookup the verifier recomputes `certId` from the data and compares full 32 bytes.
+- Short code = Crockford base32 of the first 8 bytes of `certId`, shown as `MHR-XXXX-XXXX-XXXX-C` (12 chars = 60 bits, plus 1 check char). The old 8-char format was only 40 bits, which collides after about a million certs. **The short code is a human-friendly pointer only, never the proof.** After any lookup the verifier recomputes `certId` from the data and compares full 32 bytes.
 - How a typed code is resolved:
   1. **Single-issued cert:** the contract emits `Issued(bytes32 indexed certId, bytes8 indexed shortCode, ...)`. The verifier does `getLogs` filtered by the `shortCode` topic. Fully on chain, no server.
   2. **Batch cert, full link or file in hand:** the proof is inside the link/file, so the code is just a label. No lookup needed.
@@ -103,7 +103,7 @@ A QR code holds at most about 2.9 KB, and a cert with 12 fields and 12 salts plu
 | Does not prove | that the printed text matches the root | nothing further |
 | Entry | scan QR, paste link or code | drag-drop PDF (JSON is an attachment), upload JSON |
 
-Link: `https://mohar.app/verify/MHR-7F3K-92QD-X4MP#<base64url compressed header+proof>` (fragment never reaches any server). QR budget rule: encoded payload must be 1,200 bytes or less; if a selective-disclosure presentation fits, its QR may carry it, otherwise it falls back to link mode and the holder shares the file. The verify page labels the mode in the verdict ("Issuer and status verified. Upload the certificate file to verify its contents.") so link mode is never mistaken for full verification. A forged PDF with a real QR pasted on it passes link mode but fails full-proof mode, which is why the Forgery Playground uses full-proof mode.
+Link: `https://mohar.app/verify/MHR-7F3K-92QD-X4MP-C#<base64url compressed header+proof>` (fragment never reaches any server). QR budget rule: encoded payload must be 1,200 bytes or less; if a selective-disclosure presentation fits, its QR may carry it, otherwise it falls back to link mode and the holder shares the file. The verify page labels the mode in the verdict ("Issuer and status verified. Upload the certificate file to verify its contents.") so link mode is never mistaken for full verification. A forged PDF with a real QR pasted on it passes link mode but fails full-proof mode, which is why the Forgery Playground uses full-proof mode.
 
 ---
 
