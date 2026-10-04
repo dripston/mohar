@@ -10,6 +10,7 @@ describe("stale nonce from a lagging RPC node", () => {
     const w: any = {
       deployment: { chainId: 84532, certificateRegistry: "0x2222222222222222222222222222222222222222" },
       publicClient: {
+        getBlock: async () => ({ number: 10n }),
         // first read is stale (0), later reads are fresh (1)
         readContract: async () => (nonces.length === 0 ? 0n : 1n),
         waitForTransactionReceipt: async () => ({ status: "success", gasUsed: 1n, blockNumber: 5n }),

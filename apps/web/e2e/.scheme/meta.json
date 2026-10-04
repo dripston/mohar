@@ -651,7 +651,7 @@
       "kind": "not_eligible_category"
     }
   },
-  "fakeInstituteKey": "0x525dD1447B122fD28183c52b1Ae85fBe7bd67d81",
+  "fakeInstituteKey": "0x20a7bC8D1229615cf1979c3C5b409Eb3676137Ba",
   "pick": {
     "good": "app-0001.mohar",
     "tampered": "app-0004.mohar",

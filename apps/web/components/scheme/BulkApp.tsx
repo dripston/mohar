@@ -82,7 +82,7 @@ export function BulkApp() {
               ))}
             </div>
             <p className="mt-3 text-xs text-muted" data-testid="bulk-timing">
-              {s.total} applications in {(s.ms / 1000).toFixed(1)} s ({s.perSecond.toFixed(0)}/s), judged at block {s.block ?? "?"}.
+              {s.total} applications in {(s.ms / 1000).toFixed(1)} s ({s.perSecond.toFixed(0)}/s), judged at block {s.block ?? "?"}.{s.duplicates > 0 && ` ${s.duplicates} duplicate applicant id${s.duplicates === 1 ? "" : "s"} (copied or replayed bundles).`}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button variant="secondary" size="sm" onClick={() => setSort(sort === "name" ? "verdict" : "name")}>Sort by {sort === "name" ? "verdict" : "name"}</Button>
@@ -101,7 +101,7 @@ export function BulkApp() {
                   <tr key={r.name} className="cursor-pointer border-t border-line hover:bg-raised/50" onClick={() => setOpen(open === r.name ? undefined : r.name)} data-testid="bulk-row" data-verdict={r.aggregate}>
                     <td className="p-3 font-mono text-xs">{stripUnsafe(r.name)}</td>
                     <td className="p-3">{stripUnsafe(r.applicantId ?? "-")}</td>
-                    <td className="p-3"><Badge tone={TONE[r.aggregate]}>{r.aggregate}</Badge></td>
+                    <td className="p-3"><Badge tone={TONE[r.aggregate]}>{r.aggregate}</Badge>{r.duplicateOf && <span data-testid="dup-badge"><Badge tone="warn" className="ml-1">duplicate of {stripUnsafe(r.duplicateOf)}</Badge></span>}</td>
                     <td className="p-3 text-xs text-muted">
                       {r.error ? stripUnsafe(r.error) : r.failed.map((f) => `${f}: ${r.codes[f]}`).join(", ") || "-"}
                       {open === r.name && r.result && (

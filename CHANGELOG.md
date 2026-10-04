@@ -19,3 +19,9 @@
 - Privacy receipt (JSON/PDF, hash for tamper evidence), advisory share labels, test that blocks everything but RPC/DoH.
 - Base Sepolia deployed and source-verified on BaseScan (`deployments/base-sepolia.json`).
 - Tests: forge 71, core vitest 138, Playwright scheme.spec 16 (not yet a full re-run of every spec).
+
+## phase-12/13 (AI assists, hardening pass 2) + local fallback
+- AI: scheme text to checklist (`/scheme` Officer tab) and legacy digitisation (`/issuer/digitise`) via server routes calling Groq; drafts only, schema-validated, human confirm required; the verification modules do not import the AI module (tested). Logged in `AI_DISCLOSURE.md`.
+- Hardening: Slither run, `Hardening.t.sol` (7), parser fuzz (seeded), XSS re-run on scholarship screens, Sepolia read-only attack matrix (12), duplicate-applicant (replay) flagging in bulk, `SECURITY.md`. No open high/medium findings; no contract change, so no redeploy.
+- Bug found by the attack matrix and fixed: the nonce fix for lagging RPCs read the nonce at an old block; it now reads at the current head after the node has reached our last transaction.
+- `pnpm demo:local` (or `bash scripts/demo-local.sh`): one command Anvil + contracts + seed + web app, offline.

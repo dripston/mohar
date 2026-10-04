@@ -65,6 +65,8 @@ export interface ScreenRow {
   failed: string[];
   error?: string;
   result?: SchemeResult;
+  /** an earlier file in this batch already carries this applicant id: a replayed or copied bundle */
+  duplicateOf?: string;
 }
 
 export interface ScreenSummary {
@@ -73,6 +75,7 @@ export interface ScreenSummary {
   ms: number;
   perSecond: number;
   block?: number;
+  duplicates: number;
 }
 
 /** Memoise DNS per (domain, identity): a bulk run asks about a handful of issuers, not 3,000 times. */
@@ -135,12 +138,27 @@ export async function screenBundles(items: ScreenItem[], scheme: Scheme, deps: V
     },
     (d) => opts.onProgress?.(d, items.length),
   );
+  markDuplicates(rows);
   const ms = Date.now() - t0;
   const counts: ScreenSummary["counts"] = { ELIGIBLE: 0, NOT_ELIGIBLE: 0, INVALID: 0, INCOMPLETE: 0, UNREACHABLE: 0, ROW_ERROR: 0 };
   for (const r of rows) counts[r.aggregate]++;
   const block = rows.find((r) => r.result?.chainTime)?.result?.chainTime?.block;
-  const summary: ScreenSummary = { total: rows.length, counts, ms, perSecond: rows.length / Math.max(ms / 1000, 0.001), block };
+  const summary: ScreenSummary = { total: rows.length, counts, ms, perSecond: rows.length / Math.max(ms / 1000, 0.001), block, duplicates: rows.filter((r) => r.duplicateOf).length };
   return { rows, summary };
+}
+
+/**
+ * One person, one application. A valid bundle can be copied and handed in again under another file name, which
+ * cryptography cannot stop (it is genuinely valid). What we can do is say so: the second file is flagged with the first.
+ */
+export function markDuplicates(rows: ScreenRow[]): void {
+  const first = new Map<string, string>();
+  for (const r of rows) {
+    if (!r.applicantId) continue;
+    const seen = first.get(r.applicantId);
+    if (seen) r.duplicateOf = seen;
+    else first.set(r.applicantId, r.name);
+  }
 }
 
 /** Generic mode: a ZIP of single proof files, one verdict each. */
@@ -171,11 +189,11 @@ export function csvCell(v: unknown): string {
 
 /** CSV report. Holds verdicts and reason codes only: no names, no income, no addresses. */
 export function reportCsv(rows: ScreenRow[], scheme: Scheme): string {
-  const head = ["file", "applicant_id", "verdict", "failed_requirements", ...scheme.requirements.map((r) => `code_${r.id}`), "error"];
+  const head = ["file", "applicant_id", "verdict", "duplicate_of", "failed_requirements", ...scheme.requirements.map((r) => `code_${r.id}`), "error"];
   const lines = [head.map(csvCell).join(",")];
   for (const r of rows) {
     lines.push(
-      [r.name, r.applicantId, r.aggregate, r.failed.join(" "), ...scheme.requirements.map((q) => r.codes[q.id] ?? ""), r.error].map(csvCell).join(","),
+      [r.name, r.applicantId, r.aggregate, r.duplicateOf, r.failed.join(" "), ...scheme.requirements.map((q) => r.codes[q.id] ?? ""), r.error].map(csvCell).join(","),
     );
   }
   return lines.join("\n") + "\n";

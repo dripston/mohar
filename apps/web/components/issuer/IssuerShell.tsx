@@ -12,6 +12,7 @@ import { IssuerProvider } from "./IssuerContext";
 const TABS = [
   { href: "/issuer", label: "Issue one", icon: FilePlus2 },
   { href: "/issuer/bulk", label: "Bulk issue", icon: Layers },
+  { href: "/issuer/digitise", label: "Digitise (AI)", icon: Layers },
   { href: "/issuer/dashboard", label: "Registry", icon: ListChecks },
 ];
 

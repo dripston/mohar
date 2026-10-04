@@ -6,6 +6,8 @@
   "scripts": {
     "test:core": "pnpm --filter @mohar/core test",
     "build:core": "pnpm --filter @mohar/core build",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "demo:local": "powershell -ExecutionPolicy Bypass -File scripts/demo-local.ps1",
+    "test:contracts": "cd packages/contracts && forge test"
   }
 }

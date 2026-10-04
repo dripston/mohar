@@ -93,15 +93,18 @@ async function nonceOf(w: Writer, signer: Address): Promise<bigint> {
   const min = lastSeen.get(signer.toLowerCase());
   for (let i = 0; ; i++) {
     try {
+      // the node must have reached the block of our last transaction, then we read the nonce AT its head
+      const head = (await w.publicClient.getBlock({ blockTag: "latest" })).number;
+      if (min !== undefined && head < min) throw new Error("node is behind our last transaction");
       return await w.publicClient.readContract({
         address: w.deployment.certificateRegistry,
         abi: certificateRegistryAbi,
         functionName: "nonces",
         args: [signer],
-        ...(min !== undefined ? { blockNumber: min } : {}),
+        blockNumber: head,
       });
     } catch (e) {
-      if (i >= 12) throw e; // the node does not have that block yet: wait and ask again
+      if (i >= 12) throw e;
       await sleep(800);
     }
   }

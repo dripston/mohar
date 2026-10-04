@@ -12,11 +12,13 @@ import {
   previewShare,
   shareExpired,
   type Aggregate,
+  type Scheme,
   type Bundle,
   type ProofFile,
   type SchemeResult,
 } from "@mohar/core";
 import { Ambient, Badge, Button, Card, Input, Label, Page, PageHeader } from "@/components/ui/primitives";
+import { SchemeDrafter } from "./SchemeDrafter";
 import { singleDeps } from "@/lib/scheme";
 import { cn, downloadFile, stripUnsafe } from "@/lib/utils";
 
@@ -140,9 +142,10 @@ function Student() {
 }
 
 function Officer() {
+  const [custom, setCustom] = useState<Scheme>();
   const [state, setState] = useState<{ busy: boolean; result?: SchemeResult; bundle?: Bundle; error?: string }>({ busy: false });
   const input = useRef<HTMLInputElement>(null);
-  const scheme = DEMO_ST_SCHOLARSHIP;
+  const scheme = custom ?? DEMO_ST_SCHOLARSHIP;
 
   async function run(f: File | undefined) {
     if (!f) return;
@@ -162,6 +165,7 @@ function Officer() {
 
   return (
     <div className="space-y-5" data-testid="officer-panel">
+      <SchemeDrafter active={scheme} onConfirm={(s) => { setCustom(s); setState({ busy: false }); }} />
       <Card className="p-6">
         <p className="font-medium">{scheme.name} <Badge tone="gold">demo limits</Badge></p>
         <p className="mt-1 text-sm text-muted">Drop an application bundle. Every check is recomputed from the chain; nothing in the file is believed.</p>
