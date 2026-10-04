@@ -1,0 +1,193 @@
+{
+  "chainId": 31337,
+  "contract": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "signer": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "documentRoot": "0x8c932a917b18de5e53da13df291d78d9c68c5a69ecb30aba2474964c759416a1",
+  "certId": "0xc2816cb4aaac8b4e0e9fd6d9700097928a933f1ba23258ea30f5f4fdf9af194a",
+  "shortCodeBytes8": "0xc2816cb4aaac8b40",
+  "fields": [
+    {
+      "path": "credential.expiresOn",
+      "value": "null",
+      "salt": "0x552e39d854c9ef7654e81d604756ecc975bb0cb3cd657c5b7c3b92da8f810fa0",
+      "proof": [
+        "0x98256dd5539147c4faeaa2c8b67e601681828416b4e0b7f190f32eab93ede9a6",
+        "0x0569d6ff1cb2e15d42f4a1f6e9637574120930c9168ac6b0843175d0b16d97ad",
+        "0xcf6b65235ba575905a29dffc5006db04f89d8067c5d45e6c7d479b52728645af",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "credential.grade",
+      "value": "\"8.34\"",
+      "salt": "0x855bd35b094d422acbb43859a43f716a823f08bb38efd193b1dc7abc96347810",
+      "proof": [
+        "0x844889d75a9f11ef43f2461c06d56d2aa4e9c4a7b77e87396b06bbf0b6a3c82e",
+        "0xbc8253d24c2c217c8f109b4508054082f9347de64d9b11fba080b6dbb481837b",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "credential.issuedOn",
+      "value": "\"2028-06-01\"",
+      "salt": "0xc66e540f7e1490032ab0209bf71885eeece1cde5493122c6348069b32baa2be7",
+      "proof": [
+        "0x6eb46a871e18aebc438c98013c04be0eabceea7a565453c577a761f3840c032e",
+        "0xbf284b5c428456dc65ef9ce8664c674e96a16f1c756fc4b71eb54726e0a61754",
+        "0xbc8253d24c2c217c8f109b4508054082f9347de64d9b11fba080b6dbb481837b",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "credential.title",
+      "value": "\"B.E. AI Engineering\"",
+      "salt": "0x008916d2b78e74d8773c853648c370c40fb54bd0579f3c82a4d9d32c1441cb64",
+      "proof": [
+        "0xab82ea178c993e682fceda9d3b3844d98bcdc7c71e8a272fc493a12876a94822",
+        "0xfa7b5e0b823194aeac500a0ded38d0437b5dafe310ace76288c113d5e55a2f3a",
+        "0xa99a2238f5c97d59534cd00665e591cd4e66395177ade92c14a6bcbe2492fc2e"
+      ]
+    },
+    {
+      "path": "issuer.address",
+      "value": "\"0x70997970C51812dc3A010C7d01b50e0d17dc79C8\"",
+      "salt": "0xed90b9ad06cb4a08c59d3140a7cb699bf8e66724f89c2422c8fe2c479482f10c",
+      "proof": [
+        "0xa4ce2c5a9d83a4f630ee6431f6e0cc21cca2e17b0ae42af884e94fbe7530ef15",
+        "0xfa7b5e0b823194aeac500a0ded38d0437b5dafe310ace76288c113d5e55a2f3a",
+        "0xa99a2238f5c97d59534cd00665e591cd4e66395177ade92c14a6bcbe2492fc2e"
+      ]
+    },
+    {
+      "path": "issuer.domain",
+      "value": "\"acharya.ac.in\"",
+      "salt": "0x3da528698d38c8b34bdceb3d453faa80f7ccaa50d1a534bbcfb3e516064a4204",
+      "proof": [
+        "0xbe57747c3890ff1e9787338176547760c9e10ebd4744292f686d8beaec65b9c6",
+        "0xcf58ad06432356aa0ec1d41e00780e1bc672b7a63f7e1599fec0d6ff73194147",
+        "0xa99a2238f5c97d59534cd00665e591cd4e66395177ade92c14a6bcbe2492fc2e"
+      ]
+    },
+    {
+      "path": "issuer.name",
+      "value": "\"Acharya Institute\"",
+      "salt": "0xdeec637165379f537fcde314a2a7dc4a40e545c8df9a673a8f31e81caa56a439",
+      "proof": [
+        "0x9f6882e893ea63c6e71fd43bf40b7a3d34beaef4b1d2bd6e37f4cd416d26448a",
+        "0x0569d6ff1cb2e15d42f4a1f6e9637574120930c9168ac6b0843175d0b16d97ad",
+        "0xcf6b65235ba575905a29dffc5006db04f89d8067c5d45e6c7d479b52728645af",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "recipient.email",
+      "value": "\"rehaan@example.com\"",
+      "salt": "0xd259a4c8b59a0bafdf150e59b1a3001ef869118bde35fa5a7fb7a8fbaa476f25",
+      "proof": [
+        "0xb8c86f9b11e65196da02187604e359a48608cf8f7a783a8b3ea8bd0f725b40ff",
+        "0xcf58ad06432356aa0ec1d41e00780e1bc672b7a63f7e1599fec0d6ff73194147",
+        "0xa99a2238f5c97d59534cd00665e591cd4e66395177ade92c14a6bcbe2492fc2e"
+      ]
+    },
+    {
+      "path": "recipient.name",
+      "value": "\"Rehaan N\"",
+      "salt": "0x118cdaef2324c73d5bf638cf2f4740bdcb1e2b6ad3a55d65847fef6f7b830088",
+      "proof": [
+        "0x8b89cebae25630c42b985ba52531948f8d01a789653a93550e31857b67da49ba",
+        "0x1153bdd4d1f2f796dea7fee9926b2a567cb87991e5f47a768e47169268f05a86",
+        "0xcf6b65235ba575905a29dffc5006db04f89d8067c5d45e6c7d479b52728645af",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "version",
+      "value": "\"mohar/1\"",
+      "salt": "0xc4f1b0a9c602c169751e62685eff991d86ee7b4496c6815fb6692b7ea10c2b73",
+      "proof": [
+        "0x861b143a38d96c0e88a4d07a18eccf09ff7b75aa12fa52e8f9d1fbcc3e199529",
+        "0x1153bdd4d1f2f796dea7fee9926b2a567cb87991e5f47a768e47169268f05a86",
+        "0xcf6b65235ba575905a29dffc5006db04f89d8067c5d45e6c7d479b52728645af",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    },
+    {
+      "path": "meta.fieldCount",
+      "value": "\"10\"",
+      "salt": "0xc3d012d306dc83aac4b32149ddb7f4714d4a71dadd1cb8040cad9354252df91b",
+      "proof": [
+        "0x72be2a372a24365cb5a857f88107882e824d7b944beb10527a7d35e7b6c30b87",
+        "0xbf284b5c428456dc65ef9ce8664c674e96a16f1c756fc4b71eb54726e0a61754",
+        "0xbc8253d24c2c217c8f109b4508054082f9347de64d9b11fba080b6dbb481837b",
+        "0x21ac0ee3466980399d006683152891697466ad2e1edb700197e8647ad5ba444a"
+      ]
+    }
+  ],
+  "batchRoot": "0x42375a72c069e672c5168d076f97c9199d49ab5f582b087dd8a7ee42518ba3b2",
+  "batch": [
+    {
+      "documentRoot": "0xb3641af920da5519d554a4a8a811771d23e16c1a1a09f328aba601b8ffc4b895",
+      "expiresAt": 0,
+      "proof": [
+        "0x1f784954db47029f2515b6abd534ed97ff78f2d8f5dd4b2f2fde3bd303585b43",
+        "0xd404641c9763d299dc82e1b720245d2a7934d7bf734fa5a974066b27355159b8",
+        "0xcd8d006efa9f42bcc468d6be9e499ec52c38ce27273fbcc5053c86fe48aed5a8"
+      ]
+    },
+    {
+      "documentRoot": "0x8cfecfd2dde486baa28df043e9010bf36a4e551262294ed79b695b26a805fc80",
+      "expiresAt": 4000000001,
+      "proof": [
+        "0x1086323da0cfb48106e5fa756870f7669742be8c0ecc4c60cfb7745d2d5cea2c",
+        "0xd404641c9763d299dc82e1b720245d2a7934d7bf734fa5a974066b27355159b8",
+        "0xcd8d006efa9f42bcc468d6be9e499ec52c38ce27273fbcc5053c86fe48aed5a8"
+      ]
+    },
+    {
+      "documentRoot": "0x78db79d6dd0e4c97723221f36ebaa008e9d82a7ea013f252ab8b5331e34c0006",
+      "expiresAt": 0,
+      "proof": [
+        "0xa2d886c1b1f6db593a92a193f75d1ad130864aec9af70bc44f219cea62077a8d",
+        "0x898dfd541ac104b2a116ef15d19a0de3045e84309d87700545f9ea2cc90207a9",
+        "0x69c0580041bdc10c0bdb01278e6fe110543a875a002d7d217f7d336fda765e31"
+      ]
+    },
+    {
+      "documentRoot": "0xbaa07305ed4bbea96b8e07f0df7fc3e404e41fcc2c8286a787d0d7b5b494726b",
+      "expiresAt": 4000000003,
+      "proof": [
+        "0x40f227eb12567a62810a70a70483423c8f947964c79fbb19c2cade445599ae95",
+        "0x20cfe6b29fd3bb0403caccd39e300bce9cee3a7aff41477d07b74b7ed796739e",
+        "0x69c0580041bdc10c0bdb01278e6fe110543a875a002d7d217f7d336fda765e31"
+      ]
+    },
+    {
+      "documentRoot": "0x806f9c9b541880be95b2857535bb8b6a054a61e4c0b608bb1e9ab4d20ea913ef",
+      "expiresAt": 0,
+      "proof": [
+        "0x98416e5832c9d8c61ba9ba2d7c41f0d86e7eb2fb4e03083173952c57550187be",
+        "0xcd8d006efa9f42bcc468d6be9e499ec52c38ce27273fbcc5053c86fe48aed5a8"
+      ]
+    },
+    {
+      "documentRoot": "0x45bca7d29c655219100620d2f4fd18b81967199272315336c21d5cf08a17f8f1",
+      "expiresAt": 4000000005,
+      "proof": [
+        "0x73ccc3533728eacdb462addf681c55739b64e5ae589cf6e15a3ea34080e5ddcc",
+        "0x898dfd541ac104b2a116ef15d19a0de3045e84309d87700545f9ea2cc90207a9",
+        "0x69c0580041bdc10c0bdb01278e6fe110543a875a002d7d217f7d336fda765e31"
+      ]
+    },
+    {
+      "documentRoot": "0x15445791717527b9febeace1dd9dba2a6d837fa634113a7a1254ffc680e08c99",
+      "expiresAt": 0,
+      "proof": [
+        "0x6ad98445f2cda69c55e477f73d567594784ab8a0f8638c2297dd7616789495ef",
+        "0x20cfe6b29fd3bb0403caccd39e300bce9cee3a7aff41477d07b74b7ed796739e",
+        "0x69c0580041bdc10c0bdb01278e6fe110543a875a002d7d217f7d336fda765e31"
+      ]
+    }
+  ],
+  "issueSig": "0xee6f8fb3e440d2d5cc062b39f33ab8d51123a2c825ef88aad22380f1d330393f045063abb59fdf4b3c7302baaf73386aca75e154152b6e610399135e6ef544df1c",
+  "batchSig": "0xb8bfd288d16f0ecec2473063571c2eaa4b29102c22b4aba9a38d51b5be6fe27f160e8b8063665670a233e99cd7ffe7352cc1ec6364a62369b10a0b0e6902016c1b"
+}
