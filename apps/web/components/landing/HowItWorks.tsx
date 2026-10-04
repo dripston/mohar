@@ -10,7 +10,7 @@ const STEPS = [
     icon: Fingerprint,
     title: "Hash",
     who: "In the issuer's browser",
-    body: "Each field gets a random 32-byte salt and becomes a leaf. The leaves form a Merkle tree. Salts mean nobody can guess a hidden grade by hashing candidates.",
+    body: "Each field gets a random 32-byte salt and becomes a leaf. The leaves form a Merkle tree. Salts mean nobody can guess a hidden income by hashing candidates.",
     code: `leaf = keccak256(keccak256(
   abi.encode(path, value, salt)))
 root = MerkleTree(leaves).root`,
@@ -28,7 +28,7 @@ domain: "Mohar" v1 · chainId · registry`,
     icon: Link2,
     title: "Anchor",
     who: "One transaction",
-    body: "Only the 32-byte root lands on chain, with no names and no grades. A batch of a thousand certificates is still one root and one transaction.",
+    body: "Only the 32-byte root lands on chain, with no names and no incomes. A batch of a thousand certificates is still one root and one transaction.",
     code: `CertificateRegistry.issue(root, exp, sig)
 → certId = keccak256(root)
 → MHR-7F3K-92QD-X4MP-C`,

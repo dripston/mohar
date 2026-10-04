@@ -21,3 +21,4 @@ e2e/.fixtures.json
 .vercel
 .env*
 apps/web/e2e/.scheme/
+apps/web/public/demo/anvil/

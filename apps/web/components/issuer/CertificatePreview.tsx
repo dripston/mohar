@@ -91,11 +91,11 @@ export function CertificatePreview({
 
           <div className="mx-auto mt-4 flex items-center justify-center gap-3 sm:mt-6">
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#a8843f] sm:w-16" />
-            <p className="font-cert text-[0.6rem] font-semibold uppercase tracking-[0.42em] text-[#b0241c] sm:text-xs">Certificate of Achievement</p>
+            <p className="font-cert text-[0.6rem] font-semibold uppercase tracking-[0.42em] text-[#b0241c] sm:text-xs">Sealed Credential</p>
             <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#a8843f] sm:w-16" />
           </div>
 
-          <p className="mt-4 font-cert text-[0.7rem] italic text-[#5b5245] sm:mt-6 sm:text-sm">This is to certify that</p>
+          <p className="mt-4 font-cert text-[0.7rem] italic text-[#5b5245] sm:mt-6 sm:text-sm">Issued to</p>
           <p
             className={cn(
               "mt-1.5 break-words font-cert text-[1.6rem] font-medium italic leading-tight tracking-tight sm:text-[2.6rem]",
@@ -105,9 +105,9 @@ export function CertificatePreview({
             {recipient || "Recipient name"}
           </p>
           <div className="mx-auto mt-2 h-px w-2/3 bg-gradient-to-r from-transparent via-[#a8843f]/70 to-transparent" />
-          <p className="mt-3 font-cert text-[0.7rem] italic text-[#5b5245] sm:text-sm">has been awarded</p>
+          <p className="mt-3 font-cert text-[0.7rem] italic text-[#5b5245] sm:text-sm">Document title</p>
           <p className={cn("mt-1 break-words font-cert text-base font-semibold leading-snug sm:text-2xl", title ? "" : placeholder)}>{title || "Credential title"}</p>
-          {grade && <p className="mt-1.5 font-cert text-[0.7rem] text-[#3f382e] sm:text-sm">with {grade}</p>}
+          {grade && <p className="mt-1.5 font-cert text-[0.7rem] text-[#3f382e] sm:text-sm">{grade}</p>}
 
           <div className="mt-5 grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:mt-7 sm:gap-4">
             <div className="min-w-0 text-left">

@@ -8,15 +8,15 @@ import { CertificatePreview } from "@/components/issuer/CertificatePreview";
 import { cn } from "@/lib/utils";
 
 const HUD = [
-  { icon: ShieldCheck, k: "Issuer", v: "Accredited on chain", pos: "lg:-left-10 lg:top-[7%]" },
+  { icon: ShieldCheck, k: "Issuer", v: "Ministry-listed institute", pos: "lg:-left-10 lg:top-[7%]" },
   { icon: Globe, k: "Domain", v: "acharya.ac.in vouches", pos: "lg:-right-4 xl:-right-8 lg:top-[19%]" },
   { icon: Fingerprint, k: "Signature", v: "EIP-712 · matches", pos: "lg:-left-12 lg:top-[50%]" },
-  { icon: Link2, k: "Root", v: "Anchored · block 1,284", pos: "lg:-right-4 xl:-right-10 lg:top-[62%]" },
-  { icon: Timer, k: "Status", v: "Active right now", pos: "lg:-left-6 lg:bottom-[-4%]" },
+  { icon: Link2, k: "Root", v: "Anchored · batch root", pos: "lg:-right-4 xl:-right-10 lg:top-[62%]" },
+  { icon: Timer, k: "Status", v: "Not revoked right now", pos: "lg:-left-6 lg:bottom-[-4%]" },
 ];
 
-const WORDS_1 = ["Paper", "can", "be", "forged."];
-const WORDS_2 = ["Math", "can't."];
+const WORDS_1 = ["₹144", "crore", "lost", "to"];
+const WORDS_2 = ["fake", "institutes."];
 
 function Word({ w, i, italic }: { w: string; i: number; italic?: boolean }) {
   const reduce = useReducedMotion();
@@ -89,7 +89,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 py-1 pl-1 pr-3 text-xs text-muted backdrop-blur"
           >
             <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping-slow rounded-full bg-ok/70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-ok" /></span>
-            Live on Base Sepolia · scholarship screening without personal data
+            Live on Base Sepolia · screen scholarship applications without personal data
           </motion.div>
 
           <h1 id="hero-h" className="mt-6 font-serif text-[3.4rem] leading-[0.92] tracking-[-0.02em] sm:text-7xl xl:text-[6.6rem]">
@@ -108,9 +108,10 @@ export function Hero() {
             transition={{ delay: 0.7, duration: 0.7 }}
             className="mt-7 max-w-xl text-lg leading-relaxed text-muted"
           >
-            Mohar seals certificates into a public blockchain. Anyone can confirm <span className="text-ink">who issued it</span>, that{" "}
-            <span className="text-ink">not one character changed</span>, and that it is <span className="text-ink">valid right now</span>. A scholarship office
-            can screen a thousand applications the same way, without seeing a single name or income.
+            Scholarship money follows paper that nobody checks at scale. Mohar puts <span className="text-ink">issuer accreditation</span>,{" "}
+            <span className="text-ink">tamper-proof credentials</span>, and <span className="text-ink">live revocation</span> on chain.
+            A scheme officer screens a thousand applications without seeing a single name or income.
+            When an audit finds a fake institute, one revocation flips every credential it ever issued.
           </motion.p>
 
           <motion.div
@@ -120,17 +121,17 @@ export function Hero() {
             className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Link
-              href="/verify"
+              href="/scheme"
               className="group inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#ff6a52] to-[#d6331f] px-7 text-base font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_18px_40px_-12px_rgb(240_74_56/0.75)] transition hover:brightness-110"
             >
-              Verify a certificate
+              Screen applications
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
             <Link
-              href="/issuer"
+              href="/verify"
               className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-line bg-surface/70 px-7 text-base font-medium backdrop-blur transition hover:border-ink/25 hover:bg-raised"
             >
-              Issue certificates
+              Verify a credential
             </Link>
           </motion.div>
 
@@ -141,8 +142,8 @@ export function Hero() {
             className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-line/70 pt-6"
           >
             {[
-              ["542", "gas per certificate, measured on Base Sepolia"],
-              ["₹0.0008", "estimated per certificate on mainnet"],
+              ["1,000", "applications screened, zero false flags"],
+              ["542", "gas per credential on Base Sepolia"],
               ["0", "servers in the verify path"],
             ].map(([n, l]) => (
               <div key={l}>
@@ -174,11 +175,11 @@ export function Hero() {
                 issuerName="Acharya Institute of Technology"
                 issuerDomain="acharya.ac.in"
                 recipient="Ananya Rao"
-                title="B.E. in Artificial Intelligence"
-                grade="8.7 CGPA"
-                issuedOn="2026-06-01"
+                title="Enrolment Certificate · B.E. AI & ML"
+                grade="Year 3 · Active"
+                issuedOn="2026-07-15"
                 expiresOn=""
-                code="MHR-7F3K-92QD-X4MP-C"
+                code="MHR-Y5R9-A42P-SZC2-E"
                 seal="stamp"
                 stampDelay={0.9}
               />
@@ -222,7 +223,7 @@ export function Hero() {
             className="absolute -top-3 right-3 z-10 flex items-center gap-2 rounded-full border border-ok/40 bg-[#062d20]/90 px-4 py-2 text-sm font-semibold text-ok shadow-[0_10px_40px_-10px_rgb(52_211_153/0.7)] backdrop-blur lg:right-10 lg:top-2"
             aria-hidden={lit <= HUD.length}
           >
-            <BadgeCheck className="h-5 w-5" aria-hidden /> Authentic · 5 of 5 checks
+            <BadgeCheck className="h-5 w-5" aria-hidden /> Eligible · all checks passed
           </motion.div>
         </div>
       </div>

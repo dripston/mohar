@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import { ArrowRight, Building2, EyeOff, Landmark, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, Building2, EyeOff, Landmark, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import { Eyebrow } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Sections";
 
 const STEPS = [
   { icon: Landmark, k: "Authority", v: "lists each institute and revenue office on chain, with its type and who vouched for it" },
-  { icon: Building2, k: "Issuers", v: "seal enrolment, caste and income certificates; income stays private behind signed threshold flags" },
+  { icon: Building2, k: "Issuers", v: "use AI to digitise legacy paper records, then seal enrolment and income certificates on chain" },
   { icon: Wallet, k: "Student", v: "shares one bundle with only the flags the scheme asks for. No name, no income figure, no address" },
-  { icon: ShieldCheck, k: "Officer", v: "screens a thousand applications against the chain and gets a shortlist with reason codes" },
+  { icon: ShieldCheck, k: "Officer", v: "drafts scheme rules from legal text using AI, then screens a thousand applications at once" },
 ];
 
 // 120 synthetic applications. Indices in FAKE belong to one institute that an audit later revokes.
@@ -132,6 +132,17 @@ export function Scholarship() {
             </Reveal>
           ))}
         </ol>
+
+        <Reveal>
+          <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-gold/40 bg-gold/5 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-start gap-3 text-sm leading-relaxed text-ink/90">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden />
+              <span>
+                <span className="font-semibold text-gold">AI strictly for administration.</span> Officers use LLMs to translate legal texts into JSON checklists, and issuers use OCR+LLMs to digitize legacy paper. The AI never touches the cryptography or decides a verification verdict.
+              </span>
+            </p>
+          </div>
+        </Reveal>
 
         <Reveal>
           <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-line bg-surface/40 p-6 sm:flex-row sm:items-center sm:justify-between">

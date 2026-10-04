@@ -157,8 +157,8 @@ export function Pillars() {
               <div className="mt-8 space-y-1.5 font-mono text-[0.72rem]">
                 {[
                   ["recipient.name", "Ananya Rao", true],
-                  ["credential.title", "B.E. Artificial Intelligence", true],
-                  ["credential.grade", "9.9 CGPA", false],
+                  ["credential.title", "Income Certificate", true],
+                  ["flag.income_lte_250000", "true", false],
                 ].map(([k, v, ok]) => (
                   <div key={k as string} className={cn("flex items-center justify-between gap-3 rounded-lg border px-3 py-2", ok ? "border-line bg-bg/50" : "border-bad/50 bg-bad/10")}>
                     <span className="truncate text-muted">{k}</span>
@@ -192,17 +192,17 @@ export function Pillars() {
 
           <Reveal className="lg:col-span-2" delay={0.1}>
             <Tile className="h-full">
-              <TileHead n="04 · PRIVACY" title="Share only what you choose" body="Holders hide the grade or email. What they reveal still verifies." />
+              <TileHead n="04 · PRIVACY" title="Share only what you choose" body="Holders hide their income or address. What they reveal still verifies." />
               <div className="mt-8 space-y-1.5 text-[0.8rem]">
                 <div className="flex items-center justify-between rounded-lg border border-line bg-bg/50 px-3 py-2">
-                  <span className="text-muted">Degree</span>
-                  <span>B.E. Artificial Intelligence</span>
+                  <span className="text-muted">Eligibility</span>
+                  <span>Under ₹2.5 Lakh (True)</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-dashed border-line px-3 py-2 text-muted">
                   <span className="flex items-center gap-1.5">
-                    <EyeOff className="h-3.5 w-3.5" aria-hidden /> Grade
+                    <EyeOff className="h-3.5 w-3.5" aria-hidden /> Exact income
                   </span>
-                  <span className="flex items-center gap-1.5 blur-[3px]">8.7 CGPA</span>
+                  <span className="flex items-center gap-1.5 blur-[3px]">₹1,80,000</span>
                 </div>
               </div>
             </Tile>
@@ -333,7 +333,7 @@ export function Verdicts() {
             </h2>
           </div>
           <p className="max-w-lg text-lg leading-relaxed text-muted lg:justify-self-end">
-            A revoked diploma, a forged grade and an unreachable network are different problems. Mohar names each one, and never confuses
+            A revoked institute, a forged income flag and an unreachable network are different problems. Mohar names each one, and never confuses
             &ldquo;could not check&rdquo; with &ldquo;fake&rdquo;.
           </p>
         </Reveal>
@@ -370,7 +370,7 @@ const PERSONAS = [
     icon: ShieldCheck,
     who: "Scholarship offices",
     title: "Screen",
-    body: "Check one application or a ZIP of a thousand against the chain. Ticks and reason codes, never names or incomes.",
+    body: "Draft criteria with AI, then check a ZIP of a thousand applications against the chain. Ticks and reason codes, never names or incomes.",
     cta: "Open the officer screen",
   },
   {
@@ -386,7 +386,7 @@ const PERSONAS = [
     icon: Building2,
     who: "Universities & academies",
     title: "Issue",
-    body: "Sign one certificate or a thousand from a CSV. One transaction, PDFs with embedded proofs, a live registry dashboard.",
+    body: "Digitise paper records with AI, or sign a thousand from a CSV. One transaction, PDFs with embedded proofs, a live registry dashboard.",
     cta: "Open the issuer portal",
   },
   {

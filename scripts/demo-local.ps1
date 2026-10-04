@@ -16,11 +16,14 @@ $env:DOMAIN = "demo.mohar.local"
 $env:APP_ORIGIN = "http://localhost:3000"
 pnpm --filter "@mohar/core" seed
 if ($LASTEXITCODE -ne 0) { throw "seed failed" }
+node scripts/publish-seed.mjs
+pnpm --filter "@mohar/core" scheme-seed
+if ($LASTEXITCODE -ne 0) { throw "scholarship seed failed" }
 
 Write-Host "3/4 web app on http://localhost:3000 (local demo mode, stand-in DNS zone for demo.mohar.local)"
 $env:NEXT_PUBLIC_NETWORK = "anvil"
 $env:NEXT_PUBLIC_APP_ORIGIN = "http://localhost:3000"
 $env:NEXT_PUBLIC_DEV_DNS_JSON = '{"demo.mohar.local":["*"]}'
-Write-Host "4/4 open SEED.md for links and docs/seed/*.png for QR codes. Ctrl+C stops the web app."
-Start-Process "http://localhost:3000/verify"
+Write-Host "4/4 open http://localhost:3000/demo for QR cards and sample applications. Ctrl+C stops the web app."
+Start-Process "http://localhost:3000/demo"
 pnpm --filter "@mohar/web" dev

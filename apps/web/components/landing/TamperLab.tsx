@@ -12,19 +12,19 @@ type Field = { path: string; short: string; label: string; value: string; editab
 
 const ORIGINAL: Field[] = [
   { path: "recipient.name", short: "name", label: "Recipient", value: "Ananya Rao", editable: true },
-  { path: "recipient.email", short: "email", label: "Email", value: "ananya@acharya.ac.in" },
-  { path: "credential.title", short: "title", label: "Credential", value: "B.E. in Artificial Intelligence", editable: true },
-  { path: "credential.grade", short: "grade", label: "Grade", value: "8.7 CGPA", editable: true },
+  { path: "credential.title", short: "title", label: "Credential", value: "Income Certificate" },
+  { path: "credential.income", short: "income", label: "Income", value: "₹3,80,000", editable: true },
+  { path: "flag.income_lte_250000", short: "< 2.5L", label: "Eligible (<2.5L)", value: "false", editable: true },
   { path: "credential.issuedOn", short: "date", label: "Issued on", value: "2026-06-01" },
-  { path: "issuer.name", short: "issuer", label: "Issuer", value: "Acharya Institute of Technology" },
-  { path: "issuer.domain", short: "domain", label: "Domain", value: "acharya.ac.in" },
+  { path: "issuer.name", short: "issuer", label: "Issuer", value: "Revenue Dept, Karnataka" },
+  { path: "issuer.domain", short: "domain", label: "Domain", value: "karnataka.gov.in" },
   { path: COUNT_PATH, short: "count", label: "Field count", value: "7" },
 ];
 
 const PRESETS = [
-  { label: "Inflate the grade", path: "credential.grade", value: "9.9 CGPA" },
+  { label: "Forge eligibility", path: "flag.income_lte_250000", value: "true" },
+  { label: "Lower the income", path: "credential.income", value: "₹1,80,000" },
   { label: "Swap the name", path: "recipient.name", value: "Rahul Verma" },
-  { label: "Upgrade the degree", path: "credential.title", value: "M.Tech in Artificial Intelligence" },
   { label: "Add one space", path: "recipient.name", value: "Ananya  Rao" },
 ];
 

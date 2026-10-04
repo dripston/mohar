@@ -19,8 +19,10 @@ export NETWORK=anvil DEMO_ISSUER=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
 export DOMAIN=demo.mohar.local APP_ORIGIN=http://localhost:3000
 pnpm --filter @mohar/core seed
+node scripts/publish-seed.mjs
+pnpm --filter @mohar/core scheme-seed
 
 export NEXT_PUBLIC_NETWORK=anvil NEXT_PUBLIC_APP_ORIGIN=http://localhost:3000
 export NEXT_PUBLIC_DEV_DNS_JSON='{"demo.mohar.local":["*"]}'
-echo "open http://localhost:3000/verify  (links in SEED.md, QR images in docs/seed/)"
+echo "open http://localhost:3000/demo  (QR cards, sample applications, run sheet)"
 pnpm --filter @mohar/web dev
