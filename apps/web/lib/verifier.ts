@@ -1,0 +1,44 @@
+import {
+  clientsFromUrls,
+  makeDohResolver,
+  makeReader,
+  verifyByCode,
+  verifyCertificate,
+  type DnsResolver,
+  type Reader,
+  type VerifyInput,
+  type VerifyResult,
+} from "@mohar/core";
+import { deployment, DEV_WALLET_ENABLED } from "./config";
+
+/**
+ * Local demo zone: stands in for DNS on the Anvil network, where acharya.ac.in has no real TXT record.
+ * On a real network (NEXT_PUBLIC_NETWORK=base-sepolia) this is bypassed and DNS-over-HTTPS is used.
+ * The provider name "local-demo-zone" is shown in the checklist, so nobody mistakes it for real DNS.
+ */
+const DEMO_ZONE: Record<string, string[]> = {
+  "acharya.ac.in": ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8"],
+  ...(process.env.NEXT_PUBLIC_DEV_DNS_JSON ? JSON.parse(process.env.NEXT_PUBLIC_DEV_DNS_JSON) : {}),
+};
+
+export const demoDnsResolver: DnsResolver = async (domain, identity) => {
+  const ids = (DEMO_ZONE[domain] ?? []).map((a) => a.toLowerCase());
+  return ids.includes(identity.toLowerCase())
+    ? { status: "match", provider: "local-demo-zone" }
+    : { status: "mismatch", provider: "local-demo-zone", found: [] };
+};
+
+export const dnsResolver: DnsResolver = DEV_WALLET_ENABLED ? demoDnsResolver : makeDohResolver();
+
+/** A fresh reader per verification, so the "providers agreed" numbers belong to that run only. */
+export function newReader(): Reader {
+  return makeReader(deployment, clientsFromUrls(deployment.rpcUrls ?? []));
+}
+
+export function verify(input: VerifyInput): Promise<VerifyResult> {
+  return verifyCertificate(input, { reader: newReader(), dns: dnsResolver });
+}
+
+export function verifyCode(bytes8: `0x${string}`): Promise<VerifyResult & { needsLink?: boolean }> {
+  return verifyByCode(bytes8, { reader: newReader(), dns: dnsResolver });
+}

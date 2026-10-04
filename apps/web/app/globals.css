@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 247 244 236;
+  --surface: 255 255 255;
+  --raised: 250 247 240;
+  --ink: 20 17 15;
+  --muted: 107 100 90;
+  --line: 228 221 207;
+  --seal: 176 36 28;
+  --ok: 27 122 77;
+  --bad: 176 36 28;
+  --warn: 166 106 0;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: 14 13 11;
+    --surface: 24 22 19;
+    --raised: 31 28 24;
+    --ink: 242 237 226;
+    --muted: 165 157 143;
+    --line: 47 42 35;
+    --seal: 226 88 75;
+    --ok: 74 190 130;
+    --bad: 240 100 88;
+    --warn: 232 170 60;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: 14 13 11;
+  --surface: 24 22 19;
+  --raised: 31 28 24;
+  --ink: 242 237 226;
+  --muted: 165 157 143;
+  --line: 47 42 35;
+  --seal: 226 88 75;
+  --ok: 74 190 130;
+  --bad: 240 100 88;
+  --warn: 232 170 60;
+  color-scheme: dark;
+}
+
+html {
+  background: rgb(var(--bg));
+}
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
+  font-family: var(--font-sans), ui-sans-serif, system-ui;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(var(--seal) / 0.25);
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--seal));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* faint paper grain so the page does not read as a flat dashboard */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: radial-gradient(rgb(var(--line) / 0.6) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, black, transparent 55%);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
