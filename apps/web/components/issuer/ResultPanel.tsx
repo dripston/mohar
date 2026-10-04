@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, Download, FileJson, FileText, Link2, Loader2 } from "lucide-react";
 import { fitsQr, proofFileToJson, type ProofFile } from "@mohar/core";
 import { Button, Mono } from "@/components/ui/primitives";
-import { createCertificatePdf } from "@/lib/pdf";
 import { qrDataUrl } from "@/lib/qr";
 import { downloadFile } from "@/lib/utils";
 import { fieldValue, linkFor, codeOf, loadArchive } from "./lib";
@@ -58,7 +57,7 @@ export function ResultPanel({ file }: { file: ProofFile }) {
     setPdfBusy(true);
     setErr(undefined);
     try {
-      const bytes = await createCertificatePdf(file, link);
+      const bytes = await (await import("@/lib/pdf")).createCertificatePdf(file, link);
       downloadFile(`${name}-${code}.pdf`, bytes as unknown as BlobPart, "application/pdf");
     } catch (e) {
       setErr(explainError(e));

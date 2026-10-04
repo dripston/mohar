@@ -65,8 +65,8 @@ export function Hero() {
       {/* backdrop */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="grid-bg absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,black,transparent)]" />
-        <div className="absolute left-[8%] top-[-10%] h-[520px] w-[520px] rounded-full bg-seal/25 blur-[140px]" />
-        <div className="absolute right-[2%] top-[18%] h-[460px] w-[460px] rounded-full bg-gold/15 blur-[140px]" />
+        <div className="glow-seal absolute left-[2%] top-[-20%] h-[760px] w-[760px]" />
+        <div className="glow-gold absolute right-[-4%] top-[8%] h-[680px] w-[680px]" />
         <svg viewBox="0 0 800 800" className="absolute -right-[260px] top-[-120px] h-[900px] w-[900px] animate-spin-slow opacity-[0.07]">
           <defs>
             <path id="hero-ring" d="M400,400 m-330,0 a330,330 0 1,1 660,0 a330,330 0 1,1 -660,0" />

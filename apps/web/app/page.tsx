@@ -1,9 +1,10 @@
 import { Hero } from "@/components/landing/Hero";
-import { TamperLab } from "@/components/landing/TamperLab";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Scholarship } from "@/components/landing/Scholarship";
 import { TryIt } from "@/components/landing/TryIt";
+import { LazyTamperLab } from "@/components/landing/LazyTamperLab";
 import { AttackMarquee, FinalCta, Personas, Pillars, Stats, Verdicts } from "@/components/landing/Sections";
+
 
 export default function Home() {
   return (
@@ -14,12 +15,22 @@ export default function Home() {
       </div>
       <Scholarship />
       <TryIt />
-      <Pillars />
-      <TamperLab />
-      <Stats />
+      <div className="cv-auto">
+        <Pillars />
+      </div>
+      <div className="cv-auto">
+        <LazyTamperLab />
+      </div>
+      <div className="cv-auto">
+        <Stats />
+      </div>
       <HowItWorks />
-      <Verdicts />
-      <Personas />
+      <div className="cv-auto">
+        <Verdicts />
+      </div>
+      <div className="cv-auto">
+        <Personas />
+      </div>
       <FinalCta />
     </>
   );

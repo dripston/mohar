@@ -152,10 +152,10 @@ export function Ambient({ className, tone = "seal" }: { className?: string; tone
     <div aria-hidden className={cn("pointer-events-none absolute left-1/2 top-0 -z-10 h-[620px] w-screen -translate-x-1/2 overflow-hidden", className)}>
       <div
         className={cn(
-          "absolute left-1/2 top-[-280px] h-[560px] w-[1100px] -translate-x-1/2 rounded-full opacity-[0.16] blur-[110px]",
-          tone === "seal" && "bg-seal",
-          tone === "gold" && "bg-gold",
-          tone === "ok" && "bg-ok",
+          "absolute left-1/2 top-[-280px] h-[560px] w-[1100px] -translate-x-1/2 opacity-70",
+          tone === "seal" && "glow-seal",
+          tone === "gold" && "glow-gold",
+          tone === "ok" && "glow-ok",
         )}
       />
       <div className="grid-bg mask-fade-b absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />

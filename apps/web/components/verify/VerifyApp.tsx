@@ -5,11 +5,13 @@ import { useReducedMotion } from "framer-motion";
 import { ArrowRight, Camera, FileUp, Link2, Loader2, Lock, ServerOff, ShieldCheck, UploadCloud } from "lucide-react";
 import { parseProofFile, parseShortCode, parseVerifyInput, type ProofFile, type VerifyResult } from "@mohar/core";
 import { Ambient, Button, Card, Input, Label, Page } from "@/components/ui/primitives";
-import { extractProofFromPdf } from "@/lib/pdf";
 import { verify, verifyCode } from "@/lib/verifier";
 import { cn } from "@/lib/utils";
 import { ResultSkeleton, ResultView, type ShownResult } from "./ResultView";
-import { ScanDialog } from "./ScanDialog";
+import dynamic from "next/dynamic";
+
+// camera QR decoder (jsQR) is only downloaded when the scanner is opened
+const ScanDialog = dynamic(() => import("./ScanDialog").then((m) => m.ScanDialog), { ssr: false });
 
 const MAX_FILE = 5 * 1024 * 1024;
 
@@ -129,7 +131,7 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
       let proof: ProofFile;
       try {
         if (name.endsWith(".pdf") || file.type === "application/pdf") {
-          proof = await extractProofFromPdf(await file.arrayBuffer());
+          proof = await (await import("@/lib/pdf")).extractProofFromPdf(await file.arrayBuffer());
         } else if (name.endsWith(".json") || file.type === "application/json") {
           proof = parseProofFile(await file.text());
         } else {

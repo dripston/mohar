@@ -16,7 +16,6 @@ import {
 } from "@mohar/core";
 import { Ambient, Badge, Button, Card, Mono, Page, PageHeader } from "@/components/ui/primitives";
 import { APP_ORIGIN } from "@/lib/config";
-import { extractProofFromPdf, createCertificatePdf } from "@/lib/pdf";
 import { qrDataUrl } from "@/lib/qr";
 import { cn, downloadFile } from "@/lib/utils";
 
@@ -50,7 +49,7 @@ export default function HolderPage() {
     setQr(undefined);
     setLink(undefined);
     try {
-      const parsed = f.name.toLowerCase().endsWith(".pdf") ? await extractProofFromPdf(await f.arrayBuffer()) : parseProofFile(await f.text());
+      const parsed = f.name.toLowerCase().endsWith(".pdf") ? await (await import("@/lib/pdf")).extractProofFromPdf(await f.arrayBuffer()) : parseProofFile(await f.text());
       if (parsed.partial) throw new Error("This is already a partial copy. Open your original, complete certificate file to choose what to share.");
       setFile(parsed);
       setReveal(new Set(Object.keys(parsed.fields).filter((p) => p !== COUNT_PATH && !SENSITIVE.test(p))));
@@ -299,7 +298,7 @@ export default function HolderPage() {
                         file &&
                         downloadFile(
                           `${code}.pdf`,
-                          await createCertificatePdf(file, buildVerifyUrl(APP_ORIGIN, code, { chainId: file.chainId, signer: file.signer, documentRoot: file.documentRoot, expiresAt: file.expiresAt, anchor: file.anchor })),
+                          await (await import("@/lib/pdf")).createCertificatePdf(file, buildVerifyUrl(APP_ORIGIN, code, { chainId: file.chainId, signer: file.signer, documentRoot: file.documentRoot, expiresAt: file.expiresAt, anchor: file.anchor })),
                           "application/pdf",
                         )
                       }

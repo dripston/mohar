@@ -8,7 +8,6 @@ import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Loader2, Packag
 import { anchorBatch, batchProofFiles, buildBatch, prepareCertificate, proofFileToJson, type PreparedBatch, type PreparedCert, type ProofFile } from "@mohar/core";
 import { Badge, Button, Card } from "@/components/ui/primitives";
 import { deployment } from "@/lib/config";
-import { createCertificatePdf } from "@/lib/pdf";
 import { cn, downloadFile } from "@/lib/utils";
 import { useIssuer } from "./IssuerContext";
 import { ArchiveBanner } from "./ResultPanel";
@@ -155,7 +154,7 @@ export function Bulk() {
         while (used.has(base)) base += "_";
         used.add(base);
         const link = linkFor(f);
-        z.file(`certificates/${base}.pdf`, await createCertificatePdf(f, link));
+        z.file(`certificates/${base}.pdf`, await (await import("@/lib/pdf")).createCertificatePdf(f, link));
         z.file(`proofs/${base}.mohar.json`, proofFileToJson(f));
         manifest.push(
           [code, fieldValue(f, "recipient.name"), fieldValue(f, "recipient.email"), fieldValue(f, "credential.title"), fieldValue(f, "credential.grade"), fieldValue(f, "credential.issuedOn"), fieldValue(f, "credential.expiresOn"), link, `certificates/${base}.pdf`, `proofs/${base}.mohar.json`, certIdOf(f)]

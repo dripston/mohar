@@ -453,7 +453,7 @@ export function FinalCta() {
   return (
     <section className="relative overflow-hidden py-28 sm:py-40" aria-labelledby="cta-h">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-seal/20 blur-[160px]" />
+        <div className="absolute left-1/2 top-1/2 h-[1000px] w-[1000px] -translate-x-1/2 -translate-y-1/2 glow-seal" />
       </div>
       <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
         <Reveal>
