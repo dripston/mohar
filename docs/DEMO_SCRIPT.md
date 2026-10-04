@@ -16,7 +16,7 @@ Target length: about 6 minutes. Times are cumulative.
 - [ ] MetaMask on **Base Sepolia** with two accounts imported:
   - **Authority (root)**: the deployer key from `.env`, 0x5673…6F37.
   - **Institute**: the scholarship institute key from `.seed-keys.base-sepolia.json`, 0x41d4…1581. It needs a little Sepolia ETH, so send 0.002 from the root account first.
-- [ ] From /demo, pre-download into one folder: `student-enrolment.json`, `student-caste.json`, `student-income.json`, the **tampered** sample, the **fake institute** sample, `applications.zip`.
+- [ ] From /demo, pre-download into one folder: `student-enrolment.json`, `student-caste.json`, `student-income.json`, `app-0003.mohar` (tampered), `app-0015.mohar` (fake institute), `applications.zip`.
 - [ ] Open these tabs in order (left to right): Landing `/`, `/issuer`, `/scheme`, `/bulk`, `/issuer/admin`, `/demo`, BaseScan of the CertificateRegistry `0x7A08A61DaE82f1bEdE7003fc83B8B09D26030135`.
 - [ ] Phone: on **mobile data** (Wi-Fi off), camera app open, screen brightness up.
 - [ ] Do one warm-up scan and one warm-up verify so RPCs are warm.
@@ -92,7 +92,7 @@ Now someone tries to cheat. This applicant edited their income certificate, chan
 
 **DO:**
 1. Click the **Officer** tab. Drop the bundle you just downloaded → green **ELIGIBLE** hero. Point at the three requirement cards.
-2. Drop the **tampered** sample → red **INVALID**. Point at the income card showing **TAMPERED**.
+2. Drop `app-0003.mohar` (tampered) → red **INVALID**. Point at the income card showing **TAMPERED**.
 
 ---
 
@@ -108,9 +108,9 @@ But notice this row. **This one passes.** It's from an institute that's register
 **DO:**
 1. Drop `applications.zip`. Let the progress bar and throughput counter run. Don't talk over the finish, let the numbers land.
 2. Click two summary buttons (e.g. **INVALID**, then **NOT ELIGIBLE**) to filter. Expand one row to show the reason.
-3. Point at the **duplicate** badge.
+3. Point at the **duplicate** badge if one shows. If not, drop that sentence from SAY. Expected summary: 19 eligible, 5 not eligible, 2 invalid, 1 incomplete.
 4. Click **Download CSV** (just the click).
-5. Clear the filter, find the **fake-institute** row (shows ELIGIBLE), and hover on it as you say "this one passes".
+5. Clear the filter, find the **app-0015** row (fake institute, shows ELIGIBLE), and hover on it as you say "this one passes".
 
 ---
 
@@ -127,7 +127,7 @@ Back to the officer. Same batch, screen again…
 1. Switch MetaMask to the **Authority** account.
 2. In the registry, find **Demo Fake Institute** (key 0x5dA8…C096). Click revoke, set the cut-off to the value shown on /demo ("The audit" card). Confirm in MetaMask.
 3. Back to the `/bulk` tab. Drop `applications.zip` again.
-4. Point at the **"Changed since last screen"** card and at the rows now showing **INVALID · ISSUER_REVOKED**.
+4. Point at the **"Changed since last screen"** card and at the app-0015 row now showing **INVALID · ISSUER_REVOKED** (summary goes 19→18 eligible, 2→3 invalid).
 
 ---
 
