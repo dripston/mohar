@@ -74,10 +74,10 @@ contract CrossLangTest is Test {
         address signer = j.readAddress(".signer");
         bytes32 docRoot = j.readBytes32(".documentRoot");
         certs.issue(signer, docRoot, 0, j.readBytes(".issueSig"));
-        (address issuer,,,,,) = certs.getStatus(certs.certId(docRoot));
+        (address issuer,,,,,) = certs.getStatus(certs.recordId(signer, docRoot));
         assertEq(issuer, signer);
 
         certs.issueBatch(signer, j.readBytes32(".batchRoot"), 7, j.readBytes(".batchSig"));
-        assertEq(certs.getBatch(j.readBytes32(".batchRoot")).count, 7);
+        assertEq(certs.getBatch(signer, j.readBytes32(".batchRoot")).count, 7);
     }
 }

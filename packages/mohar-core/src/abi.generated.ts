@@ -731,8 +731,37 @@ export const certificateRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "batchKey",
+    "inputs": [
+      {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "batchRoot",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
     "name": "batchRid",
     "inputs": [
+      {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
       {
         "name": "batchRoot",
         "type": "bytes32",
@@ -833,6 +862,11 @@ export const certificateRegistryAbi = [
     "name": "getBatch",
     "inputs": [
       {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
         "name": "batchRoot",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -873,6 +907,11 @@ export const certificateRegistryAbi = [
     "type": "function",
     "name": "getBatchCert",
     "inputs": [
+      {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
       {
         "name": "batchRoot",
         "type": "bytes32",
@@ -1066,6 +1105,13 @@ export const certificateRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "invalidatePendingSignatures",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "issue",
     "inputs": [
       {
@@ -1167,6 +1213,30 @@ export const certificateRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "recordId",
+    "inputs": [
+      {
+        "name": "identity",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "documentRoot",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
     "name": "registry",
     "inputs": [],
     "outputs": [
@@ -1190,6 +1260,30 @@ export const certificateRegistryAbi = [
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "resolveCode",
+    "inputs": [
+      {
+        "name": "code",
+        "type": "bytes8",
+        "internalType": "bytes8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "rid",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "ambiguous",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -1366,7 +1460,7 @@ export const certificateRegistryAbi = [
     "name": "Issued",
     "inputs": [
       {
-        "name": "certId",
+        "name": "rid",
         "type": "bytes32",
         "indexed": true,
         "internalType": "bytes32"

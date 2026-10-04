@@ -37,22 +37,51 @@ export interface ChainIssuer {
   keyRevokeReason: number;
 }
 
+/** Why a read could not produce an answer. Drives distinct, non-alarming UI states. */
+export type UnreachableKind = "down" | "split" | "stale";
+
 export class ChainUnreachable extends Error {
-  constructor(public errors: string[]) {
+  constructor(
+    public errors: string[],
+    public kind: UnreachableKind = "down",
+  ) {
     super(`Could not reach the chain: ${errors.join("; ")}`);
   }
 }
 
 const bigSafe = (_: string, v: unknown) => (typeof v === "bigint" ? v.toString() : v);
 
+/** What the verifier knows about the providers it asked, surfaced to the UI. */
+export interface Agreement {
+  /** providers asked */
+  providers: number;
+  /** providers that gave the winning answer */
+  agreed: number;
+  /** providers that answered at all */
+  answered: number;
+  /** providers excluded because their head block was behind the others */
+  stale: number;
+  /** providers that errored / timed out */
+  down: number;
+  /** providers that answered something different from the majority */
+  dissent: number;
+  /**
+   * true when more than one provider is configured but fewer than two could vouch for the answer
+   * (single source). A lone RPC can lie, so the UI must say so.
+   */
+  degraded: boolean;
+  /** block the answer was read at, and that block's timestamp: chain time, never browser time */
+  block?: { number: number; timestamp: number };
+}
+
 export interface Reader {
   deployment: Deployment;
-  /** how many independent providers answered identically for the last call (1 = single source) */
-  agreement: { providers: number; agreed: number };
+  agreement: Agreement;
   getIssuerByKey(key: Address): Promise<ChainIssuer | null>;
   getCert(rid: Hex): Promise<ChainCert>;
-  getBatchCert(batchRoot: Hex, documentRoot: Hex, expiresAt: number, proof: Hex[]): Promise<ChainCert>;
-  findByShortCode(bytes8: Hex): Promise<{ certId: Hex; issuer: Address; signer: Address; expiresAt: number } | null>;
+  getBatchCert(identity: Address, batchRoot: Hex, documentRoot: Hex, expiresAt: number, proof: Hex[]): Promise<ChainCert>;
+  /** Resolve a short code on chain. `ambiguous`: more than one certificate shares the code. */
+  findByShortCode(bytes8: Hex): Promise<{ rid: Hex; ambiguous: boolean; cert: ChainCert } | null>;
 }
 
 const toNum = (x: bigint | number) => Number(x);
@@ -69,24 +98,56 @@ function normCert(v: { state: number; cert: any }): ChainCert {
   };
 }
 
+/** A provider whose newest block is more than this many seconds behind the best head is "stale". */
+export const STALE_SECS = 120;
+
 /**
- * Chain reader over an ordered list of RPC endpoints. Each read is sent to up to `fanout` providers.
- * Results must agree: two matching answers count as verified, one answer is returned flagged as "single source",
- * zero answers throws {@link ChainUnreachable}. A disagreement throws too, because a split is never a verdict.
+ * Chain reader over an ordered list of RPC endpoints.
+ *
+ * Every read is pinned to ONE block so providers are compared like-for-like and so contract time checks
+ * (expiry, key cut-offs) run on that block's timestamp, never the browser clock:
+ *   1. ask each provider for its head; providers more than {@link STALE_SECS} behind the best are dropped as stale;
+ *   2. read at the lowest head among the fresh ones (every fresh provider has it);
+ *   3. >= 2 identical answers = quorum. One answer when several providers are configured = `degraded` (flagged,
+ *      still returned). Several answers with no majority = `split` (never a verdict). Nothing = `down`.
  */
 export function makeReader(deployment: Deployment, clients: PublicClient[], fanout = 3): Reader {
-  const agreement = { providers: 0, agreed: 0 };
-  const quorum = async <T>(fn: (c: PublicClient) => Promise<T>): Promise<T> => {
-    const pool = clients.slice(0, fanout);
-    const settled = await Promise.allSettled(pool.map(fn));
-    const ok: T[] = [];
+  const agreement: Agreement = { providers: 0, agreed: 0, answered: 0, stale: 0, down: 0, dissent: 0, degraded: false };
+  const pool = clients.slice(0, fanout);
+
+  const quorum = async <T>(fn: (c: PublicClient, blockNumber: bigint) => Promise<T>): Promise<T> => {
     const errors: string[] = [];
+    const msg = (r: unknown) => (r as Error)?.message?.split("\n")[0] ?? String(r);
+
+    const heads = await Promise.allSettled(pool.map((c) => c.getBlock({ blockTag: "latest" })));
+    const live: { i: number; number: bigint; timestamp: number }[] = [];
+    heads.forEach((h, i) => {
+      if (h.status === "fulfilled") live.push({ i, number: h.value.number, timestamp: Number(h.value.timestamp) });
+      else errors.push(msg(h.reason));
+    });
+    agreement.providers = pool.length;
+    agreement.down = pool.length - live.length;
+    agreement.stale = 0;
+    agreement.dissent = 0;
+    agreement.answered = 0;
+    agreement.agreed = 0;
+    if (live.length === 0) throw new ChainUnreachable(errors, "down");
+
+    const bestTs = Math.max(...live.map((h) => h.timestamp));
+    const fresh = live.filter((h) => h.timestamp >= bestTs - STALE_SECS);
+    agreement.stale = live.length - fresh.length;
+    const at = fresh.reduce((m, h) => (h.number < m.number ? h : m));
+
+    const settled = await Promise.allSettled(fresh.map((h) => fn(pool[h.i]!, at.number)));
+    const ok: T[] = [];
     for (const s of settled) {
       if (s.status === "fulfilled") ok.push(s.value);
-      else errors.push((s.reason as Error)?.message?.split("\n")[0] ?? String(s.reason));
+      else errors.push(msg(s.reason));
     }
-    agreement.providers = pool.length;
-    if (ok.length === 0) throw new ChainUnreachable(errors);
+    agreement.down = pool.length - ok.length - agreement.stale;
+    agreement.answered = ok.length;
+    if (ok.length === 0) throw new ChainUnreachable(errors, "down");
+
     const groups = new Map<string, { v: T; n: number }>();
     for (const v of ok) {
       const k = JSON.stringify(v, bigSafe);
@@ -95,8 +156,13 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
       else groups.set(k, { v, n: 1 });
     }
     const best = [...groups.values()].sort((a, b) => b.n - a.n)[0]!;
-    if (groups.size > 1 && best.n < 2) throw new ChainUnreachable(["providers disagree, refusing to give a verdict"]);
+    if (groups.size > 1 && best.n < 2) {
+      throw new ChainUnreachable(["providers gave different answers and none had a majority"], "split");
+    }
     agreement.agreed = best.n;
+    agreement.dissent = ok.length - best.n;
+    agreement.degraded = pool.length > 1 && best.n < 2;
+    agreement.block = { number: Number(at.number), timestamp: at.timestamp };
     return best.v;
   };
 
@@ -107,12 +173,18 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
     deployment,
     agreement,
     async getIssuerByKey(key) {
-      return quorum(async (c) => {
-        const identity = (await c.readContract({ address: regAddr, abi: issuerRegistryAbi, functionName: "identityOf", args: [key] })) as Address;
+      return quorum(async (c, blockNumber) => {
+        const identity = (await c.readContract({
+          address: regAddr,
+          abi: issuerRegistryAbi,
+          functionName: "identityOf",
+          args: [key],
+          blockNumber,
+        })) as Address;
         if (/^0x0{40}$/.test(identity)) return null;
         const [issuer, k] = await Promise.all([
-          c.readContract({ address: regAddr, abi: issuerRegistryAbi, functionName: "getIssuer", args: [identity] }),
-          c.readContract({ address: regAddr, abi: issuerRegistryAbi, functionName: "getKey", args: [key] }),
+          c.readContract({ address: regAddr, abi: issuerRegistryAbi, functionName: "getIssuer", args: [identity], blockNumber }),
+          c.readContract({ address: regAddr, abi: issuerRegistryAbi, functionName: "getKey", args: [key], blockNumber }),
         ]);
         return {
           identity,
@@ -126,40 +198,39 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
       });
     },
     async getCert(rid) {
-      return quorum(async (c) =>
-        normCert(await c.readContract({ address: certAddr, abi: certificateRegistryAbi, functionName: "getCert", args: [rid] })),
+      return quorum(async (c, blockNumber) =>
+        normCert(
+          await c.readContract({ address: certAddr, abi: certificateRegistryAbi, functionName: "getCert", args: [rid], blockNumber }),
+        ),
       );
     },
-    async getBatchCert(batchRoot, documentRoot, expiresAt, proof) {
-      return quorum(async (c) =>
+    async getBatchCert(identity, batchRoot, documentRoot, expiresAt, proof) {
+      return quorum(async (c, blockNumber) =>
         normCert(
           await c.readContract({
             address: certAddr,
             abi: certificateRegistryAbi,
             functionName: "getBatchCert",
-            args: [batchRoot, documentRoot, BigInt(expiresAt), proof],
+            args: [identity, batchRoot, documentRoot, BigInt(expiresAt), proof],
+            blockNumber,
           }),
         ),
       );
     },
     async findByShortCode(bytes8) {
-      return quorum(async (c) => {
-        const logs = await c.getContractEvents({
+      return quorum(async (c, blockNumber) => {
+        const [rid, ambiguous] = await c.readContract({
           address: certAddr,
           abi: certificateRegistryAbi,
-          eventName: "Issued",
-          args: { shortCode: bytes8 },
-          fromBlock: BigInt(deployment.deployBlock ?? 0),
-          toBlock: "latest",
+          functionName: "resolveCode",
+          args: [bytes8],
+          blockNumber,
         });
-        const l = logs[0];
-        if (!l) return null;
-        return {
-          certId: l.args.certId as Hex,
-          issuer: l.args.issuer as Address,
-          signer: l.args.signer as Address,
-          expiresAt: toNum(l.args.expiresAt as bigint),
-        };
+        if (/^0x0{64}$/.test(rid)) return null;
+        const cert = normCert(
+          await c.readContract({ address: certAddr, abi: certificateRegistryAbi, functionName: "getCert", args: [rid], blockNumber }),
+        );
+        return { rid: rid as Hex, ambiguous, cert };
       });
     },
   };

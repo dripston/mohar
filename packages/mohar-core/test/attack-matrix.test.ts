@@ -22,6 +22,7 @@ import {
   anchorSingle,
   batchProofFiles,
   certId,
+  recordId,
   certificateRegistryAbi,
   clientsFromUrls,
   discloseFields,
@@ -181,7 +182,7 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
 
   it("A3 swapped issuer: valid certificate re-labelled with another registered issuer key", async () => {
     const f = { ...structuredClone(good), signer: B.account.address };
-    record("A3", "Swapped issuer (signer field replaced by another accredited key)", "UNKNOWN_ISSUER", await verify({ file: f }));
+    record("A3", "Swapped issuer (signer field replaced by another accredited key): nothing anchored under that issuer", "TAMPERED", await verify({ file: f }));
   });
 
   it("A4 fake issuer wallet: attacker signs with an unregistered key and tries to anchor", async () => {
@@ -233,7 +234,7 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
     const p = prepareCertificate(docFor(A.account.address) as any);
     await anchorSingle(A.w, p);
     const f = singleProofFile(dep, A.account.address, p);
-    await revokeCert(A.w, { kind: "single", certId: certId(f.documentRoot) }, 2);
+    await revokeCert(A.w, { kind: "single", rid: recordId(A.account.address, f.documentRoot) }, 2);
     const r = await verify({ file: f });
     record("A6", "Revoked (issued in error)", "REVOKED", r);
     expect(r.checks[4]!.detail).toContain("Issued in error");
@@ -242,18 +243,18 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
   it("A6b revoked certificates cannot be un-revoked, and strangers cannot revoke", async () => {
     const p = prepareCertificate(docFor(A.account.address) as any);
     await anchorSingle(A.w, p);
-    const id = certId(p.built.documentRoot);
+    const id = recordId(A.account.address, p.built.documentRoot);
     let stranger = "accepted";
     try {
-      await revokeCert(B.w, { kind: "single", certId: id }, 1);
+      await revokeCert(B.w, { kind: "single", rid: id }, 1);
     } catch (e) {
       stranger = /NotController/.test(String(e)) ? "REJECTED_ON_CHAIN" : String(e).slice(0, 80);
     }
     record("A6b", "Another accredited issuer tries to revoke someone else's certificate", "REJECTED_ON_CHAIN", stranger);
-    await revokeCert(A.w, { kind: "single", certId: id }, 5);
+    await revokeCert(A.w, { kind: "single", rid: id }, 5);
     let unrevoke = "accepted";
     try {
-      await reinstateCert(A.w, { kind: "single", certId: id });
+      await reinstateCert(A.w, { kind: "single", rid: id });
     } catch (e) {
       unrevoke = /BadTransition/.test(String(e)) ? "REJECTED_ON_CHAIN" : String(e).slice(0, 80);
     }
@@ -264,7 +265,7 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
     const p = prepareCertificate(docFor(A.account.address) as any);
     await anchorSingle(A.w, p);
     const f = singleProofFile(dep, A.account.address, p);
-    const ref = { kind: "single" as const, certId: certId(f.documentRoot) };
+    const ref = { kind: "single" as const, rid: recordId(A.account.address, f.documentRoot) };
     await suspendCert(A.w, ref);
     record("A7", "Suspended certificate", "SUSPENDED", await verify({ file: f }));
     await reinstateCert(A.w, ref);
@@ -327,7 +328,7 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
     await rootTx("rotateIssuerKey", [D.account.address, nAcct.address]);
     const nw: Writer = { wallet: createWalletClient({ account: nAcct, chain, transport: http(RPC) }), publicClient: pub, deployment: dep };
     record("A10a", "After rotation, certificate issued by old key still valid", "VERIFIED", await verify({ file: f }));
-    await revokeCert(nw, { kind: "single", certId: certId(f.documentRoot) }, 4);
+    await revokeCert(nw, { kind: "single", rid: recordId(D.account.address, f.documentRoot) }, 4);
     record("A10b", "New key revokes certificate issued by the old key", "REVOKED", await verify({ file: f }));
   });
 
@@ -381,7 +382,7 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
     record("A15a", "Batch certificates verify (sampled 6/25)", "VERIFIED", results.every((r) => r.verdict === "VERIFIED") ? "VERIFIED" : "mixed");
     const target = files[3]!;
     const anchor = target.anchor as Extract<typeof target.anchor, { kind: "batch" }>;
-    await revokeCert(E.w, { kind: "batch", batchRoot: anchor.batchRoot, documentRoot: target.documentRoot, expiresAt: target.expiresAt, proof: anchor.proof }, 2);
+    await revokeCert(E.w, { kind: "batch", identity: E.account.address, batchRoot: anchor.batchRoot, documentRoot: target.documentRoot, expiresAt: target.expiresAt, proof: anchor.proof }, 2);
     record("A15b", "Revoke one batch member", "REVOKED", await verify({ file: target }));
     record("A15c", "Sibling in the same batch stays valid", "VERIFIED", await verify({ file: files[4]! }));
     const forgedProof = { ...structuredClone(files[5]!), anchor: { ...files[5]!.anchor, proof: files[6]!.anchor.kind === "batch" ? files[6]!.anchor.proof : [] } } as ProofFile;

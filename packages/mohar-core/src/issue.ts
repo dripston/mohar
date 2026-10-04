@@ -5,6 +5,7 @@ import type { JsonValue } from "./canonical";
 import { buildBatch, buildDocument, type BuiltDocument } from "./merkle";
 import { issueBatchTypedData, issueTypedData } from "./eip712";
 import type { ProofFile } from "./types";
+import { batchRid } from "./ids";
 
 type Wallet = WalletClient<Transport, Chain | undefined, Account>;
 
@@ -152,8 +153,8 @@ export async function anchorBatch(w: Writer, b: PreparedBatch, onStep: (s: Issue
 
 /** Lifecycle actions for a cert (single, or a batch member given its batch context). */
 export type CertRef =
-  | { kind: "single"; certId: Hex }
-  | { kind: "batch"; batchRoot: Hex; documentRoot: Hex; expiresAt: number; proof: Hex[] };
+  | { kind: "single"; rid: Hex }
+  | { kind: "batch"; identity: Address; batchRoot: Hex; documentRoot: Hex; expiresAt: number; proof: Hex[] };
 
 async function send(w: Writer, functionName: string, args: readonly unknown[]) {
   const hash = await w.wallet.writeContract({
@@ -170,23 +171,15 @@ async function send(w: Writer, functionName: string, args: readonly unknown[]) {
 
 export const revokeCert = (w: Writer, ref: CertRef, reason: number) =>
   ref.kind === "single"
-    ? send(w, "revoke", [ref.certId, reason])
+    ? send(w, "revoke", [ref.rid, reason])
     : send(w, "revokeFromBatch", [ref.batchRoot, ref.documentRoot, BigInt(ref.expiresAt), ref.proof, reason]);
 
 export const suspendCert = (w: Writer, ref: CertRef) =>
   ref.kind === "single"
-    ? send(w, "suspend", [ref.certId])
+    ? send(w, "suspend", [ref.rid])
     : send(w, "suspendFromBatch", [ref.batchRoot, ref.documentRoot, BigInt(ref.expiresAt), ref.proof]);
 
 export async function reinstateCert(w: Writer, ref: CertRef) {
-  const rid =
-    ref.kind === "single"
-      ? ref.certId
-      : await w.publicClient.readContract({
-          address: w.deployment.certificateRegistry,
-          abi: certificateRegistryAbi,
-          functionName: "batchRid",
-          args: [ref.batchRoot, ref.documentRoot],
-        });
+  const rid = ref.kind === "single" ? ref.rid : batchRid(ref.identity, ref.batchRoot, ref.documentRoot);
   return send(w, "reinstate", [rid]);
 }

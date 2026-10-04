@@ -116,10 +116,10 @@ contract CertificatesTest is Base {
     function test_issue_storesAndEmits() public {
         vm.expectEmit(true, true, true, true);
         emit CertificateRegistry.Issued(
-            keccak256(abi.encodePacked(DOC)), bytes8(keccak256(abi.encodePacked(DOC))) & bytes8(0xFFFFFFFFFFFFFFF0), alice, alice, 0
+            certs.recordId(alice, DOC), bytes8(keccak256(abi.encodePacked(DOC))) & bytes8(0xFFFFFFFFFFFFFFF0), alice, alice, 0
         );
         bytes32 id = _issue(aliceKey, DOC, 0);
-        assertEq(id, certs.certId(DOC));
+        assertEq(id, certs.recordId(alice, DOC));
         (address issuer, uint64 at, uint64 exp, CertificateRegistry.State s,,) = certs.getStatus(id);
         assertEq(issuer, alice);
         assertEq(at, block.timestamp);
@@ -134,9 +134,9 @@ contract CertificatesTest is Base {
 
     function test_issue_cannotOverwriteRoot() public {
         _issue(aliceKey, DOC, 0);
-        bytes memory sig = _signIssue(bobKey, DOC, 0, certs.nonces(bob));
+        bytes memory sig = _signIssue(aliceKey, DOC, 0, certs.nonces(alice));
         vm.expectRevert(CertificateRegistry.AlreadyAnchored.selector);
-        certs.issue(bob, DOC, 0, sig);
+        certs.issue(alice, DOC, 0, sig); // same identity cannot overwrite its own record (Bob gets a separate one)
     }
 
     function test_issue_rejectsUnregisteredSigner() public {
@@ -189,7 +189,7 @@ contract CertificatesTest is Base {
         bytes memory sig = _signIssue(aliceKey, DOC, 0, 0);
         vm.prank(makeAddr("relayer"));
         certs.issue(alice, DOC, 0, sig);
-        (address issuer,,,,,) = certs.getStatus(certs.certId(DOC));
+        (address issuer,,,,,) = certs.getStatus(certs.recordId(alice, DOC));
         assertEq(issuer, alice);
     }
 
@@ -337,7 +337,7 @@ contract CertificatesTest is Base {
         for (uint256 i = 0; i < 21; i++) {
             (, bytes32[] memory proof) = _tree(leaves, i);
             assertTrue(certs.verifyInBatch(batchRoot, docs[i], exps[i], proof));
-            CertificateRegistry.CertView memory v = certs.getBatchCert(batchRoot, docs[i], exps[i], proof);
+            CertificateRegistry.CertView memory v = certs.getBatchCert(alice, batchRoot, docs[i], exps[i], proof);
             assertEq(uint8(v.state), uint8(CertificateRegistry.State.Active));
             assertEq(v.cert.issuer, alice);
         }
@@ -347,17 +347,18 @@ contract CertificatesTest is Base {
         (bytes32[] memory docs, uint64[] memory exps, bytes32[] memory leaves) = _batch(5);
         (bytes32 batchRoot, bytes32[] memory proof) = _tree(leaves, 2);
         certs.issueBatch(alice, batchRoot, 5, _signBatch(aliceKey, batchRoot, 5, 0));
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[2], exps[2] + 1, proof).state), 0);
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[3], exps[3], proof).state), 0);
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[2], exps[2] + 1, proof).state), 0);
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[3], exps[3], proof).state), 0);
     }
 
     function test_batch_cannotReanchor_orEmpty() public {
         (,, bytes32[] memory leaves) = _batch(4);
         (bytes32 batchRoot,) = _tree(leaves, 0);
         certs.issueBatch(alice, batchRoot, 4, _signBatch(aliceKey, batchRoot, 4, 0));
-        bytes memory sig = _signBatch(bobKey, batchRoot, 4, 0);
+        // the SAME identity cannot anchor the same root twice (Bob can: his record is separate, see ReviewTest)
+        bytes memory sig = _signBatch(aliceKey, batchRoot, 4, 1);
         vm.expectRevert(CertificateRegistry.AlreadyAnchored.selector);
-        certs.issueBatch(bob, batchRoot, 4, sig);
+        certs.issueBatch(alice, batchRoot, 4, sig);
         bytes memory sig2 = _signBatch(aliceKey, keccak256("e"), 0, 1);
         vm.expectRevert(CertificateRegistry.EmptyBatch.selector);
         certs.issueBatch(alice, keccak256("e"), 0, sig2);
@@ -371,9 +372,9 @@ contract CertificatesTest is Base {
         vm.prank(alice);
         certs.revokeFromBatch(batchRoot, docs[3], exps[3], proof3, 2);
 
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[3], exps[3], proof3).state), uint8(CertificateRegistry.State.Revoked));
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[3], exps[3], proof3).state), uint8(CertificateRegistry.State.Revoked));
         (, bytes32[] memory proof4) = _tree(leaves, 4);
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[4], exps[4], proof4).state), uint8(CertificateRegistry.State.Active));
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[4], exps[4], proof4).state), uint8(CertificateRegistry.State.Active));
     }
 
     function test_batch_suspend_thenReinstate() public {
@@ -382,9 +383,9 @@ contract CertificatesTest is Base {
         certs.issueBatch(alice, batchRoot, 4, _signBatch(aliceKey, batchRoot, 4, 0));
         vm.startPrank(alice);
         certs.suspendFromBatch(batchRoot, docs[1], exps[1], proof);
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[1], exps[1], proof).state), uint8(CertificateRegistry.State.Suspended));
-        certs.reinstate(certs.batchRid(batchRoot, docs[1]));
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[1], exps[1], proof).state), uint8(CertificateRegistry.State.Active));
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[1], exps[1], proof).state), uint8(CertificateRegistry.State.Suspended));
+        certs.reinstate(certs.batchRid(alice, batchRoot, docs[1]));
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[1], exps[1], proof).state), uint8(CertificateRegistry.State.Active));
         vm.stopPrank();
     }
 
@@ -393,7 +394,7 @@ contract CertificatesTest is Base {
         (bytes32 batchRoot, bytes32[] memory proof) = _tree(leaves, 0);
         certs.issueBatch(alice, batchRoot, 4, _signBatch(aliceKey, batchRoot, 4, 0));
         vm.prank(bob);
-        vm.expectRevert(CertificateRegistry.NotController.selector);
+        vm.expectRevert(CertificateRegistry.UnknownBatch.selector); // Bob has no such batch in his own namespace
         certs.revokeFromBatch(batchRoot, docs[0], exps[0], proof, 1);
     }
 
@@ -412,8 +413,8 @@ contract CertificatesTest is Base {
         certs.revokeFromBatch(bobBatch, docs[0], exps[0], bobProof, 1);
 
         // Alice's certificate is untouched; verifiers query by (batch, proof).
-        assertEq(uint8(certs.getBatchCert(aliceBatch, docs[0], exps[0], aliceProof).state), uint8(CertificateRegistry.State.Active));
-        assertEq(certs.getBatchCert(aliceBatch, docs[0], exps[0], aliceProof).cert.issuer, alice);
+        assertEq(uint8(certs.getBatchCert(alice, aliceBatch, docs[0], exps[0], aliceProof).state), uint8(CertificateRegistry.State.Active));
+        assertEq(certs.getBatchCert(alice, aliceBatch, docs[0], exps[0], aliceProof).cert.issuer, alice);
     }
 
     function test_batch_issuerRevokedAfterCutoff() public {
@@ -425,7 +426,7 @@ contract CertificatesTest is Base {
         vm.warp(t0 + 200);
         vm.prank(root);
         reg.revokeIssuer(alice, t0 + 50, 1); // compromised since before that batch
-        assertEq(uint8(certs.getBatchCert(batchRoot, docs[2], exps[2], proof).state), uint8(CertificateRegistry.State.IssuerRevoked));
+        assertEq(uint8(certs.getBatchCert(alice, batchRoot, docs[2], exps[2], proof).state), uint8(CertificateRegistry.State.IssuerRevoked));
     }
 
     function test_batch_gasPerCertificate() public {

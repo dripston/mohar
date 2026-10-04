@@ -1,8 +1,23 @@
-import { bytesToHex, hexToBytes, keccak256, type Hex } from "viem";
+import { bytesToHex, encodeAbiParameters, hexToBytes, keccak256, type Address, type Hex } from "viem";
 
-/** certId = keccak256(documentRoot). The only real identity of a certificate. */
+/** certId = keccak256(documentRoot). Document-only: the source of the human short code, NOT a storage key. */
 export function certId(documentRoot: Hex): Hex {
   return keccak256(documentRoot);
+}
+
+/**
+ * On-chain storage key of a single certificate: keccak256(abi.encode(issuerIdentity, documentRoot)).
+ * Namespacing by issuer means nobody else can pre-claim, block or control a root they merely copied.
+ */
+export function recordId(identity: Address, documentRoot: Hex): Hex {
+  return keccak256(encodeAbiParameters([{ type: "address" }, { type: "bytes32" }], [identity, documentRoot]));
+}
+
+/** Storage key of a certificate inside an identity's batch: keccak256(abi.encode(identity, batchRoot, documentRoot)). */
+export function batchRid(identity: Address, batchRoot: Hex, documentRoot: Hex): Hex {
+  return keccak256(
+    encodeAbiParameters([{ type: "address" }, { type: "bytes32" }, { type: "bytes32" }], [identity, batchRoot, documentRoot]),
+  );
 }
 
 // Crockford base32: no I, L, O, U. Check symbols extend the alphabet (mod 37).

@@ -1,8 +1,7 @@
 import { getAddress, type Address, type Hex } from "viem";
-import { ChainUnreachable, type ChainCert, type ChainIssuer, type Reader } from "./chain";
+import { ChainUnreachable, type ChainCert, type ChainIssuer, type Reader, type UnreachableKind } from "./chain";
 import type { DnsResolver } from "./dns";
-import { certId } from "./ids";
-import { shortCode } from "./ids";
+import { certId, recordId, shortCode } from "./ids";
 import { COUNT_PATH, type Anchor, type ProofFile } from "./types";
 import { diffFields, verifyInBatch } from "./merkle";
 import type { LinkHeader } from "./link";
@@ -61,8 +60,23 @@ export interface VerifyResult {
     certId?: Hex;
     txHint?: string;
   };
-  providers?: { asked: number; agreed: number };
+  providers?: ProviderSummary;
+  /** why the chain could not be read, when the verdict is CANNOT_REACH_CHAIN */
+  unreachable?: UnreachableKind;
+  /** block the answer was read at; its timestamp is the "now" every expiry / cut-off check ran against */
+  chainTime?: { block: number; timestamp: number };
+  /** browser clock (display only, never used to decide anything) */
   verifiedAt: number;
+}
+
+export interface ProviderSummary {
+  asked: number;
+  agreed: number;
+  answered: number;
+  stale: number;
+  down: number;
+  dissent: number;
+  degraded: boolean;
 }
 
 export interface VerifyInput {
@@ -197,7 +211,7 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
     // ------------------------------------------------------------------ chain record
     let cert: ChainCert;
     if (header.anchor.kind === "single") {
-      cert = await deps.reader.getCert(id);
+      cert = await deps.reader.getCert(recordId(issuer.identity, header.documentRoot));
     } else {
       const a = header.anchor as Extract<Anchor, { kind: "batch" }>;
       if (!verifyInBatch(a.batchRoot, header.documentRoot, header.expiresAt, a.proof)) {
@@ -205,14 +219,14 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
         set(checks, 4, "fail", "Certificate is not a member of the batch it claims.");
         return finish("TAMPERED", mode, checks, now, { ...base, issuer: issuerInfo, providers: providersOf(deps) });
       }
-      cert = await deps.reader.getBatchCert(a.batchRoot, header.documentRoot, header.expiresAt, a.proof);
+      cert = await deps.reader.getBatchCert(issuer.identity, a.batchRoot, header.documentRoot, header.expiresAt, a.proof);
     }
     const providers = providersOf(deps);
 
     // ------------------------------------------------------------------ 3. signer matches the anchored record
     if (cert.state === "NotFound") {
       set(checks, 3, "fail", "No issuance record for this certificate exists on chain.");
-      set(checks, 4, "fail", "This root was never anchored by any accredited issuer.");
+      set(checks, 4, "fail", "This issuer never anchored this root.");
       // A full file whose root nobody issued is a forgery, not merely an unknown cert.
       const verdict: Verdict = file && !file.partial ? "TAMPERED" : file ? "TAMPERED" : "NOT_FOUND";
       return finish(verdict, mode, checks, now, { ...base, issuer: issuerInfo, providers });
@@ -255,6 +269,7 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
       } else {
         hidden = true;
       }
+      const shown = diffs.filter((d) => d.path !== COUNT_PATH).length;
       if (tampered) {
         set(checks, 4, "fail", detail.trim() || "Expiry in the file differs from the on-chain record.");
       } else {
@@ -263,8 +278,8 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
           4,
           "pass",
           file.partial
-            ? `${diffs.length - 1} disclosed field${diffs.length - 1 === 1 ? "" : "s"} match the signed root. Other fields are hidden by the holder.`
-            : `All ${diffs.length - 1} fields match the signed root.`,
+            ? `${shown} disclosed field${shown === 1 ? "" : "s"} match the signed root. Other fields are hidden by the holder.`
+            : `All ${shown} fields match the signed root.`,
         );
       }
     } else if (tampered) {
@@ -272,7 +287,7 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
     } else {
       set(checks, 4, "warn", "Root is anchored on chain. Upload the certificate file to check the field contents.");
     }
-    const common = { ...base, issuer: issuerInfo, cert, fields, hiddenFields: hidden, providers };
+    const common = { ...base, issuer: issuerInfo, cert, fields, hiddenFields: hidden, providers, chainTime: chainTimeOf(deps) };
     if (tampered) return finish("TAMPERED", mode, checks, now, common);
 
     // ------------------------------------------------------------------ 5. status
@@ -297,8 +312,8 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
     return finish(domainUnchecked ? "VERIFIED_DOMAIN_UNCHECKED" : "VERIFIED", mode, checks, now, common);
   } catch (e) {
     if (e instanceof ChainUnreachable) {
-      set(checks, 1, "warn", e.message);
-      return finish("CANNOT_REACH_CHAIN", mode, checks, now, { ...base, providers: providersOf(deps) });
+      set(checks, 1, "warn", unreachableText(e));
+      return finish("CANNOT_REACH_CHAIN", mode, checks, now, { ...base, providers: providersOf(deps), unreachable: e.kind }, unreachableHeadline(e.kind));
     }
     throw e;
   }
@@ -315,12 +330,20 @@ export async function verifyByCode(
     const hit = await deps.reader.findByShortCode(bytes8);
     if (!hit) {
       return {
-        ...finish("NOT_FOUND", "code", checks, now, {}, "No single-issued certificate has this code"),
+        ...finish("NOT_FOUND", "code", checks, now, { providers: providersOf(deps) }, "No single-issued certificate has this code"),
         needsLink: true,
       };
     }
-    const cert = await deps.reader.getCert(hit.certId);
-    const issuer = await deps.reader.getIssuerByKey(hit.signer);
+    if (hit.ambiguous) {
+      // A 60-bit code is a pointer, not an identity. If two certificates share one we refuse to pick for the user.
+      set(checks, 3, "warn", "More than one certificate uses this code, so a code alone cannot say which one you hold.");
+      return {
+        ...finish("NOT_FOUND", "code", checks, now, { providers: providersOf(deps) }, "This code is ambiguous"),
+        needsLink: true,
+      };
+    }
+    const cert = hit.cert;
+    const issuer = await deps.reader.getIssuerByKey(cert.signer);
     set(checks, 1, issuer ? "pass" : "fail", issuer ? `${issuer.name} is accredited.` : "Signing key unknown.");
     set(checks, 2, "skip", "Open the full link or file to check the domain and contents.");
     set(checks, 3, "pass", "Issuance record found on chain.");
@@ -332,17 +355,37 @@ export async function verifyByCode(
     return {
       ...finish(v, "code", checks, now, {
         cert,
-        certId: hit.certId,
-        issuer: issuer ? { identity: issuer.identity, name: issuer.name, domain: issuer.domain, signer: hit.signer } : undefined,
+        certId: hit.rid,
+        providers: providersOf(deps),
+        chainTime: chainTimeOf(deps),
+        issuer: issuer ? { identity: issuer.identity, name: issuer.name, domain: issuer.domain, signer: cert.signer } : undefined,
       }),
     };
   } catch (e) {
-    if (e instanceof ChainUnreachable) return finish("CANNOT_REACH_CHAIN", "code", checks, now);
+    if (e instanceof ChainUnreachable) {
+      return finish("CANNOT_REACH_CHAIN", "code", checks, now, { providers: providersOf(deps), unreachable: e.kind }, unreachableHeadline(e.kind));
+    }
     throw e;
   }
 }
 
-const providersOf = (d: VerifyDeps) => ({ asked: d.reader.agreement.providers, agreed: d.reader.agreement.agreed });
+function unreachableHeadline(kind: UnreachableKind): string {
+  return kind === "split" ? "Providers disagree" : "Cannot reach the chain";
+}
+
+function unreachableText(e: ChainUnreachable): string {
+  return e.kind === "split"
+    ? "The chain providers gave different answers and none had a majority. Not giving a verdict until they agree. Try again shortly."
+    : e.message;
+}
+
+const chainTimeOf = (d: VerifyDeps) =>
+  d.reader.agreement.block ? { block: d.reader.agreement.block.number, timestamp: d.reader.agreement.block.timestamp } : undefined;
+
+const providersOf = (d: VerifyDeps): ProviderSummary => {
+  const a = d.reader.agreement;
+  return { asked: a.providers, agreed: a.agreed, answered: a.answered, stale: a.stale, down: a.down, dissent: a.dissent, degraded: a.degraded };
+};
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 const fmtDate = (unix: number) => new Date(unix * 1000).toISOString().slice(0, 10);
 const safeParse = (s: string): unknown => {
