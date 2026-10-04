@@ -1,0 +1,15 @@
+node_modules/
+.next/
+dist/
+out/
+cache/
+broadcast/
+.env
+.env.local
+*.log
+test-results/
+playwright-report/
+.agent-talk/
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/lib/
