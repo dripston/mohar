@@ -10,13 +10,13 @@ import { chain } from "@/lib/config";
 import { SealMark } from "./brand/Seal";
 
 const LINKS = [
-  { href: "/", label: "Home" },
   { href: "/verify", label: "Verify" },
+  { href: "/scheme", label: "Scholarship" },
+  { href: "/bulk", label: "Bulk screen" },
   { href: "/issuer", label: "Issuer" },
   { href: "/holder", label: "Holder" },
-  { href: "/scheme", label: "Scheme" },
-  { href: "/bulk", label: "Bulk" },
   { href: "/issuer/admin", label: "Authority" },
+  { href: "/demo", label: "Demo" },
 ];
 
 const active = (path: string, href: string) =>

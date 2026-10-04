@@ -282,9 +282,9 @@ function Count({ to, suffix = "", prefix = "" }: { to: number; suffix?: string; 
 
 export function Stats() {
   const items = [
-    { n: 41, s: "", label: "attack scenarios", sub: "run against a live chain, every one caught" },
-    { n: 580, p: "~", label: "gas per certificate", sub: "measured, in a 200-certificate batch" },
-    { n: 51, label: "contract tests", sub: "unit, 1,000-run fuzz and stateful invariants" },
+    { n: 1000, label: "applications screened", sub: "bulk verdict equal to the single check on every one, 0 false flags" },
+    { n: 542, label: "gas per certificate", sub: "measured on Base Sepolia in a 200-certificate batch" },
+    { n: 78, label: "contract tests", sub: "unit, 1,000-run fuzz, invariants and a hostile pass" },
     { n: 0, label: "personal data on chain", sub: "only a 32-byte root ever leaves the browser" },
   ];
   return (
@@ -293,7 +293,7 @@ export function Stats() {
         {items.map((it, i) => (
           <div key={it.label} className={cn("px-5 py-12 sm:px-8 lg:py-16", i % 2 === 1 && "border-l border-line/60", i >= 2 && "border-t border-line/60 lg:border-t-0", i === 2 && "lg:border-l")}>
             <p className="font-serif text-6xl tracking-tight text-ink sm:text-7xl">
-              <Count to={it.n} prefix={it.p} />
+              <Count to={it.n} />
             </p>
             <p className="mt-3 text-sm font-medium text-ink">{it.label}</p>
             <p className="mt-1 text-xs leading-relaxed text-muted">{it.sub}</p>
@@ -366,6 +366,14 @@ export function Verdicts() {
 
 const PERSONAS = [
   {
+    href: "/scheme",
+    icon: ShieldCheck,
+    who: "Scholarship offices",
+    title: "Screen",
+    body: "Check one application or a ZIP of a thousand against the chain. Ticks and reason codes, never names or incomes.",
+    cta: "Open the officer screen",
+  },
+  {
     href: "/verify",
     icon: ScanLine,
     who: "Employers & admissions",
@@ -404,12 +412,12 @@ export function Personas() {
     <section className="py-24 sm:py-32" aria-labelledby="personas-h">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <Reveal className="max-w-3xl">
-          <Eyebrow>One protocol, four doors</Eyebrow>
+          <Eyebrow>One protocol, five doors</Eyebrow>
           <h2 id="personas-h" className="mt-4 font-serif text-5xl leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
             Built for everyone <span className="italic text-gold">who touches a certificate.</span>
           </h2>
         </Reveal>
-        <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {PERSONAS.map((p, i) => (
             <Reveal key={p.href} delay={i * 0.06}>
               <Link
@@ -427,7 +435,7 @@ export function Personas() {
                   <ArrowUpRight className="h-5 w-5 text-muted transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" aria-hidden />
                 </div>
                 <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-muted">{p.who}</p>
-                <p className="mt-2 font-serif text-5xl tracking-tight">{p.title}</p>
+                <p className="mt-2 font-serif text-4xl tracking-tight 2xl:text-5xl">{p.title}</p>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">{p.body}</p>
                 <p className="mt-6 text-sm font-medium text-ink">{p.cta} →</p>
               </Link>

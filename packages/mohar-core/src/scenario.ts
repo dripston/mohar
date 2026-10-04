@@ -1,4 +1,4 @@
-import { createWalletClient, http, type Address, type Chain, type Hex, type PublicClient } from "viem";
+import { createWalletClient, http, nonceManager, type Address, type Chain, type Hex, type PublicClient } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { anchorBatch, batchProofFiles, prepareBatch, revokeCert, suspendCert, type CertRef, type PreparedCert, type Writer } from "./issue";
 import { issuerRegistryAbi } from "./abi.generated";
@@ -24,6 +24,8 @@ export interface ScenarioCtx {
   /** make time pass on chain: warp on Anvil, sleep on a testnet */
   passTime: (secs: number) => Promise<void>;
   domain: string;
+  /** testnets: let load-balanced RPC nodes catch up after each transaction (no-op on Anvil) */
+  settle?: () => Promise<void>;
 }
 
 export type BadKind = "tampered" | "revoked" | "suspended" | "expired" | "fake_institute" | "wrong_issuer_type" | "missing" | "not_eligible_income" | "not_eligible_category";
@@ -50,10 +52,14 @@ export interface Scenario {
 const KINDS: BadKind[] = ["tampered", "revoked", "suspended", "expired", "fake_institute", "wrong_issuer_type", "missing", "not_eligible_income", "not_eligible_category"];
 const GOOD: Truth = { aggregate: "ELIGIBLE", codes: { enrolled: "OK", st: "OK", income: "OK" }, kind: "good" };
 
-async function actor(ctx: ScenarioCtx, name: string, type: 1 | 2, source: string) {
-  const key = generatePrivateKey();
-  const account = privateKeyToAccount(key);
+async function actor(ctx: ScenarioCtx, name: string, type: 1 | 2, source: string, given?: Hex) {
+  const key = given ?? generatePrivateKey();
+  const account = privateKeyToAccount(key, { nonceManager });
+  const known = (await ctx.pub.readContract({ address: ctx.dep.issuerRegistry, abi: issuerRegistryAbi, functionName: "identityOf", args: [account.address] })) as Address;
+  const wallet = createWalletClient({ account, chain: ctx.chain, transport: http(ctx.rpc) });
+  const w: Writer = { wallet, publicClient: ctx.pub, deployment: ctx.dep };
   await ctx.fund(account.address);
+  if (!/^0x0{40}$/.test(known)) return { key, account, w, name }; // already listed (a re-run with the same keys)
   const hash = await ctx.rootWriter.wallet.writeContract({
     address: ctx.dep.issuerRegistry,
     abi: issuerRegistryAbi,
@@ -62,8 +68,7 @@ async function actor(ctx: ScenarioCtx, name: string, type: 1 | 2, source: string
     chain: ctx.chain,
   } as any);
   await ctx.pub.waitForTransactionReceipt({ hash });
-  const wallet = createWalletClient({ account, chain: ctx.chain, transport: http(ctx.rpc) });
-  const w: Writer = { wallet, publicClient: ctx.pub, deployment: ctx.dep };
+  await ctx.settle?.();
   return { key, account, w, name };
 }
 
@@ -73,12 +78,12 @@ const pad = (i: number) => String(i + 1).padStart(4, "0");
  * Issue `n` applications (3 credentials each) in 3 batches + 2 for the planted wrong-issuer and fake-institute items.
  * Every `badEvery`-th application is planted with one of the failure kinds (round robin), the rest are good.
  */
-export async function buildScenario(ctx: ScenarioCtx, n: number, badEvery = 25): Promise<Scenario> {
+export async function buildScenario(ctx: ScenarioCtx, n: number, badEvery = 25, keys: { institute?: Hex; revenue?: Hex; fake?: Hex } = {}): Promise<Scenario> {
   const startedAt = Number((await ctx.pub.getBlock()).timestamp);
   const A = "Ministry of Demo Affairs (demo)";
-  const inst = await actor(ctx, "Demo Institute of Technology (demo)", 1, A);
-  const rev = await actor(ctx, "Demo Revenue Office (demo)", 2, A);
-  const fake = await actor(ctx, "Demo Fake Institute (demo)", 1, A);
+  const inst = await actor(ctx, "Demo Institute of Technology (demo)", 1, A, keys.institute);
+  const rev = await actor(ctx, "Demo Revenue Office (demo)", 2, A, keys.revenue);
+  const fake = await actor(ctx, "Demo Fake Institute (demo)", 1, A, keys.fake);
   const issuerOf = (a: Awaited<ReturnType<typeof actor>>) => ({ address: a.account.address, domain: ctx.domain, name: a.name });
   const mk = (a: typeof inst, i: number): TemplateBase => ({ issuer: issuerOf(a), applicantId: `APP-${pad(i)}`, name: `Applicant ${pad(i)}`, issuedOn: "2026-07-01", expiresOn: null });
 
@@ -123,6 +128,7 @@ export async function buildScenario(ctx: ScenarioCtx, n: number, badEvery = 25):
     const b2 = rebuild(prepared);
     const w = writers[pool];
     const res = await anchorBatch(w, b2);
+    await ctx.settle?.();
     const files = batchProofFiles(ctx.dep, w.wallet.account.address, b2, res.txHash);
     for (const [key, s] of Object.entries(slots)) {
       if (s.pool !== pool) continue;
@@ -150,10 +156,12 @@ export async function buildScenario(ctx: ScenarioCtx, n: number, badEvery = 25):
     switch (k) {
       case "revoked":
         await revokeCert(c.w, c.ref, 2);
+        await ctx.settle?.();
         t = { aggregate: "INVALID", codes: { ...ok, st: "REVOKED" }, kind: k };
         break;
       case "suspended":
         await suspendCert(e.w, e.ref);
+        await ctx.settle?.();
         t = { aggregate: "NOT_ELIGIBLE", codes: { ...ok, enrolled: "SUSPENDED" }, kind: k };
         break;
       case "expired":

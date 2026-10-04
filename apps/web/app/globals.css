@@ -29,6 +29,11 @@
   color-scheme: dark;
 }
 
+/* projector mode (demo room toggle, Alt+B): every rem-based size grows ~18% */
+html[data-big="1"] {
+  font-size: 118%;
+}
+
 html {
   background: rgb(var(--bg));
   scroll-behavior: smooth;

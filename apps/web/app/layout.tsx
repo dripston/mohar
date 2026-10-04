@@ -3,6 +3,7 @@ import { Fraunces, Instrument_Serif, Inter, JetBrains_Mono } from "next/font/goo
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { BigTextSync } from "@/components/demo/BigText";
 import { WalletProvider } from "@/lib/wallet";
 
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" data-theme="dark" className={`${sans.variable} ${serif.variable} ${cert.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col">
         <WalletProvider>
+          <BigTextSync />
           <Nav />
           <main className="flex-1">{children}</main>
           <Footer />

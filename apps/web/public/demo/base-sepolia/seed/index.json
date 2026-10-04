@@ -1,0 +1,70 @@
+{
+  "network": "base-sepolia",
+  "generatedAt": "2026-10-04T14:04:07.145Z",
+  "entries": [
+    {
+      "id": "verified",
+      "label": "Valid certificate",
+      "expected": "VERIFIED",
+      "actual": "VERIFIED",
+      "code": "MHR-S9S7-ZVHX-AD6E-J",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-S9S7-ZVHX-AD6E-J#AQAAAUo0Nn6rPvHLcJczTa62gsZnPSPJug833PzQ1AinovayCh8oSSKX_QJDmIQ52DV8uwvLJo0b7QAAAAAAAAAA"
+    },
+    {
+      "id": "revoked",
+      "label": "Revoked (issued in error)",
+      "expected": "REVOKED",
+      "actual": "REVOKED",
+      "code": "MHR-NX9H-1E41-1E13-1",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-NX9H-1E41-1E13-1#AQAAAUo0Nn6rPvHLcJczTa62gsZnPSPJug9ZEhUT5cMDKA5YmHmvQJGl0NSyk8SSXMtjWEIsVy2zDAAAAAAAAAAA"
+    },
+    {
+      "id": "suspended",
+      "label": "Suspended",
+      "expected": "SUSPENDED",
+      "actual": "SUSPENDED",
+      "code": "MHR-R2J3-AP6B-819T-N",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-R2J3-AP6B-819T-N#AQAAAUo0Nn6rPvHLcJczTa62gsZnPSPJug-LvraXxT2uveQDD980JvEyCDk0UH-cGgQXPURsIrAhrAAAAAAAAAAA"
+    },
+    {
+      "id": "expired",
+      "label": "Expired",
+      "expected": "EXPIRED",
+      "actual": "EXPIRED",
+      "code": "MHR-MXCH-JX9Q-RJF9-E",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-MXCH-JX9Q-RJF9-E#AQAAAUo0Nn6rPvHLcJczTa62gsZnPSPJug8KG08hhv74HjD9l-clUtS6bHXFzenH1EnUaidGT4G1BgAAAABqwlzB"
+    },
+    {
+      "id": "issuer-revoked",
+      "label": "Issuer key revoked from before this certificate was issued",
+      "expected": "ISSUER_REVOKED",
+      "actual": "ISSUER_REVOKED",
+      "code": "MHR-B2XM-M161-ZRSQ-F",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-B2XM-M161-ZRSQ-F#AQAAAUo0prS3CKCnPu3K99Gl_fT6jLTJGy-7SugsJhE3EQT0wz3H7Z0K_vvuuE2RWsgkrM6p1LkNVgAAAAAAAAAA"
+    },
+    {
+      "id": "tampered",
+      "label": "Tampered file (grade edited A to A+)",
+      "expected": "TAMPERED",
+      "actual": "TAMPERED",
+      "code": "MHR-S9S7-ZVHX-AD6E-J",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-S9S7-ZVHX-AD6E-J#AQAAAUo0Nn6rPvHLcJczTa62gsZnPSPJug833PzQ1AinovayCh8oSSKX_QJDmIQ52DV8uwvLJo0b7QAAAAAAAAAA"
+    },
+    {
+      "id": "batch-valid",
+      "label": "Batch member (valid)",
+      "expected": "VERIFIED",
+      "actual": "VERIFIED",
+      "code": "MHR-YMD7-GM7T-MCBT-F",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-YMD7-GM7T-MCBT-F#AQEAAUo0Nn6rPvHLcJczTa62gsZnPSPJug-9CSlZtXk3AC9AHY718EUOOkGiFXaDm-NmQwKt9FGCQwAAAAAAAAAA1BbmGOCXMWez6LVxzX1A0SlsaWF4qY8UXG_1oS_7MIwC-BYPDPxCkLUUDvRsg4PpuYTdakc6v4bj3u_otRrZUiLqZ2HLCUBnpr02fNeTZRr7tptkH19ZwXjvV6PAPADdPA"
+    },
+    {
+      "id": "batch-revoked",
+      "label": "Batch member (revoked, siblings unaffected)",
+      "expected": "REVOKED",
+      "actual": "REVOKED",
+      "code": "MHR-D4YV-MFSX-GNNC-3",
+      "link": "https://mohar-theta.vercel.app/verify/MHR-D4YV-MFSX-GNNC-3#AQEAAUo0Nn6rPvHLcJczTa62gsZnPSPJug8TPHmyA5lWl_mbGXTV54RqrWDsiOlvsHwshk3v89MMDgAAAAAAAAAA1BbmGOCXMWez6LVxzX1A0SlsaWF4qY8UXG_1oS_7MIwDn2ZdjcWh0NevZxU0x3vKJGcIGNkqgHnfbqf1nsoIuej6jN_MN7OGgYsabmJvKOOUkxMddf-BSzNCMFxFFlcPymMIyIwue1Y7UdBUKI9WKPAIh-V3nQXYL5IfPMJAbUsU"
+    }
+  ]
+}

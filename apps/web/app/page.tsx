@@ -1,6 +1,7 @@
 import { Hero } from "@/components/landing/Hero";
 import { TamperLab } from "@/components/landing/TamperLab";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Scholarship } from "@/components/landing/Scholarship";
 import { AttackMarquee, FinalCta, Personas, Pillars, Stats, Verdicts } from "@/components/landing/Sections";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
       <div className="mt-20 sm:mt-28">
         <AttackMarquee />
       </div>
+      <Scholarship />
       <Pillars />
       <TamperLab />
       <Stats />

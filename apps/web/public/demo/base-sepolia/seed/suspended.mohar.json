@@ -1,0 +1,108 @@
+{
+  "format": "mohar-proof/1",
+  "chainId": 84532,
+  "signer": "0x367eab3eF1cB7097334dAEB682c6673d23C9Ba0f",
+  "documentRoot": "0x8bbeb697c53daebde4030fdf3426f132083934507f9c1a04173d446c22b021ac",
+  "expiresAt": 0,
+  "anchor": {
+    "kind": "single"
+  },
+  "fields": {
+    "credential.expiresOn": {
+      "value": "null",
+      "salt": "0xb6e6bb0512300f2d1f20200802cae785444289f87b6c205fae7b2e46455230a1",
+      "proof": [
+        "0x1e13ed63e8d672e697becacc6a5ba60b8caf355726aeb2a396d92f2493044220",
+        "0x251e260889a9ce3208641d124044e5f345d3c5bdc7c60037f86d8a7c3221e320",
+        "0x0e551fc5abb0999d4c1904107515ec5c4c55631499a1bfb21e681072eb8c669b",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    },
+    "credential.grade": {
+      "value": "\"A\"",
+      "salt": "0x5490e1ee624b7358e3272b7e0feb7f5d4b9691625194cc5ad12d5a23ac99736b",
+      "proof": [
+        "0xd879b32abc77cc73685d6739ad3b8ee832f1b1242e6aafd2ae1e6a2af9bfa945",
+        "0x4b42bb1492ff187dd4fbf4ec5c24f506f832ff89dbb2841813d49967d18a70f7",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    },
+    "credential.issuedOn": {
+      "value": "\"2026-06-01\"",
+      "salt": "0xa6cc228397e1608676000945329140ef1386a30124e721573e5c02a01218e92a",
+      "proof": [
+        "0x3cfc4b5b5b771330eb7c06437ddf60aefbc9761f91ffad991d88867e94b27a4c",
+        "0xaa28d673be69224fc5aed7e86ac77d5b13e651ee3f6848361876a25c4e33b9e1",
+        "0x0e551fc5abb0999d4c1904107515ec5c4c55631499a1bfb21e681072eb8c669b",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    },
+    "credential.title": {
+      "value": "\"Demo Certificate (synthetic data)\"",
+      "salt": "0x022c3994463ca71fea44f953121515f62812724761c231edc653bd62a1489c71",
+      "proof": [
+        "0xb06f092248fa61fab14e88144677671d2c9ff65a0931de6c1c6fec4a6b2a7f40",
+        "0xc150641d931dff96cc430f4b9bb35aad5f6b46bb6e1097182debcc7ed1901c0b",
+        "0x09d34b67eac57ea74c379b1de78cbebee25e436a8c3314e91047ac921929152f"
+      ]
+    },
+    "issuer.address": {
+      "value": "\"0x367eab3eF1cB7097334dAEB682c6673d23C9Ba0f\"",
+      "salt": "0x7dbb528569d9ab54b45406fad3cb16639d3104d6e8e24c856f48080249d79e7d",
+      "proof": [
+        "0xb845fb9617f7118e287a11b235ad72da37bfc61669294f0cc792ff4b74202746",
+        "0x4b42bb1492ff187dd4fbf4ec5c24f506f832ff89dbb2841813d49967d18a70f7",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    },
+    "issuer.domain": {
+      "value": "\"mohar-demo.duckdns.org\"",
+      "salt": "0xa2337f8c5bb3fbf63ce7dd949626a955a9256b6cfe7152217d2a3fcb546777b7",
+      "proof": [
+        "0x68e1d923a234131a1340f6a09c8304aca1361cb91d37f3e72b2cf978ad97a593",
+        "0xf31a33224253acc0503d6031921a4e67133cd61efb8e578953ee4d7d5c56f13b",
+        "0x09d34b67eac57ea74c379b1de78cbebee25e436a8c3314e91047ac921929152f"
+      ]
+    },
+    "issuer.name": {
+      "value": "\"Demo Institute (demo)\"",
+      "salt": "0x40f0e0d0dae91955374ca9456a2595b7a89076673847db843e08204a1a30dfab",
+      "proof": [
+        "0x74f8aa1799f168b3c75d4ffea889072e604bfb311f8b9727605d26551aadbe01",
+        "0xf31a33224253acc0503d6031921a4e67133cd61efb8e578953ee4d7d5c56f13b",
+        "0x09d34b67eac57ea74c379b1de78cbebee25e436a8c3314e91047ac921929152f"
+      ]
+    },
+    "recipient.name": {
+      "value": "\"Sunita Rao\"",
+      "salt": "0xae709e3c0485bf3a95c07b63f76def94fd10e4fc93fbc2ad49fa090b1506a331",
+      "proof": [
+        "0xaf14f1b333eab143798d38464f95e408d1d7e3815bb72abb7600beeaa8b1ccc9",
+        "0xc150641d931dff96cc430f4b9bb35aad5f6b46bb6e1097182debcc7ed1901c0b",
+        "0x09d34b67eac57ea74c379b1de78cbebee25e436a8c3314e91047ac921929152f"
+      ]
+    },
+    "version": {
+      "value": "\"mohar/1\"",
+      "salt": "0xdd6d34b675482cb71f2f662c419d9bb9f3af27162f84cd8a1fec1cbe2b17eb7c",
+      "proof": [
+        "0x48ddf485abc463865bc7ebd86c71cb7998bb2de5698b3522303e2cb486318706",
+        "0xaa28d673be69224fc5aed7e86ac77d5b13e651ee3f6848361876a25c4e33b9e1",
+        "0x0e551fc5abb0999d4c1904107515ec5c4c55631499a1bfb21e681072eb8c669b",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    },
+    "meta.fieldCount": {
+      "value": "\"9\"",
+      "salt": "0x52ad4b28b9d4ed837923727996e067e921a5660d7ab8b61e8ec80a112267f0ab",
+      "proof": [
+        "0x02a9aacc75b1b408cadb3f3529959d55faf9ff52876a6d3a71914f9d63bfc637",
+        "0x251e260889a9ce3208641d124044e5f345d3c5bdc7c60037f86d8a7c3221e320",
+        "0x0e551fc5abb0999d4c1904107515ec5c4c55631499a1bfb21e681072eb8c669b",
+        "0x99a3971aa24f4bbf750fd5c108fa3a83a7409f546cf1978b71ad6e2cafbeec94"
+      ]
+    }
+  },
+  "partial": false,
+  "txHash": "0x14fdce3312dda7dcac43a4b60374124aeb2f21016051adccfc7803d27706d2df"
+}

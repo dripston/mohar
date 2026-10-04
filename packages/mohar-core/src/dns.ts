@@ -60,7 +60,10 @@ export function makeDohResolver(
         if (body.Status !== undefined && body.Status !== 0 && body.Status !== 3) throw new Error(`DNS status ${body.Status}`);
         const txts = (body.Answer ?? []).filter((a) => a.type === 16).map((a) => cleanTxt(a.data));
         const ours = txts.filter((t) => t.toLowerCase().startsWith(TXT_PREFIX));
-        if (ours.some((t) => t.toLowerCase() === expectedTxt(identity).toLowerCase())) {
+        // one record may list several identities: mohar-issuer=0xA,0xB (exact entries only, never a prefix match)
+        const want = identity.toLowerCase();
+        const listed = ours.flatMap((t) => t.slice(TXT_PREFIX.length).split(",").map((x) => x.trim().toLowerCase()));
+        if (listed.includes(want)) {
           return { status: "match", provider: p.name };
         }
         return { status: "mismatch", provider: p.name, found: ours };

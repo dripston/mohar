@@ -3,8 +3,8 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2, PenLine, RotateCcw } from "lucide-react";
-import { anchorSingle, prepareCertificate, singleProofFile, type ProofFile } from "@mohar/core";
-import { Button, Card, Input, Label } from "@/components/ui/primitives";
+import { anchorSingle, casteDoc, enrolmentDoc, incomeDoc, ISSUER_TYPE_LABEL, prepareCertificate, singleProofFile, type IssuerKind, type ProofFile } from "@mohar/core";
+import { Button, Card, Input, Label, Select } from "@/components/ui/primitives";
 import { deployment } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { useIssuer } from "./IssuerContext";
@@ -15,6 +15,26 @@ import { buildDoc, codeOf, explainError, linkFor, saveToArchive, validateCert, y
 import { qrDataUrl } from "@/lib/qr";
 
 const EMPTY: CertInput = { name: "", email: "", title: "", grade: "", issuedOn: "", expiresOn: "" };
+
+/** Scholarship credential templates (synthetic demo data). Each one names the kind of issuer an officer expects. */
+type Template = "generic" | "enrolment" | "caste" | "income";
+const TEMPLATES: { id: Template; label: string; hint: string; needs?: IssuerKind; title: string }[] = [
+  { id: "generic", label: "Certificate", hint: "Degree, course or award", title: "" },
+  { id: "enrolment", label: "Enrolment", hint: "Issued by an institute", needs: "INSTITUTE", title: "Enrolment Certificate (DEMO)" },
+  { id: "caste", label: "Caste", hint: "Issued by a revenue office", needs: "REVENUE_OFFICE", title: "Caste Certificate (DEMO)" },
+  { id: "income", label: "Income", hint: "Issued by a revenue office", needs: "REVENUE_OFFICE", title: "Income Certificate (DEMO)" },
+];
+interface Extra {
+  applicantId: string;
+  instituteId: string;
+  course: string;
+  year: string;
+  active: boolean;
+  category: "ST" | "SC" | "OBC" | "GEN";
+  officerRank: string;
+  income: string;
+}
+const EXTRA0: Extra = { applicantId: "", instituteId: "", course: "", year: "", active: true, category: "ST", officerRank: "Tahsildar", income: "" };
 
 function Field({ id, label, hint, error, optional, children }: { id: string; label: string; hint?: string; error?: string; optional?: boolean; children: ReactNode }) {
   return (
@@ -44,6 +64,8 @@ export function IssueForm() {
   const reduce = useReducedMotion();
   const uid = useId();
   const [v, setV] = useState<CertInput>(EMPTY);
+  const [tpl, setTpl] = useState<Template>("generic");
+  const [x, setX] = useState<Extra>(EXTRA0);
   const [touched, setTouched] = useState<Partial<Record<keyof CertInput, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
   const [progress, setProgress] = useState<Progress>({ step: null, failed: false });
@@ -53,8 +75,17 @@ export function IssueForm() {
   const [archived, setArchived] = useState(true);
   const [previewQr, setPreviewQr] = useState<string>();
 
-  const errors = useMemo(() => validateCert(v), [v]);
+  const tplMeta = TEMPLATES.find((t) => t.id === tpl)!;
+  const errors = useMemo((): Record<string, string> => {
+    if (tpl === "generic") return validateCert(v) as Record<string, string>;
+    const e = validateCert({ ...v, title: tplMeta.title, grade: "" }) as Record<string, string>;
+    if (!/^[A-Za-z0-9-]{3,32}$/.test(x.applicantId.trim())) e.applicantId = "Use 3 to 32 letters, digits or dashes, for example APP-0042.";
+    if (tpl === "income" && !/^\d{1,9}$/.test(x.income.trim())) e.income = "Enter the annual income in whole rupees, digits only.";
+    if (tpl === "enrolment" && !x.course.trim()) e.course = "Enter the course.";
+    return e;
+  }, [v, x, tpl, tplMeta.title]);
   const showErr = (k: keyof CertInput) => (touched[k] || submitted ? errors[k] : undefined);
+  const xErr = (k: string) => (submitted ? errors[k] : undefined);
   const set = (k: keyof CertInput) => (e: React.ChangeEvent<HTMLInputElement>) => setV((p) => ({ ...p, [k]: e.target.value }));
   const blur = (k: keyof CertInput) => () => setTouched((t) => ({ ...t, [k]: true }));
   const fieldProps = (k: keyof CertInput, id: string) => ({
@@ -76,6 +107,7 @@ export function IssueForm() {
 
   const reset = () => {
     setV(EMPTY);
+    setX(EXTRA0);
     setTouched({});
     setSubmitted(false);
     setProgress({ step: null, failed: false });
@@ -98,7 +130,22 @@ export function IssueForm() {
     const upd = (p: Partial<Progress>) => setProgress((current = { ...current, ...p }));
     try {
       await yieldFrame();
-      const prepared = prepareCertificate(buildDoc(v, issuer) as any);
+      const base = {
+        issuer: { address: issuer.identity, domain: issuer.domain, name: issuer.name },
+        applicantId: x.applicantId.trim(),
+        name: v.name.trim(),
+        issuedOn: v.issuedOn.trim(),
+        expiresOn: v.expiresOn.trim() || null,
+      };
+      const doc =
+        tpl === "enrolment"
+          ? enrolmentDoc(base, { instituteId: x.instituteId.trim() || "-", course: x.course.trim(), year: x.year.trim() || "-", active: x.active })
+          : tpl === "caste"
+            ? casteDoc(base, { category: x.category, officerRank: x.officerRank.trim() || "-" })
+            : tpl === "income"
+              ? incomeDoc(base, { income: Number(x.income) })
+              : buildDoc(v, issuer);
+      const prepared = prepareCertificate(doc as any);
       const out = await anchorSingle(writer, prepared, (step, detail) => {
         upd({ step, txHash: step === "pending" || step === "confirmed" ? detail : current.txHash });
       });
@@ -119,8 +166,16 @@ export function IssueForm() {
       issuerName={issuer.name}
       issuerDomain={issuer.domain}
       recipient={v.name.trim()}
-      title={v.title.trim()}
-      grade={v.grade.trim()}
+      title={tpl === "generic" ? v.title.trim() : tplMeta.title}
+      grade={
+        tpl === "generic"
+          ? v.grade.trim()
+          : tpl === "enrolment"
+            ? [x.course.trim(), x.year.trim() && `year ${x.year.trim()}`].filter(Boolean).join(", ")
+            : tpl === "caste"
+              ? `Category ${x.category}`
+              : "Income on file (private)"
+      }
       issuedOn={v.issuedOn}
       expiresOn={v.expiresOn}
       code={result ? codeOf(result) : undefined}
@@ -137,10 +192,40 @@ export function IssueForm() {
           <p className="mt-3 text-sm leading-relaxed text-muted">
             Issuing as <strong className="text-ink">{issuer.name}</strong>. Fields are salted and hashed in your browser; only the Merkle root reaches the chain, never personal data.
           </p>
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Credential template">
+            {TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="radio"
+                aria-checked={tpl === t.id}
+                disabled={busy || !!result}
+                onClick={() => setTpl(t.id)}
+                data-testid={`tpl-${t.id}`}
+                className={cn("rounded-xl border px-3 py-2.5 text-left transition-colors", tpl === t.id ? "border-gold/60 bg-gold/10" : "border-line bg-bg/30 hover:border-ink/25")}
+              >
+                <span className="block text-sm font-medium text-ink">{t.label}</span>
+                <span className="block text-[0.68rem] leading-tight text-muted">{t.hint}</span>
+              </button>
+            ))}
+          </div>
+          {tplMeta.needs && issuer.issuerType !== tplMeta.needs && (
+            <p className="mt-3 rounded-xl border border-warn/30 bg-warn/10 p-3 text-xs leading-relaxed text-warn" data-testid="tpl-mismatch">
+              You are listed as {ISSUER_TYPE_LABEL[issuer.issuerType].toLowerCase()}. A scholarship officer expects {tplMeta.label.toLowerCase()} credentials from a{" "}
+              {ISSUER_TYPE_LABEL[tplMeta.needs].toLowerCase()}, so this one would fail with WRONG_ISSUER_TYPE. You can still issue it.
+            </p>
+          )}
           <form onSubmit={submit} noValidate className="mt-7 space-y-5" aria-label="Issue one certificate">
             <Field id={`${uid}-name`} label="Recipient name" error={showErr("name")}>
               <Input data-testid="f-recipient-name" autoComplete="off" placeholder="Rehaan Nawaz" {...fieldProps("name", `${uid}-name`)} />
             </Field>
+            {tpl !== "generic" && (
+              <Field id={`${uid}-app`} label="Applicant ID" error={xErr("applicantId")} hint="A pseudonymous ID the officer sees instead of the name. Use the same ID on all of one student's credentials.">
+                <Input id={`${uid}-app`} data-testid="f-applicant-id" autoComplete="off" placeholder="APP-0042" value={x.applicantId} onChange={(e) => setX({ ...x, applicantId: e.target.value })} disabled={busy} />
+              </Field>
+            )}
+            {tpl === "generic" && (
+              <>
             <Field id={`${uid}-email`} label="Recipient email" optional error={showErr("email")} hint="Stored inside the certificate file only, never on chain.">
               <Input data-testid="f-recipient-email" type="email" autoComplete="off" placeholder="name@example.com" {...fieldProps("email", `${uid}-email`)} />
             </Field>
@@ -150,6 +235,44 @@ export function IssueForm() {
             <Field id={`${uid}-grade`} label="Grade" optional error={showErr("grade")} hint="For example 8.34 CGPA or First Class. Holders can hide it when sharing.">
               <Input data-testid="f-grade" autoComplete="off" placeholder="8.34 CGPA" {...fieldProps("grade", `${uid}-grade`)} />
             </Field>
+              </>
+            )}
+            {tpl === "enrolment" && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field id={`${uid}-course`} label="Course" error={xErr("course")}>
+                  <Input id={`${uid}-course`} placeholder="B.Tech" value={x.course} onChange={(e) => setX({ ...x, course: e.target.value })} disabled={busy} />
+                </Field>
+                <Field id={`${uid}-year`} label="Year" optional>
+                  <Input id={`${uid}-year`} placeholder="2" value={x.year} onChange={(e) => setX({ ...x, year: e.target.value })} disabled={busy} />
+                </Field>
+                <Field id={`${uid}-inst`} label="Institute ID" optional>
+                  <Input id={`${uid}-inst`} placeholder="INST-1042" value={x.instituteId} onChange={(e) => setX({ ...x, instituteId: e.target.value })} disabled={busy} />
+                </Field>
+                <label className="flex items-center gap-2 text-sm text-muted sm:col-span-3">
+                  <input type="checkbox" className="accent-[rgb(var(--gold))]" checked={x.active} onChange={(e) => setX({ ...x, active: e.target.checked })} disabled={busy} />
+                  Enrolment is active (signed as the flag <span className="font-mono text-xs text-ink">enrolment_active</span>)
+                </label>
+              </div>
+            )}
+            {tpl === "caste" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id={`${uid}-cat`} label="Category" hint="ST also sets the signed flag st_category.">
+                  <Select id={`${uid}-cat`} value={x.category} onChange={(e) => setX({ ...x, category: e.target.value as Extra["category"] })} disabled={busy}>
+                    {(["ST", "SC", "OBC", "GEN"] as const).map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field id={`${uid}-rank`} label="Issuing officer rank" optional>
+                  <Input id={`${uid}-rank`} value={x.officerRank} onChange={(e) => setX({ ...x, officerRank: e.target.value })} disabled={busy} />
+                </Field>
+              </div>
+            )}
+            {tpl === "income" && (
+              <Field id={`${uid}-inc`} label="Annual family income (₹)" error={xErr("income")} hint="Stays private. The student shares only the signed flags: income at most ₹2.5 lakh, at most ₹6 lakh (demo thresholds).">
+                <Input id={`${uid}-inc`} inputMode="numeric" placeholder="180000" value={x.income} onChange={(e) => setX({ ...x, income: e.target.value })} disabled={busy} />
+              </Field>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field id={`${uid}-issued`} label="Issued on" error={showErr("issuedOn")}>
                 <Input data-testid="f-issued-on" type="date" {...fieldProps("issuedOn", `${uid}-issued`)} />

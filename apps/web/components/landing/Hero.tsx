@@ -88,8 +88,8 @@ export function Hero() {
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 py-1 pl-1 pr-3 text-xs text-muted backdrop-blur"
           >
-            <span className="rounded-full bg-seal/15 px-2 py-0.5 font-semibold text-seal">New</span>
-            Selective disclosure: share a degree, hide the grade
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping-slow rounded-full bg-ok/70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-ok" /></span>
+            Live on Base Sepolia · scholarship screening without personal data
           </motion.div>
 
           <h1 id="hero-h" className="mt-6 font-serif text-[3.4rem] leading-[0.92] tracking-[-0.02em] sm:text-7xl xl:text-[6.6rem]">
@@ -108,9 +108,9 @@ export function Hero() {
             transition={{ delay: 0.7, duration: 0.7 }}
             className="mt-7 max-w-xl text-lg leading-relaxed text-muted"
           >
-            Mohar seals every certificate into a public blockchain. Anyone can confirm <span className="text-ink">who issued it</span>,
-            that <span className="text-ink">not one character changed</span>, and that it is <span className="text-ink">valid right now</span>. It takes three
-            seconds and trusts no server, ours included.
+            Mohar seals certificates into a public blockchain. Anyone can confirm <span className="text-ink">who issued it</span>, that{" "}
+            <span className="text-ink">not one character changed</span>, and that it is <span className="text-ink">valid right now</span>. A scholarship office
+            can screen a thousand applications the same way, without seeing a single name or income.
           </motion.p>
 
           <motion.div
@@ -141,9 +141,9 @@ export function Hero() {
             className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-line/70 pt-6"
           >
             {[
-              ["3 s", "to a verdict"],
-              ["~580", "gas per certificate"],
-              ["0", "servers to trust"],
+              ["542", "gas per certificate, measured on Base Sepolia"],
+              ["₹0.0008", "estimated per certificate on mainnet"],
+              ["0", "servers in the verify path"],
             ].map(([n, l]) => (
               <div key={l}>
                 <dt className="sr-only">{l}</dt>
