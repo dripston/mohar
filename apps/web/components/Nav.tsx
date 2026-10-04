@@ -10,6 +10,7 @@ import { chain } from "@/lib/config";
 import { SealMark } from "./brand/Seal";
 
 const LINKS = [
+  { href: "/", label: "Home" },
   { href: "/verify", label: "Verify" },
   { href: "/issuer", label: "Issuer" },
   { href: "/holder", label: "Holder" },
@@ -17,7 +18,9 @@ const LINKS = [
 ];
 
 const active = (path: string, href: string) =>
-  href === "/issuer" ? path.startsWith("/issuer") && !path.startsWith("/issuer/admin") : path.startsWith(href);
+  href === "/"
+    ? path === "/"
+    : href === "/issuer" ? path.startsWith("/issuer") && !path.startsWith("/issuer/admin") : path.startsWith(href);
 
 export { SealMark };
 
