@@ -1,0 +1,17 @@
+.env
+.env.*
+**/.env
+**/.env.*
+**/.seed-keys*
+*.mp4
+*.pdf
+/*.mohar
+/*.mohar.json
+**/node_modules
+packages/contracts/out
+packages/contracts/cache
+packages/contracts/broadcast
+packages/contracts/lib
+apps/web/.next
+apps/web/test-results
+apps/web/playwright-report

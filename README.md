@@ -1,73 +1,98 @@
-# Mohar
+# Mohar: certificates that cannot lie
 
-**Blockchain certificate issuing and verification.** Algothon'26, PS ALG-BC-01.
+**Blockchain certificate issuing and verification, built around scholarship fraud.** Algothon'26, PS ALG-BC-01.
 
-Every certificate carries proof of three things anyone can check in seconds, without trusting us:
-**who issued it**, **that not one character changed**, and **that it is still valid right now**.
-Students can share only the fields they choose. A university issues a thousand certificates for the price of one transaction.
+**Live:** https://mohar-theta.vercel.app · **Chain:** Base Sepolia · **Contracts verified on BaseScan:**
+[IssuerRegistry `0xA623…55AC`](https://sepolia.basescan.org/address/0xA623d307e423aa090f9B397209fc9ab6086955AC#code) ·
+[CertificateRegistry `0x7A08…0135`](https://sepolia.basescan.org/address/0x7A08A61DaE82f1bEdE7003fc83B8B09D26030135#code)
 
-> No personal data on chain, ever. Only salted hashes, roots, issuer addresses, status and timestamps.
+In one government audit, **830 of 1,572 institutions checked were alleged to be fake or non-operational**, collecting scholarships meant for SC, ST and low-income students. The root cause: nobody can check a certificate in seconds. Mohar lets accredited issuers **seal** certificates on a public chain so anyone can check them from a phone, while students disclose only what a scheme needs.
 
-## What is real
+> No personal data on chain, ever: only salted hashes, Merkle roots, issuer addresses, status and timestamps. All demo data is synthetic and every demo issuer is labelled DEMO.
 
-Everything below runs against a real EVM chain with the real contracts. Nothing on the verification path is mocked or served from a database; the chain is the source of truth. The one simulated piece is DNS on the *local* network (the UI labels it `local-demo-zone`); on a real network the verifier uses DNS-over-HTTPS.
+---
 
-| Must have | How Mohar does it |
+## Try it yourself (no wallet, no install, about 3 minutes)
+
+### 1. Verify a certificate on your own phone
+Open **https://mohar-theta.vercel.app/demo** on a laptop and scan the QR cards with your phone (mobile data works). Every verdict state is there, issued live on Base Sepolia:
+
+| Card | Expected verdict |
 |---|---|
-| Issuer workflow | Accredited-issuer registry, DNS domain proof, single issue, bulk CSV issue, dashboard, revoke / suspend / reinstate |
-| Unique verification ID | `certId = keccak256(documentRoot)` plus a human code `MHR-XXXX-XXXX-XXXX-C` (60 bits + check symbol) |
-| QR / link verification | QR carries a small header + Merkle path in the URL fragment (never sent to a server) |
-| Public verification page | Live 5-point checklist read from the chain; tamper view names the exact field |
-| Status / revocation | Reason codes, timestamps, suspend/reinstate, expiry, issuer-key revocation with a time cutoff, key rotation |
-| Integrity | Per-field salted Merkle tree: detects *and pinpoints* tampering, enables selective disclosure |
-| Bonus: origin | EIP-712 issuer signature, on-chain issuer registry, DNS TXT domain binding |
+| Valid certificate | VERIFIED |
+| Tampered file (grade edited A to A+) | TAMPERED, names the changed field |
+| Revoked (issued in error) | REVOKED |
+| Suspended | SUSPENDED |
+| Expired | EXPIRED |
+| Issuer key revoked from before issue | ISSUER_REVOKED |
+| Batch member, valid / revoked | VERIFIED / REVOKED (siblings unaffected) |
 
-Read next: [PLAN.md](PLAN.md) (design), [RESEARCH.md](RESEARCH.md) (prior art), [ARCHITECTURE.md](ARCHITECTURE.md) (decision log), [TESTING.md](TESTING.md) (attack matrix with results).
+The phone reads the chain directly through several RPC providers that must agree, pinned to one block. No Mohar server is on the verification path. Each result links to the transaction on BaseScan.
 
-## Run it
+### 2. Be a student: apply without oversharing
+1. Download the three sample credentials:
+   [student-enrolment.json](https://mohar-theta.vercel.app/demo/base-sepolia/scholarship/student-enrolment.json) ·
+   [student-caste.json](https://mohar-theta.vercel.app/demo/base-sepolia/scholarship/student-caste.json) ·
+   [student-income.json](https://mohar-theta.vercel.app/demo/base-sepolia/scholarship/student-income.json)
+2. Open **/scheme**, keep **I'm a student**, and drop all three files in.
+3. See what **leaves your device** (only sealed yes/no answers: enrolled, ST, income ≤ ₹2.5 lakh) and what **stays** (the income itself, address…). Click **Download application.mohar**.
 
-Prerequisites: Node 20+, pnpm 9, [Foundry](https://getfoundry.sh) (`forge`, `anvil`).
+### 3. Be the scholarship officer
+1. On **/scheme**, click **I'm an officer** and drop the `application.mohar` you just made. Result: **ELIGIBLE**, with the issuer behind each requirement.
+2. Drop [app-0003.mohar](https://mohar-theta.vercel.app/demo/base-sepolia/scholarship/app-0003.mohar), an applicant who edited their income certificate. Result: **INVALID, income TAMPERED**.
+
+### 4. Screen a whole batch
+Open **/bulk** and drop [applications.zip](https://mohar-theta.vercel.app/demo/base-sepolia/scholarship/applications.zip) (27 applications). Every one is checked in your browser, with a reason per row and CSV export. The batch has eligible, tampered, revoked, suspended, expired, wrong-issuer-type, missing-document and not-eligible cases.
+`app-0015` comes from a **fake institute**: it passes every check until the authority revokes that institute's key with a cut-off (the audit). After that, a re-screen flips it to **INVALID, ISSUER_REVOKED**.
+
+### 5. AI that drafts but never decides
+On **/scheme**, draft a scheme from plain English, or use **/issuer/digitise** to read a scanned paper certificate. Every AI draft is schema-checked and must be confirmed by a human. Verification code never calls AI. See [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+
+*Issuing (/issuer) and the authority console (/issuer/admin) need a registered wallet, so judges can't use them without our keys. The offline demo below gives you both with one click.*
+
+---
+
+## How it works
+
+| Need | How Mohar does it |
+|---|---|
+| Who issued it | On-chain issuer registry (root authority lists issuers with a type: institute, revenue office…) **and** a DNS TXT record on the issuer's domain that vouches for its key |
+| Not one character changed | Per-field salted Merkle tree (OpenZeppelin StandardMerkleTree); the root is anchored on chain with an EIP-712 issuer signature and a per-signer nonce |
+| Still valid now | Revoke / suspend / reinstate with reason codes, expiry, and issuer-key revocation with a time cut-off. Decided on **chain time**, not the browser clock |
+| Privacy | Selective disclosure: share single fields; scholarship credentials carry issuer-sealed yes/no flags (these are sealed fields, **not** zero-knowledge proofs) |
+| Scale | Batch anchoring: one transaction for a whole class (~540–580 gas per certificate at a batch of 200, measured locally, see [GAS.md](GAS.md)) |
+| Lookup | `MHR-XXXX-XXXX-XXXX-C` human code + QR (proof travels in the URL fragment, never sent to a server) |
+
+Repo layout: `packages/contracts` (Solidity + Foundry), `packages/mohar-core` (TypeScript library: issue, verify, scheme, screening; viem), `apps/web` (Next.js 14).
+
+## Run it locally (offline demo)
+
+Prerequisites: Node 20+, pnpm 9, [Foundry](https://getfoundry.sh).
 
 ```bash
 pnpm install
-cd packages/contracts && sh install-deps.sh && cd ../..   # forge-std + OpenZeppelin
-
-# 1. fresh local chain + deploy (Windows PowerShell)
-powershell -File scripts/dev-chain.ps1
-#    non-Windows: anvil & ; cd packages/contracts && PRIVATE_KEY=0xac09...ff80 NETWORK=anvil \
-#                 DEMO_ISSUER=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 \
-#                 forge script script/Deploy.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
-
-# 2. app
-pnpm --filter @mohar/web dev        # http://localhost:3000
+cd packages/contracts && sh install-deps.sh && cd ../..
+pnpm demo:local      # Anvil + deploy + seed every verdict state + scholarship data + web app → opens http://localhost:3000/demo
 ```
 
-Demo wallets (local network only): "Use demo issuer wallet" on `/issuer`, "Use demo authority wallet" on `/issuer/admin`.
+On the local network, `/issuer` and `/issuer/admin` offer one-click demo wallets, so you can issue certificates and run the audit yourself.
 
-### Tests
+## Tests (last runs)
 
 ```bash
-cd packages/contracts && forge test                  # 71 tests: unit, fuzz (1000 runs), invariants, TS<->Solidity cross-checks
-pnpm --filter @mohar/core test                       # 125 tests: unit, golden-vector and review tests, plus the live-chain attack matrix (needs the local chain)
-pnpm --filter @mohar/web e2e                         # Playwright against the real app + chain
-pnpm --filter @mohar/core vectors                    # regenerate cross-language vectors
+cd packages/contracts && forge test     # 78 passed: unit, fuzz, invariants, TS<->Solidity golden vectors, hardening
+bash packages/contracts/mutate.sh       # 14 hand-written contract mutations, each must turn the suite red
+pnpm --filter @mohar/core test          # 151 passed (+12 live Base Sepolia attack tests, run with SEPOLIA=1: 12/12 passed)
+pnpm --filter @mohar/web e2e            # Playwright against the real app and chain
 ```
 
-### Deploy to Base Sepolia
+## Honest limits
 
-```bash
-cd packages/contracts
-PRIVATE_KEY=0x<funded key> NETWORK=base-sepolia \
-  forge script script/Deploy.s.sol --rpc-url $BASE_SEPOLIA_RPC --broadcast --verify
-# then run the web app with NEXT_PUBLIC_NETWORK=base-sepolia and NEXT_PUBLIC_DEPLOYMENT_JSON=$(cat deployments/base-sepolia.json)
-```
-
-No testnet deployment is checked in: that needs a funded key, which only you hold. Local Anvil is the verified path and the demo-day fallback.
+- The root authority is the one trusted party (roadmap: multisig). See [SECURITY.md](SECURITY.md).
+- The public Base Sepolia RPCs may share infrastructure, so their independence is not proven.
+- No legal-compliance claim (DPDP / IT Act). The design minimises data but has not been audited.
+- Every claim is graded against a test in [VERIFY.md](VERIFY.md).
 
 ## AI tools disclosure
 
-Built with Claude (Anthropic) as the coding agent, working phase by phase from `PLAN.md`, with sub-agents used for UI work. All contract logic is covered by tests that were run, and the cryptography is cross-checked between TypeScript and Solidity.
-
-## Limitations and roadmap
-
-See the end of [ARCHITECTURE.md](ARCHITECTURE.md): the root authority is a trust point (roadmap: multisig/DAO), status is enumerable by ID (roadmap: per-batch bitstrings), a typed code for a batch certificate needs the link or file, and salts must be archived by issuers.
+Built with Claude (Anthropic) as the coding agent, phase by phase from `PLAN_V2.md`. All contract logic is covered by tests that were run. In-product AI (Groq) only drafts and never decides a verdict. Details in [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
