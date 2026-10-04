@@ -1,0 +1,11 @@
+{
+  "name": "mohar",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "test:core": "pnpm --filter @mohar/core test",
+    "build:core": "pnpm --filter @mohar/core build",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
