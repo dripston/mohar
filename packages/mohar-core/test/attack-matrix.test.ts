@@ -28,6 +28,7 @@ import {
   discloseFields,
   issuerRegistryAbi,
   makeReader,
+  parseProofFile,
   prepareBatch,
   prepareCertificate,
   reinstateCert,
@@ -426,5 +427,138 @@ describe.skipIf(!live)("attack matrix (live chain, real contracts)", () => {
     expect(r.mode).toBe("code");
     const miss = await verifyByCode("0x1234567890abcde0", { reader: mkReader(), dns });
     record("A20b", "Unknown short code", "NOT_FOUND", miss);
+  });
+});
+
+// ====================================================================================================================
+// Review pass: squatting, lying files, chain time vs browser time, provider health, signature lifecycle.
+describe.skipIf(!live)("review pass (live chain, real contracts)", () => {
+  let X: Awaited<ReturnType<typeof newIssuer>>; // honest issuer
+  let Y: Awaited<ReturnType<typeof newIssuer>>; // malicious accredited issuer
+  beforeAll(async () => {
+    X = await newIssuer("Honest University");
+    Y = await newIssuer("Malicious College");
+  });
+
+  it("R1 root squatting (single): a rival who copies the root first cannot block or hijack the real issuance", async () => {
+    const p = prepareCertificate(docFor(X.account.address) as any);
+    // Y front-runs: anchors X's exact root under Y's own signature
+    await anchorSingle(Y.w, p);
+    // X still lands
+    const { txHash } = await anchorSingle(X.w, p);
+    const f = singleProofFile(dep, X.account.address, p, txHash);
+    record("R1", "Rival anchored the same document root first; real issuer still verifies", "VERIFIED", await verify({ file: f }));
+    // Y cannot revoke X's certificate
+    let stranger = "accepted";
+    try {
+      await revokeCert(Y.w, { kind: "single", rid: recordId(X.account.address, p.built.documentRoot) }, 1);
+    } catch (e) {
+      stranger = /NotController/.test(String(e)) ? "REJECTED_ON_CHAIN" : String(e).slice(0, 80);
+    }
+    record("R1b", "Rival tries to revoke the honest issuer certificate", "REJECTED_ON_CHAIN", stranger);
+    // Y has a separate record that is never mistaken for X's
+    const asY = { ...structuredClone(f), signer: Y.account.address };
+    const ry = await verify({ file: asY });
+    expect(ry.issuer?.name).toBe("Malicious College");
+  });
+
+  it("R2 root squatting (batch): a rival cannot pre-claim a batch root or revoke through it", async () => {
+    const docs = Array.from({ length: 4 }, (_, i) => docFor(X.account.address, { title: `Squat ${i}` }) as any);
+    const b = prepareBatch(docs);
+    await anchorBatch(Y.w, b); // rival anchors X's batchRoot first
+    const { txHash } = await anchorBatch(X.w, b);
+    const files = batchProofFiles(dep, X.account.address, b, txHash);
+    record("R2", "Rival anchored the same batch root first; real batch still verifies", "VERIFIED", await verify({ file: files[1]! }));
+    const t = files[2]!;
+    const anchor = t.anchor as Extract<typeof t.anchor, { kind: "batch" }>;
+    // the rival revokes "that member" through ITS OWN batch record
+    await revokeCert(Y.w, { kind: "batch", identity: Y.account.address, batchRoot: anchor.batchRoot, documentRoot: t.documentRoot, expiresAt: t.expiresAt, proof: anchor.proof }, 1);
+    record("R2b", "Honest batch member stays valid after the rival revokes it in the rival namespace", "VERIFIED", await verify({ file: t }));
+  });
+
+  it("R3 a PDF / JSON that lies about its own status is ignored: only chain + math decide", async () => {
+    const p = prepareCertificate(docFor(X.account.address) as any);
+    const { txHash } = await anchorSingle(X.w, p);
+    const f = singleProofFile(dep, X.account.address, p, txHash);
+    await revokeCert(X.w, { kind: "single", rid: recordId(X.account.address, p.built.documentRoot) }, 2);
+    const liar = { ...structuredClone(f), verdict: "VERIFIED", status: "ACTIVE", revoked: false, issuer: { name: "Harvard", verified: true } };
+    const parsed = parseProofFile(JSON.stringify(liar));
+    record("R3", "Revoked certificate whose file claims status ACTIVE / verdict VERIFIED", "REVOKED", await verify({ file: parsed }));
+
+    // and the reverse: a good certificate whose file claims it is revoked is not 'revoked' by the file
+    const g = prepareCertificate(docFor(X.account.address) as any);
+    const gt = await anchorSingle(X.w, g);
+    const gf = singleProofFile(dep, X.account.address, g, gt.txHash);
+    const liar2 = parseProofFile(JSON.stringify({ ...gf, status: "REVOKED", verdict: "REVOKED" }));
+    record("R3b", "Active certificate whose file claims REVOKED", "VERIFIED", await verify({ file: liar2 }));
+
+    // a lying 'issuer' block inside the file body cannot rename the issuer
+    const r = await verify({ file: parsed });
+    expect(r.issuer?.name).toBe("Honest University");
+  });
+
+  it("R4 time: expiry is judged on the chain clock, never the browser clock", async () => {
+    const p = prepareCertificate(docFor(X.account.address) as any);
+    p.expiresAt = (await chainNow()) + 40;
+    const { txHash } = await anchorSingle(X.w, p);
+    const f = singleProofFile(dep, X.account.address, p, txHash);
+    // browser clock 70 years in the future: certificate must still be valid on chain
+    const early = await verifyCertificate({ file: f }, { reader: mkReader(), dns, now: () => 4_000_000_000 });
+    record("R4", "Browser clock set to the year 2096; certificate not yet expired on chain", "VERIFIED", early);
+    expect(early.chainTime!.timestamp).toBeLessThan(4_000_000_000);
+    await warp(120);
+    // browser clock in 1970: certificate must be expired because the chain says so
+    const late = await verifyCertificate({ file: f }, { reader: mkReader(), dns, now: () => 0 });
+    record("R4b", "Browser clock set to 1970; chain time is past expiry", "EXPIRED", late);
+    expect(late.chainTime!.timestamp).toBeGreaterThanOrEqual(p.expiresAt);
+  });
+
+  it("R5 issuedAt comes from block.timestamp: the issuer cannot backdate or choose it", async () => {
+    const p = prepareCertificate(docFor(X.account.address, { issuedOn: "1999-01-01" }) as any);
+    const before = await chainNow();
+    const { txHash } = await anchorSingle(X.w, p);
+    const f = singleProofFile(dep, X.account.address, p, txHash);
+    const r = await verify({ file: f });
+    expect(r.cert!.issuedAt).toBeGreaterThanOrEqual(before);
+    expect(r.cert!.issuedAt).toBeLessThanOrEqual(await chainNow());
+    rows.push({ id: "R5", attack: "Document says issued 1999; chain issuedAt is block time", expected: "issuedAt = block.timestamp", actual: String(r.cert!.issuedAt), pass: r.cert!.issuedAt >= before });
+  });
+
+  it("R6 provider health: a dead provider is reported, not hidden; a lone survivor is flagged degraded", async () => {
+    const p = prepareCertificate(docFor(X.account.address) as any);
+    const { txHash } = await anchorSingle(X.w, p);
+    const f = singleProofFile(dep, X.account.address, p, txHash);
+    // 1 dead + 2 live = quorum of two
+    const q = await verify({ file: f }, dns, makeReader(dep, clientsFromUrls(["http://127.0.0.1:1", RPC, RPC], 800)));
+    record("R6", "One of three providers down: quorum of two", "VERIFIED", q);
+    expect(q.providers).toMatchObject({ asked: 3, answered: 2, agreed: 2, down: 1, degraded: false });
+    // 2 dead + 1 live = single source
+    const s = await verify({ file: f }, dns, makeReader(dep, clientsFromUrls(["http://127.0.0.1:1", "http://127.0.0.1:2", RPC], 800)));
+    record("R6b", "Two of three providers down: single source, flagged", "VERIFIED", s);
+    expect(s.providers).toMatchObject({ asked: 3, answered: 1, down: 2, degraded: true });
+    // all dead = no verdict, kind=down
+    const d = await verify({ file: f }, dns, makeReader(dep, clientsFromUrls(["http://127.0.0.1:1", "http://127.0.0.1:2"], 500)));
+    record("R6c", "Every provider down", "CANNOT_REACH_CHAIN", d);
+    expect(d.unreachable).toBe("down");
+  });
+
+  it("R7 signatures: a cancelled signature cannot be relayed by a stranger", async () => {
+    const p = prepareCertificate(docFor(X.account.address) as any);
+    const nonce = (await pub.readContract({ address: dep.certificateRegistry, abi: certificateRegistryAbi, functionName: "nonces", args: [X.account.address] })) as bigint;
+    const sig = await X.w.wallet.signTypedData(issueTypedData(dep.chainId, dep.certificateRegistry, { issuer: X.account.address, root: p.built.documentRoot, expiresAt: 0n, nonce }));
+    const relayer = createWalletClient({ account: privateKeyToAccount(generatePrivateKey()), chain, transport: http(RPC) });
+    await fund(relayer.account.address);
+    // the issuer changes their mind before anyone relays it
+    const cancel = await X.w.wallet.writeContract({ address: dep.certificateRegistry, abi: certificateRegistryAbi, functionName: "invalidatePendingSignatures", chain } as any);
+    await pub.waitForTransactionReceipt({ hash: cancel });
+    let relayed = "accepted";
+    try {
+      const h = await relayer.writeContract({ address: dep.certificateRegistry, abi: certificateRegistryAbi, functionName: "issue", args: [X.account.address, p.built.documentRoot, 0n, sig], chain } as any);
+      const rc = await pub.waitForTransactionReceipt({ hash: h });
+      if (rc.status !== "success") relayed = "REJECTED_ON_CHAIN";
+    } catch (e) {
+      relayed = /BadSignature/.test(String(e)) ? "REJECTED_ON_CHAIN" : String(e).slice(0, 80);
+    }
+    record("R7", "Relayer submits a signature the issuer cancelled", "REJECTED_ON_CHAIN", relayed);
   });
 });

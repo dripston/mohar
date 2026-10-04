@@ -59,3 +59,52 @@ const out = {
 };
 writeFileSync(new URL("../../contracts/test/vectors/vectors.json", import.meta.url), JSON.stringify(out, null, 2));
 console.log("wrote vectors:", out.documentRoot, out.batchRoot);
+
+// ---------------------------------------------------------------- golden canonicalisation vectors (review item 3)
+// Edge-case documents with FIXED salts. TS prints (path, canonical value, salt, proof, root); Foundry re-hashes each
+// leaf with abi.encode and proves it into the same root, and also asserts the exact UTF-8 bytes of tricky values.
+const goldenDocs: { name: string; doc: JsonValue; utf8: Record<string, string> }[] = [
+  {
+    name: "baseline",
+    doc: { version: "mohar/1", recipient: { name: "Ananya Rao" }, credential: { title: "B.E.", issuedOn: "2026-06-01", expiresOn: null } },
+    utf8: {},
+  },
+  {
+    // typed as e + combining acute (NFD): canonical form must be the single code point U+00E9 = c3 a9
+    name: "unicode-nfc",
+    doc: { recipient: { name: "José" }, credential: { title: "Café" } },
+    utf8: { "recipient.name": "22 4a 6f 73 c3 a9 22".replace(/ /g, "") },
+  },
+  {
+    name: "empty-null-number-bool",
+    doc: { a: "", b: null, c: 0, d: -0, e: 8.5, f: false, g: [], h: {}, i: [1, "x", null] },
+    utf8: { a: "2222", b: "6e756c6c", d: "30" },
+  },
+  {
+    name: "devanagari-emoji-rtl",
+    doc: { recipient: { name: "अनन्या राव" }, note: "🎓", rtl: "שלום" },
+    utf8: {},
+  },
+  {
+    name: "key-order-shuffled",
+    doc: { z: "1", y: { b: "2", a: "3" }, x: "4" },
+    utf8: {},
+  },
+];
+const golden = goldenDocs.map((g) => {
+  const flat = flatten(g.doc);
+  const ps = [...flat.map((f) => f.path), COUNT_PATH];
+  const b = buildDocument(g.doc, { salts: Object.fromEntries(ps.map((p) => [p, saltFor(`golden:${g.name}:${p}`)])) });
+  for (const [p, hex] of Object.entries(g.utf8)) {
+    const got = Buffer.from(b.fields[p]!.value, "utf8").toString("hex");
+    if (got !== hex) throw new Error(`golden ${g.name} ${p}: expected ${hex}, got ${got}`);
+  }
+  return {
+    name: g.name,
+    documentRoot: b.documentRoot,
+    utf8: g.utf8,
+    fields: Object.entries(b.fields).map(([path, f]) => ({ path, value: f.value, salt: f.salt, proof: f.proof })),
+  };
+});
+writeFileSync(new URL("../../contracts/test/vectors/golden.json", import.meta.url), JSON.stringify({ docs: golden }, null, 2));
+console.log("wrote golden vectors:", golden.map((g) => g.name).join(", "));

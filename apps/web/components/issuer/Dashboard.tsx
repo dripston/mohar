@@ -10,7 +10,7 @@ import { cn, formatDate } from "@/lib/utils";
 import { useIssuer } from "./IssuerContext";
 import { Modal } from "./Modal";
 import { ArchiveBanner } from "./ResultPanel";
-import { REASON_OPTIONS, certIdOf, codeOf, explainError, fieldValue, loadArchive, refFor } from "./lib";
+import { REASON_OPTIONS, codeOf, explainError, fieldValue, loadArchive, refFor, ridOf } from "./lib";
 
 type Row = { file: ProofFile; id: `0x${string}` };
 type Status = ChainCert | { error: string };
@@ -62,7 +62,7 @@ export function Dashboard() {
 
   const load = useCallback(() => {
     if (!identity) return;
-    setRows(loadArchive(identity).map((file) => ({ file, id: certIdOf(file) })));
+    setRows(loadArchive(identity).map((file) => ({ file, id: ridOf(file, identity) })));
   }, [identity]);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export function Dashboard() {
         if (run !== runId.current) return;
         let s: Status;
         try {
-          s = r.file.anchor.kind === "single" ? await reader.getCert(r.id) : await reader.getBatchCert(r.file.anchor.batchRoot, r.file.documentRoot, r.file.expiresAt, r.file.anchor.proof);
+          s = r.file.anchor.kind === "single" ? await reader.getCert(r.id) : await reader.getBatchCert(identity!, r.file.anchor.batchRoot, r.file.documentRoot, r.file.expiresAt, r.file.anchor.proof);
         } catch (e) {
           s = { error: explainError(e) };
         }
@@ -100,7 +100,7 @@ export function Dashboard() {
   const refreshOne = async (r: Row) => {
     const reader = newReader();
     try {
-      const s = r.file.anchor.kind === "single" ? await reader.getCert(r.id) : await reader.getBatchCert(r.file.anchor.batchRoot, r.file.documentRoot, r.file.expiresAt, r.file.anchor.proof);
+      const s = r.file.anchor.kind === "single" ? await reader.getCert(r.id) : await reader.getBatchCert(identity!, r.file.anchor.batchRoot, r.file.documentRoot, r.file.expiresAt, r.file.anchor.proof);
       setStatus((p) => ({ ...p, [r.id]: s }));
     } catch (e) {
       setStatus((p) => ({ ...p, [r.id]: { error: explainError(e) } }));
@@ -112,7 +112,7 @@ export function Dashboard() {
     setRowErr((p) => ({ ...p, [r.id]: "" }));
     setPending((p) => ({ ...p, [r.id]: kind === "revoke" ? "Revoking" : kind === "suspend" ? "Suspending" : "Reinstating" }));
     try {
-      const ref = refFor(r.file);
+      const ref = refFor(r.file, identity!);
       if (kind === "revoke") await revokeCert(writer, ref, why ?? 5);
       else if (kind === "suspend") await suspendCert(writer, ref);
       else await reinstateCert(writer, ref);

@@ -62,7 +62,7 @@ export function IndependentPanel({ result }: { result: VerifyResult }) {
   const expiresAt = result.cert?.expiresAt ?? 0;
 
   const cast = batch
-    ? `cast call ${ind.contract} \\\n  "getBatchCert(bytes32,bytes32,uint64,bytes32[])" \\\n  ${ind.batchRoot} \\\n  ${ind.documentRoot} \\\n  ${expiresAt} \\\n  "[${ind.proof!.join(",")}]" \\\n  --rpc-url ${rpc}`
+    ? `cast call ${ind.contract} \\\n  "getBatchCert(address,bytes32,bytes32,uint64,bytes32[])" \\\n  ${ind.identity ?? "<issuer-identity>"} \\\n  ${ind.batchRoot} \\\n  ${ind.documentRoot} \\\n  ${expiresAt} \\\n  "[${ind.proof!.join(",")}]" \\\n  --rpc-url ${rpc}`
     : ind.certId
       ? `cast call ${ind.contract} \\\n  "getCert(bytes32)" ${ind.certId} \\\n  --rpc-url ${rpc}`
       : null;
@@ -92,7 +92,7 @@ export function IndependentPanel({ result }: { result: VerifyResult }) {
             <Row label="Chain ID" value={String(ind.chainId)} copy={false} />
             <Row label="Certificate registry contract" value={ind.contract} href={explorerAddr(ind.contract)} />
             <Row label="Issuer registry contract" value={ind.issuerRegistry} href={explorerAddr(ind.issuerRegistry)} />
-            {ind.certId && <Row label="Certificate ID (certId)" value={ind.certId} testid="ind-certid" />}
+            {ind.certId && <Row label="Record ID (issuer + document)" value={ind.certId} testid="ind-certid" />}
             {result.code && <Row label="Short code" value={result.code} />}
             {ind.documentRoot && <Row label="Document root" value={ind.documentRoot} />}
             {ind.batchRoot && <Row label="Batch root" value={ind.batchRoot} />}
@@ -118,8 +118,13 @@ export function IndependentPanel({ result }: { result: VerifyResult }) {
               <dd className="mt-1 text-sm text-ink">
                 {p ? (
                   <>
-                    Asked {p.asked}, {p.agreed} agreed.
-                    {p.agreed < 2 && (
+                    Asked {p.asked}, {p.answered} answered, {p.agreed} agreed.
+                    {(p.stale > 0 || p.down > 0 || p.dissent > 0) && (
+                      <span className="ml-1 text-muted">
+                        ({[p.down ? `${p.down} unreachable` : "", p.stale ? `${p.stale} behind` : "", p.dissent ? `${p.dissent} disagreed` : ""].filter(Boolean).join(", ")})
+                      </span>
+                    )}
+                    {(p.degraded || (p.asked === 1 && p.agreed < 2)) && (
                       <span className="ml-1 font-medium text-warn">Single source: treat this answer with extra care.</span>
                     )}
                   </>

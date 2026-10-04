@@ -3,7 +3,7 @@
 import { EyeOff, FileCheck2, TriangleAlert } from "lucide-react";
 import { COUNT_PATH, type FieldResult } from "@mohar/core";
 import { Card } from "@/components/ui/primitives";
-import { cn } from "@/lib/utils";
+import { cn, hasUnsafe, stripUnsafe } from "@/lib/utils";
 
 const SECTIONS: { key: string; title: string }[] = [
   { key: "recipient", title: "Recipient" },
@@ -17,9 +17,10 @@ const label = (path: string) => {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 };
 
+/** Everything here is attacker-controlled text: React escapes it, and we also drop invisible / bidi-override characters. */
 function show(v: unknown): string {
   if (v === null || v === undefined || v === "") return "Not provided";
-  if (typeof v === "string") return v;
+  if (typeof v === "string") return stripUnsafe(v);
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   return JSON.stringify(v);
 }
@@ -58,9 +59,12 @@ export function FieldsCard({ fields, hidden }: { fields: FieldResult[]; hidden?:
                       {!f.ok && <TriangleAlert className="h-3.5 w-3.5 text-bad" aria-hidden />}
                       {label(f.path)}
                     </dt>
-                    <dd className={cn("mt-0.5 break-words font-serif text-lg leading-snug", f.ok ? "text-ink" : "text-bad")}>
+                    <dd className={cn("mt-0.5 max-h-56 overflow-auto break-words font-serif text-lg leading-snug", f.ok ? "text-ink" : "text-bad")} dir="auto">
                       {show(f.value)}
                     </dd>
+                    {typeof f.value === "string" && hasUnsafe(f.value) && (
+                      <p className="mt-1 text-xs text-warn" data-testid="hidden-chars">Contains hidden formatting characters, removed for display.</p>
+                    )}
                     {!f.ok && (
                       <p className="mt-1.5 text-sm font-medium text-bad">This field does not match what the issuer signed</p>
                     )}

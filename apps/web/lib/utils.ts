@@ -3,6 +3,11 @@ import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
+/** Invisible controls and bidi overrides: they can make attacker text read differently from what was signed. */
+export const UNSAFE_CHARS = /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g;
+export const stripUnsafe = (s: string) => s.replace(UNSAFE_CHARS, "");
+export const hasUnsafe = (s: string) => new RegExp(UNSAFE_CHARS.source).test(s);
+
 export const shortHex = (h: string, head = 6, tail = 4) => (h.length > head + tail + 2 ? `${h.slice(0, head)}…${h.slice(-tail)}` : h);
 
 export function downloadFile(name: string, data: BlobPart | Uint8Array, type: string) {

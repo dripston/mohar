@@ -54,6 +54,8 @@ export interface VerifyResult {
     chainId: number;
     contract: Address;
     issuerRegistry: Address;
+    /** accredited identity the record is namespaced under (known once the signer resolves) */
+    identity?: Address;
     documentRoot?: Hex;
     batchRoot?: Hex;
     proof?: Hex[];
@@ -163,7 +165,7 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
   const dep = deps.reader.deployment;
   const id = certId(header.documentRoot);
   const code = shortCode(id);
-  const independent = {
+  const independent: NonNullable<VerifyResult["independent"]> = {
     chainId: dep.chainId,
     contract: dep.certificateRegistry,
     issuerRegistry: dep.issuerRegistry,
@@ -187,12 +189,21 @@ export async function verifyCertificate(input: VerifyInput, deps: VerifyDeps): P
       return finish("UNKNOWN_ISSUER", mode, checks, now, { ...base, providers: providersOf(deps) });
     }
     set(checks, 1, "pass", `${issuer.name} is accredited (key ${short(header.signer)}).`);
+    independent.identity = issuer.identity;
+    if (header.anchor.kind === "single") independent.certId = recordId(issuer.identity, header.documentRoot);
 
     // ------------------------------------------------------------------ 2. domain
     const dns = await deps.dns(issuer.domain, issuer.identity);
     let domainUnchecked = false;
     if (dns.status === "match") {
-      set(checks, 2, "pass", `${issuer.domain} publishes mohar-issuer=${short(issuer.identity)} (via ${dns.provider}).`);
+      set(
+        checks,
+        2,
+        dns.demo ? "warn" : "pass",
+        dns.demo
+          ? `DEMO ONLY: ${issuer.domain} matched against a local stand-in zone, not real DNS. This proves nothing on a real network.`
+          : `${issuer.domain} publishes mohar-issuer=${short(issuer.identity)} (via ${dns.provider}).`,
+      );
     } else if (dns.status === "mismatch") {
       set(checks, 2, "fail", `${issuer.domain} does not publish a matching mohar-issuer record${dns.found.length ? ` (found ${dns.found.join(", ")})` : ""}.`);
     } else {

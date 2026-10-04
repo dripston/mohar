@@ -12,6 +12,7 @@ import {
   batchProofFiles,
   buildVerifyUrl,
   certId,
+  recordId,
   certificateRegistryAbi,
   issuerRegistryAbi,
   prepareBatch,
@@ -48,7 +49,7 @@ export default async function globalSetup() {
   // Reuse fixtures if they still exist on this very chain (a fresh chain invalidates them and re-seeds).
   try {
     const old = JSON.parse(readFileSync(path.join(process.cwd(), "e2e/.fixtures.json"), "utf8"));
-    const c = (await pub.readContract({ address: dep.certificateRegistry, abi: certificateRegistryAbi, functionName: "getCert", args: [certId(old.good.file.documentRoot)] })) as { state: number };
+    const c = (await pub.readContract({ address: dep.certificateRegistry, abi: certificateRegistryAbi, functionName: "getCert", args: [recordId(ISSUER.address, old.good.file.documentRoot)] })) as { state: number };
     if (c.state !== 0) return;
   } catch {
     /* no fixtures yet: seed */
@@ -68,16 +69,16 @@ export default async function globalSetup() {
 
   const good = await single(`Aarav Good ${stamp}`);
   const revoked = await single(`Riya Revoked ${stamp}`);
-  await revokeCert(w, { kind: "single", certId: certId(revoked.documentRoot) }, 2);
+  await revokeCert(w, { kind: "single", rid: recordId(ISSUER.address, revoked.documentRoot) }, 2);
   const suspended = await single(`Sana Suspended ${stamp}`);
-  await suspendCert(w, { kind: "single", certId: certId(suspended.documentRoot) });
+  await suspendCert(w, { kind: "single", rid: recordId(ISSUER.address, suspended.documentRoot) });
   const nearExpiry = await single(`Eshan Expiring ${stamp}`, {}, Number((await pub.getBlock()).timestamp) + 45);
 
   const batch = prepareBatch(Array.from({ length: 12 }, (_, i) => docFor(ISSUER.address, `Batch Student ${i} ${stamp}`, { title: "Diploma in Data Science" }) as any));
   const { txHash, gasPerCert } = await anchorBatch(w, batch);
   const batchFiles = batchProofFiles(dep, ISSUER.address, batch, txHash);
   const batchRevoked = batchFiles[2]!;
-  await revokeCert(w, { kind: "batch", batchRoot: (batchRevoked.anchor as any).batchRoot, documentRoot: batchRevoked.documentRoot, expiresAt: batchRevoked.expiresAt, proof: (batchRevoked.anchor as any).proof }, 3);
+  await revokeCert(w, { kind: "batch", identity: ISSUER.address, batchRoot: (batchRevoked.anchor as any).batchRoot, documentRoot: batchRevoked.documentRoot, expiresAt: batchRevoked.expiresAt, proof: (batchRevoked.anchor as any).proof }, 3);
 
   // an issuer that is accredited, then revoked from a moment between two of its certificates
   const stolenAcct = privateKeyToAccount("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"); // anvil #2, needs a FRESH chain per run

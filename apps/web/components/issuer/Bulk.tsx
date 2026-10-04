@@ -13,7 +13,7 @@ import { cn, downloadFile } from "@/lib/utils";
 import { useIssuer } from "./IssuerContext";
 import { ArchiveBanner } from "./ResultPanel";
 import { StepProgress, type Progress } from "./Steps";
-import { TEMPLATE_CSV, csvEscape, rowsFromCsv, type BulkRow } from "./csv";
+import { TEMPLATE_CSV, csvEscape, decodeCsvBytes, rowIssues, rowsFromCsv, type BulkRow } from "./csv";
 import { buildDoc, certIdOf, codeOf, explainError, fieldValue, linkFor, saveToArchive, validateCert, yieldFrame, type CertErrors } from "./lib";
 
 export const MAX_BATCH = 1000;
@@ -62,7 +62,16 @@ export function Bulk() {
   const [zipErr, setZipErr] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const errors = useMemo<CertErrors[]>(() => (rows ?? []).map((r) => validateCert(r)), [rows]);
+  const errors = useMemo<CertErrors[]>(() => {
+    const rs = rows ?? [];
+    const issues = rowIssues(rs);
+    return rs.map((r, i) => {
+      const e = validateCert(r);
+      for (const k of Object.keys(e) as (keyof CertErrors)[]) if (e[k] === undefined) delete e[k];
+      if (issues[i] && !e.name) e.name = issues[i];
+      return e;
+    });
+  }, [rows]);
   const invalid = errors.filter((e) => Object.keys(e).length > 0).length;
   const valid = (rows?.length ?? 0) - invalid;
 
@@ -71,7 +80,9 @@ export function Bulk() {
     setFileErr(undefined);
     if (f.size > 8 * 1024 * 1024) return setFileErr("That file is larger than 8 MB. Split it into smaller CSV files.");
     try {
-      const res = rowsFromCsv(await f.text());
+      const dec = decodeCsvBytes(await f.arrayBuffer());
+      if ("error" in dec) return setFileErr(dec.error);
+      const res = rowsFromCsv(dec.text);
       if ("error" in res) return setFileErr(res.error);
       setRows(res.rows);
       setFileName(f.name);

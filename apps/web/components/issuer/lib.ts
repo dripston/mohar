@@ -1,5 +1,5 @@
 import type { Address } from "viem";
-import { buildVerifyUrl, certId, shortCode, type CertRef, type ProofFile } from "@mohar/core";
+import { normaliseText, batchRid, buildVerifyUrl, certId, recordId, shortCode, type CertRef, type ProofFile } from "@mohar/core";
 import { APP_ORIGIN, deployment } from "@/lib/config";
 
 // ------------------------------------------------------------------ archive (localStorage)
@@ -45,6 +45,11 @@ export const fieldValue = (f: ProofFile, path: string): string => {
 };
 
 export const certIdOf = (f: ProofFile) => certId(f.documentRoot);
+/** On-chain record id: namespaced by the issuing identity, so it is only meaningful together with who issued it. */
+export const ridOf = (f: ProofFile, identity: Address | string) =>
+  f.anchor.kind === "single"
+    ? recordId(identity as Address, f.documentRoot)
+    : batchRid(identity as Address, f.anchor.batchRoot, f.documentRoot);
 export const codeOf = (f: ProofFile) => shortCode(certId(f.documentRoot));
 
 export const linkFor = (f: ProofFile) =>
@@ -56,22 +61,16 @@ export const linkFor = (f: ProofFile) =>
     anchor: f.anchor,
   });
 
-export function refFor(f: ProofFile): CertRef {
+export function refFor(f: ProofFile, identity: Address | string): CertRef {
   return f.anchor.kind === "single"
-    ? { kind: "single", certId: certId(f.documentRoot) }
-    : { kind: "batch", batchRoot: f.anchor.batchRoot, documentRoot: f.documentRoot, expiresAt: f.expiresAt, proof: f.anchor.proof };
+    ? { kind: "single", rid: recordId(identity as Address, f.documentRoot) }
+    : { kind: "batch", identity: identity as Address, batchRoot: f.anchor.batchRoot, documentRoot: f.documentRoot, expiresAt: f.expiresAt, proof: f.anchor.proof };
 }
 
 // ------------------------------------------------------------------ validation
 
-export interface CertInput {
-  name: string;
-  email: string;
-  title: string;
-  grade: string;
-  issuedOn: string;
-  expiresOn: string;
-}
+import type { CertInput } from "./certinput";
+export type { CertInput };
 export type CertErrors = Partial<Record<keyof CertInput, string>>;
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -82,16 +81,30 @@ export const isRealDate = (s: string) => {
 };
 export const todayIso = () => new Date().toISOString().slice(0, 10);
 
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+const textProblem = (s: string): string | undefined => {
+  if (FORMULA_LEAD.test(s)) return "Starts with = + - or @, which spreadsheets treat as a formula. Remove that character.";
+  try {
+    normaliseText(s);
+  } catch {
+    return "Contains hidden control or text-direction characters. Retype it.";
+  }
+  return undefined;
+};
+
 export function validateCert(v: CertInput): CertErrors {
   const e: CertErrors = {};
   const name = v.name.trim();
   if (!name) e.name = "Enter the recipient's full name.";
   else if (name.length > 120) e.name = "Keep the name under 120 characters.";
+  else e.name = textProblem(name);
   if (v.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = "This does not look like an email address.";
   const title = v.title.trim();
   if (!title) e.title = "Enter the credential title, for example B.E. in AI Engineering.";
   else if (title.length > 200) e.title = "Keep the title under 200 characters.";
+  else e.title = textProblem(title);
   if (v.grade.trim().length > 40) e.grade = "Keep the grade under 40 characters.";
+  else if (v.grade.trim()) e.grade = textProblem(v.grade.trim());
   if (!v.issuedOn.trim()) e.issuedOn = "Choose the date of issue.";
   else if (!isRealDate(v.issuedOn.trim())) e.issuedOn = "Use the format YYYY-MM-DD, for example 2026-06-01.";
   if (v.expiresOn.trim()) {

@@ -25,11 +25,17 @@ const DEMO_ZONE: Record<string, string[]> = {
 export const demoDnsResolver: DnsResolver = async (domain, identity) => {
   const ids = (DEMO_ZONE[domain] ?? []).map((a) => a.toLowerCase());
   return ids.includes(identity.toLowerCase())
-    ? { status: "match", provider: "local-demo-zone" }
-    : { status: "mismatch", provider: "local-demo-zone", found: [] };
+    ? { status: "match", provider: "local-demo-zone", demo: true }
+    : { status: "mismatch", provider: "local-demo-zone", found: [], demo: true };
 };
 
-export const dnsResolver: DnsResolver = DEV_WALLET_ENABLED ? demoDnsResolver : makeDohResolver();
+/**
+ * The stand-in zone is only ever allowed on the local Anvil chain (31337). Even if someone ships a build with the
+ * dev flag on, a real network falls through to DNS-over-HTTPS. Results from the stand-in are marked `demo`, which
+ * the checklist prints as "DEMO ONLY".
+ */
+const useDemoZone = DEV_WALLET_ENABLED && deployment.chainId === 31337;
+export const dnsResolver: DnsResolver = useDemoZone ? demoDnsResolver : makeDohResolver();
 
 /** A fresh reader per verification, so the "providers agreed" numbers belong to that run only. */
 export function newReader(): Reader {

@@ -5,8 +5,8 @@ import type { Address } from "viem";
  * Looked up over DNS-over-HTTPS with provider fallback. A failed lookup is "unreachable", never "mismatch".
  */
 export type DnsResult =
-  | { status: "match"; provider: string }
-  | { status: "mismatch"; provider: string; found: string[] }
+  | { status: "match"; provider: string; /** true = a local stand-in zone, NOT real DNS (anvil demo only) */ demo?: boolean }
+  | { status: "mismatch"; provider: string; found: string[]; demo?: boolean }
   | { status: "unreachable"; errors: string[] };
 
 export interface DohProvider {
@@ -47,10 +47,17 @@ export function makeDohResolver(
       try {
         const ctl = new AbortController();
         const timer = setTimeout(() => ctl.abort(), timeoutMs);
-        const res = await f(p.url(domain), { headers: { accept: "application/dns-json" }, signal: ctl.signal });
-        clearTimeout(timer);
+        let res: Response;
+        try {
+          res = await f(p.url(domain), { headers: { accept: "application/dns-json" }, signal: ctl.signal });
+        } finally {
+          clearTimeout(timer);
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const body = (await res.json()) as { Answer?: { type: number; data: string }[] };
+        const body = (await res.json()) as { Status?: number; Answer?: { type: number; data: string }[] };
+        // Only NOERROR (0) and NXDOMAIN (3) are real answers. SERVFAIL, REFUSED, etc. mean "the resolver failed",
+        // which must never be read as "this domain has no matching record".
+        if (body.Status !== undefined && body.Status !== 0 && body.Status !== 3) throw new Error(`DNS status ${body.Status}`);
         const txts = (body.Answer ?? []).filter((a) => a.type === 16).map((a) => cleanTxt(a.data));
         const ours = txts.filter((t) => t.toLowerCase().startsWith(TXT_PREFIX));
         if (ours.some((t) => t.toLowerCase() === expectedTxt(identity).toLowerCase())) {

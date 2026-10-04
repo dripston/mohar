@@ -5,6 +5,7 @@ import { FileCheck2, FileUp, Hash, Info, Layers, Link2, RefreshCw, RotateCcw, Sc
 import type { Mode, VerifyResult } from "@mohar/core";
 import { Button, Card, Skeleton } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
+import { deployment } from "@/lib/config";
 import { Checklist, ChecklistSkeleton } from "./Checklist";
 import { FieldsCard } from "./FieldsCard";
 import { IndependentPanel } from "./IndependentPanel";
@@ -73,9 +74,26 @@ export function ResultView({
   const statusDetail =
     result.verdict === "REVOKED" || result.verdict === "SUSPENDED" || result.verdict === "EXPIRED" ? result.checks[4]?.detail : undefined;
   const sub =
-    isCodeMode && result.verdict === "NOT_FOUND"
-      ? "No single-issued certificate on chain has this code. Batch certificates cannot be found by code alone."
-      : meta.sub;
+    result.verdict === "CANNOT_REACH_CHAIN" && result.unreachable === "split"
+      ? "The independent providers gave different answers and none had a majority, so we are not giving a verdict. This is not a sign the certificate is bad. Wait a few seconds and retry."
+      : isCodeMode && result.verdict === "NOT_FOUND"
+        ? result.headline === "This code is ambiguous"
+          ? "More than one certificate shares this code, so a code alone cannot say which one you hold. Open the certificate's full link or upload its file."
+          : "No single-issued certificate on chain has this code. Batch certificates cannot be found by code alone."
+        : meta.sub;
+  const p = result.providers;
+  const providerNote =
+    p && p.asked > 1 && result.verdict !== "CANNOT_REACH_CHAIN" && (p.degraded || p.stale > 0 || p.down > 0 || p.dissent > 0)
+      ? p.degraded
+        ? `Only ${p.agreed} of ${p.asked} chain providers could vouch for this answer (${p.down} unreachable, ${p.stale} behind, ${p.dissent} disagreed). Treat it with extra care and retry.`
+        : `${p.agreed} of ${p.asked} chain providers agree. ${[p.down ? `${p.down} unreachable` : "", p.stale ? `${p.stale} behind` : "", p.dissent ? `${p.dissent} disagreed` : ""].filter(Boolean).join(", ")}.`
+      : null;
+  const ct = result.chainTime;
+  const chainLagMin = ct ? Math.round((result.verifiedAt - ct.timestamp) / 60) : 0;
+  const stalledNote =
+    ct && deployment.chainId !== 31337 && chainLagMin > 10
+      ? `The latest block the providers could give us is ${chainLagMin} minutes old, so the network or these providers may be stalled. Status and expiry were judged at that block.`
+      : null;
   const hasFields = !!result.fields && result.fields.length > 0;
 
   return (
@@ -160,7 +178,7 @@ export function ResultView({
               <RefreshCw className="h-4 w-4" aria-hidden /> Retry
             </Button>
             <p className="self-center text-xs text-muted">
-              Asked {result.providers?.asked ?? 0} provider{result.providers?.asked === 1 ? "" : "s"}, {result.providers?.agreed ?? 0} agreed.
+              Asked {result.providers?.asked ?? 0} provider{result.providers?.asked === 1 ? "" : "s"}, {result.providers?.answered ?? 0} answered, {result.providers?.agreed ?? 0} agreed.
             </p>
           </div>
         )}
@@ -197,6 +215,13 @@ export function ResultView({
         </Card>
       )}
 
+      {(providerNote || stalledNote) && (
+        <Card className="flex gap-3 border-warn/30 p-5" data-testid="provider-note">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
+          <p className="text-sm leading-relaxed text-ink">{providerNote ?? stalledNote}</p>
+        </Card>
+      )}
+
       {result.note && (
         <Card className="flex gap-3 border-warn/30 p-5" data-testid="result-note">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
@@ -227,8 +252,14 @@ export function ResultView({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-4">
         <p className="text-xs text-muted">
-          Checked {new Date(result.verifiedAt * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}. Read directly
-          from the chain in your browser, never through our servers.
+          {ct ? (
+            <span data-testid="chain-time">
+              Read at block {ct.block}, chain time {new Date(ct.timestamp * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}. Expiry and status are judged on the chain's clock, not yours.
+            </span>
+          ) : (
+            <>Checked {new Date(result.verifiedAt * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}.</>
+          )}{" "}
+          Read directly from the chain in your browser, never through our servers.
         </p>
         <Button variant="secondary" size="sm" onClick={onReset} data-testid="verify-reset">
           <RotateCcw className="h-4 w-4" aria-hidden /> Verify another

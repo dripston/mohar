@@ -12,19 +12,48 @@ import {
 } from "pdf-lib";
 import { certId, parseProofFile, proofFileToJson, shortCode, type ProofFile } from "@mohar/core";
 import { qrDataUrl } from "./qr";
+import { stripUnsafe } from "./utils";
 
 const ATTACHMENT = "mohar-proof.json";
+
+/** Invisible controls and bidi overrides never reach a page: they can make a name read differently from what was signed. */
 
 const plain = (file: ProofFile, path: string): string => {
   const f = file.fields[path];
   if (!f) return "";
   try {
     const v = JSON.parse(f.value);
-    return v === null ? "" : String(v);
+    return v === null ? "" : stripUnsafe(String(v));
   } catch {
-    return f.value;
+    return stripUnsafe(f.value);
   }
 };
+
+/**
+ * The 14 built-in PDF fonts only draw Latin-1 text and THROW on anything else (Devanagari, Arabic, emoji...), which
+ * would make an Indian name impossible to print. Replace what the font cannot draw with "?" and shrink / truncate
+ * to the page so a 10,000-character value cannot run off the sheet. The complete, exact text always travels in the
+ * embedded proof file, which is what the verifier actually checks.
+ */
+export function fitText(font: { widthOfTextAtSize(t: string, s: number): number }, text: string, size: number, maxWidth: number) {
+  let t = [...text]
+    .map((ch) => {
+      try {
+        font.widthOfTextAtSize(ch, size);
+        return ch;
+      } catch {
+        return "?";
+      }
+    })
+    .join("");
+  let s = size;
+  while (s > 9 && font.widthOfTextAtSize(t, s) > maxWidth) s -= 1;
+  if (font.widthOfTextAtSize(t, s) > maxWidth) {
+    while (t.length > 1 && font.widthOfTextAtSize(t + "...", s) > maxWidth) t = t.slice(0, -1);
+    t += "...";
+  }
+  return { text: t, size: s };
+}
 
 /**
  * A printable certificate. The QR holds the verify link (link mode). The complete proof file, with every field,
@@ -32,7 +61,7 @@ const plain = (file: ProofFile, path: string): string => {
  */
 export async function createCertificatePdf(file: ProofFile, verifyUrl: string): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  pdf.setTitle(`${plain(file, "credential.title")} - ${plain(file, "recipient.name")}`);
+  pdf.setTitle(`${plain(file, "credential.title")} - ${plain(file, "recipient.name")}`.slice(0, 200));
   pdf.setSubject("Mohar blockchain-anchored certificate");
   pdf.setKeywords([shortCode(certId(file.documentRoot))]);
   pdf.setProducer("Mohar");
@@ -45,8 +74,10 @@ export async function createCertificatePdf(file: ProofFile, verifyUrl: string): 
   const ink = rgb(0.08, 0.07, 0.06);
   const seal = rgb(0.69, 0.14, 0.11);
   const gold = rgb(0.62, 0.5, 0.24);
-  const center = (text: string, y: number, size: number, font = serif, color = ink) =>
-    page.drawText(text, { x: (width - font.widthOfTextAtSize(text, size)) / 2, y, size, font, color });
+  const center = (raw: string, y: number, size: number, font = serif, color = ink) => {
+    const fit = fitText(font, raw, size, width - 140);
+    page.drawText(fit.text, { x: (width - font.widthOfTextAtSize(fit.text, fit.size)) / 2, y, size: fit.size, font, color });
+  };
 
   page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.99, 0.98, 0.95) });
   page.drawRectangle({ x: 22, y: 22, width: width - 44, height: height - 44, borderColor: gold, borderWidth: 2.5 });

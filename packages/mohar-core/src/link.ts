@@ -1,6 +1,6 @@
 import { bytesToHex, getAddress, hexToBytes, type Address, type Hex } from "viem";
-import { gunzipSync, gzipSync, strFromU8, strToU8 } from "fflate";
-import type { Anchor, ProofFile } from "./types";
+import { Gunzip, gzipSync, strFromU8, strToU8 } from "fflate";
+import type { Anchor, DisclosedField, ProofFile } from "./types";
 
 /**
  * Link mode: a tiny binary header (issuer key, root, expiry, batch proof) in the URL fragment.
@@ -127,30 +127,71 @@ export function proofFileToJson(f: ProofFile): string {
 
 const HEX32 = /^0x[0-9a-fA-F]{64}$/;
 
-/** Strict structural validation. Anything that fails here is "malformed", not "tampered". */
+/** Hard limits so a hostile file cannot hang or exhaust the verifier. A real certificate is far below all of them. */
+export const LIMITS = {
+  maxFileBytes: 2 * 1024 * 1024,
+  maxFields: 200,
+  maxPathChars: 200,
+  maxValueChars: 2000,
+  maxProofHashes: 40, // a tree of 2^40 leaves
+} as const;
+
+/**
+ * Strict structural validation. Anything that fails here is "malformed", not "tampered".
+ * Returns a NEW object built field by field: unknown keys in the input (a lying "verdict", "status", "issuer"...)
+ * are dropped here and can never reach the verifier or the UI. Only the chain and the math decide.
+ */
 export function parseProofFile(json: string | unknown): ProofFile {
+  if (typeof json === "string" && json.length > LIMITS.maxFileBytes) throw new Error("malformed proof file: too large");
   const f = (typeof json === "string" ? JSON.parse(json) : json) as ProofFile;
-  const bad = (m: string) => {
+  const bad = (m: string): never => {
     throw new Error(`malformed proof file: ${m}`);
   };
-  if (!f || typeof f !== "object") bad("not an object");
+  if (!f || typeof f !== "object" || Array.isArray(f)) bad("not an object");
   if (f.format !== "mohar-proof/1") bad("unknown format");
   if (!Number.isInteger(f.chainId) || f.chainId <= 0) bad("chainId");
   if (typeof f.signer !== "string") bad("signer");
-  getAddress(f.signer);
-  if (!HEX32.test(f.documentRoot)) bad("documentRoot");
-  if (!Number.isInteger(f.expiresAt) || f.expiresAt < 0) bad("expiresAt");
-  if (!f.anchor || (f.anchor.kind !== "single" && f.anchor.kind !== "batch")) bad("anchor");
-  if (f.anchor.kind === "batch") {
-    if (!HEX32.test(f.anchor.batchRoot) || !Array.isArray(f.anchor.proof) || !f.anchor.proof.every((p) => HEX32.test(p)))
+  const signer = getAddress(f.signer);
+  if (typeof f.documentRoot !== "string" || !HEX32.test(f.documentRoot)) bad("documentRoot");
+  if (!Number.isSafeInteger(f.expiresAt) || f.expiresAt < 0) bad("expiresAt");
+  let anchor: Anchor;
+  if (f.anchor?.kind === "single") anchor = { kind: "single" };
+  else if (f.anchor?.kind === "batch") {
+    const a = f.anchor;
+    if (typeof a.batchRoot !== "string" || !HEX32.test(a.batchRoot) || !Array.isArray(a.proof) || a.proof.length > LIMITS.maxProofHashes || !a.proof.every((p) => typeof p === "string" && HEX32.test(p)))
       bad("batch anchor");
+    anchor = { kind: "batch", batchRoot: a.batchRoot, proof: [...a.proof] };
+  } else return bad("anchor");
+  if (!f.fields || typeof f.fields !== "object" || Array.isArray(f.fields)) bad("fields");
+  const entries = Object.entries(f.fields);
+  if (entries.length > LIMITS.maxFields) bad("too many fields");
+  const fields: Record<string, DisclosedField> = Object.create(null);
+  for (const [p, d] of entries) {
+    if (p.length > LIMITS.maxPathChars) bad("field path too long");
+    if (
+      typeof d?.value !== "string" ||
+      d.value.length > LIMITS.maxValueChars ||
+      typeof d.salt !== "string" ||
+      !HEX32.test(d.salt) ||
+      !Array.isArray(d.proof) ||
+      d.proof.length > LIMITS.maxProofHashes ||
+      !d.proof.every((x) => typeof x === "string" && HEX32.test(x))
+    )
+      bad(`field ${p.slice(0, 40)}`);
+    fields[p] = { value: d.value, salt: d.salt, proof: [...d.proof] };
   }
-  if (!f.fields || typeof f.fields !== "object") bad("fields");
-  for (const [p, d] of Object.entries(f.fields)) {
-    if (typeof d?.value !== "string" || !HEX32.test(d.salt) || !Array.isArray(d.proof) || !d.proof.every((x) => HEX32.test(x)))
-      bad(`field ${p}`);
-  }
-  return { ...f, partial: Boolean(f.partial) };
+  const txHash = typeof f.txHash === "string" && HEX32.test(f.txHash) ? f.txHash : undefined;
+  return {
+    format: "mohar-proof/1",
+    chainId: f.chainId,
+    signer,
+    documentRoot: f.documentRoot,
+    expiresAt: f.expiresAt,
+    anchor,
+    fields: { ...fields },
+    partial: f.partial === true,
+    ...(txHash ? { txHash } : {}),
+  };
 }
 
 /** Compact, gzip'd, URL-safe presentation (what a holder shares after hiding fields). Prefix `P`. */
@@ -158,10 +199,36 @@ export function encodePresentation(f: ProofFile): string {
   return "P" + toBase64Url(gzipSync(strToU8(JSON.stringify(f)), { level: 9 }));
 }
 
+/** Gunzip with a hard output cap, so a few hundred bytes of "zip bomb" cannot allocate gigabytes. */
+export function boundedGunzip(data: Uint8Array, maxBytes: number): Uint8Array {
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  let overflow = false;
+  const gz = new Gunzip((chunk) => {
+    total += chunk.length;
+    if (total > maxBytes) {
+      overflow = true;
+      return;
+    }
+    chunks.push(chunk);
+  });
+  // feed in small slices so we can stop as soon as the cap is exceeded
+  const STEP = 4096;
+  for (let i = 0; i < data.length && !overflow; i += STEP) gz.push(data.subarray(i, i + STEP), i + STEP >= data.length);
+  if (overflow) throw new Error("presentation too large");
+  const out = new Uint8Array(total);
+  let o = 0;
+  for (const c of chunks) {
+    out.set(c, o);
+    o += c.length;
+  }
+  return out;
+}
+
 export function decodePresentation(frag: string): ProofFile {
   if (!frag.startsWith("P")) throw new Error("not a presentation");
-  const bytes = gunzipSync(fromBase64Url(frag.slice(1)));
-  if (bytes.length > 512 * 1024) throw new Error("presentation too large");
+  if (frag.length > LIMITS.maxFileBytes) throw new Error("presentation too large");
+  const bytes = boundedGunzip(fromBase64Url(frag.slice(1)), LIMITS.maxFileBytes);
   return parseProofFile(strFromU8(bytes));
 }
 

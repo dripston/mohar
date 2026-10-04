@@ -1,0 +1,340 @@
+{
+  "docs": [
+    {
+      "name": "baseline",
+      "documentRoot": "0x012c082d7360be2c4764d2dcb15e0d2cfffa93a6804096cb7f21ae057f4aeecc",
+      "utf8": {},
+      "fields": [
+        {
+          "path": "credential.expiresOn",
+          "value": "null",
+          "salt": "0xa81416f136a43ea5b4866a27522c4431b7545c17d02c4f10678c13063b47d2db",
+          "proof": [
+            "0x18ee9ed2d482a45014c5bcb095a5cda656c78b4872428d25d3fe1e8c275ca04f",
+            "0x5f2892cae00d080b282bf42b49a30a47f15f8264d92bc1213e52bad6b0e7edf7",
+            "0x1ea08444b76db1240d62c87941cc96ab9a1c0505bb9125722808c5d5f52880a2"
+          ]
+        },
+        {
+          "path": "credential.issuedOn",
+          "value": "\"2026-06-01\"",
+          "salt": "0x389bce3791de6acfa2ffa7e28025c3af607e546dec77e69ef3690ab49c5bc792",
+          "proof": [
+            "0x267df728a8eb6cf389190de8c11fd91f3e76af1c0f68bb2a731ba25fce572538",
+            "0x5f2892cae00d080b282bf42b49a30a47f15f8264d92bc1213e52bad6b0e7edf7",
+            "0x1ea08444b76db1240d62c87941cc96ab9a1c0505bb9125722808c5d5f52880a2"
+          ]
+        },
+        {
+          "path": "credential.title",
+          "value": "\"B.E.\"",
+          "salt": "0xb06c26eb47bc9562f36ec984050a41548714d2d8566c869ad335b64cd3aa9d1b",
+          "proof": [
+            "0x29e0964fc22db17987908568026ff46b84740c112c389975897181352cb22be2",
+            "0xcc81a54506d96b11ed999bafc7c9b7f65c93b940a270602625ce3f00d50f014c",
+            "0x1ea08444b76db1240d62c87941cc96ab9a1c0505bb9125722808c5d5f52880a2"
+          ]
+        },
+        {
+          "path": "recipient.name",
+          "value": "\"Ananya Rao\"",
+          "salt": "0x6c7da9da134b4bf39e18f3e819ee1751b34cb08430532bc65b1d37e8e45ff04a",
+          "proof": [
+            "0xa32055a10d074b85d09368958979d16021067b9188f817a5f3b9c73e76e59ed0",
+            "0x9fa54d98867388dc32a72ac32de914097368a4c488443c5fabfe4cc51d6bed54"
+          ]
+        },
+        {
+          "path": "version",
+          "value": "\"mohar/1\"",
+          "salt": "0x9e2b9bd5ea57aa38b91bc60e5f8949faff6849b4046e48da0a97a9264ae78dfc",
+          "proof": [
+            "0x3196850cbfbac670bcac4ff8cfe9942ecc8bf785db4687d5e1296b2cea312094",
+            "0xcc81a54506d96b11ed999bafc7c9b7f65c93b940a270602625ce3f00d50f014c",
+            "0x1ea08444b76db1240d62c87941cc96ab9a1c0505bb9125722808c5d5f52880a2"
+          ]
+        },
+        {
+          "path": "meta.fieldCount",
+          "value": "\"5\"",
+          "salt": "0x77224ed33a8522809dbe27514689ee128b607dfd662f7310973882d0c74c9227",
+          "proof": [
+            "0xfbf6588697e4784e610d965a1abbefdb3b9d17d82846ca6ce4a1b551324403c0",
+            "0x9fa54d98867388dc32a72ac32de914097368a4c488443c5fabfe4cc51d6bed54"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unicode-nfc",
+      "documentRoot": "0x41f0cede5e69a2bdfd729f8d652520192c686a8dde6b85662f7ba2c424b49892",
+      "utf8": {
+        "recipient.name": "224a6f73c3a922"
+      },
+      "fields": [
+        {
+          "path": "credential.title",
+          "value": "\"Café\"",
+          "salt": "0x445a1ec405e3fc825a638fe43f7ed68a03bf447c6f7c11590ca03e3935abc884",
+          "proof": [
+            "0x41ea2d83469109c320f97b0158c6d437c2faad28eaacc66d93e003e3b65ea942"
+          ]
+        },
+        {
+          "path": "recipient.name",
+          "value": "\"José\"",
+          "salt": "0x9c2c028526accf268ddaf858ec0aa05f07a795a3750bf4cfdb4301baaca84498",
+          "proof": [
+            "0x0335f2aa260b931dda29259577b8141515fc7448b59a8551e208989d19f25a5f",
+            "0x826d2b4f6cd5d8b08c92c49b867bc8e0df55880e18d47f2d0051bc59c510cc67"
+          ]
+        },
+        {
+          "path": "meta.fieldCount",
+          "value": "\"2\"",
+          "salt": "0x2452e4769a5f94c8ca03781214f300bfe1f0b9dfdd432f364a736f5f8d861cb1",
+          "proof": [
+            "0x7359d0f38b261114ae5b54392ee6bb3a837a1edd865e5ea44c6ebc7110d0a9b0",
+            "0x826d2b4f6cd5d8b08c92c49b867bc8e0df55880e18d47f2d0051bc59c510cc67"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "empty-null-number-bool",
+      "documentRoot": "0xa534eba2dc72acf9a739dc79f6c1e2a548260fbcf23eb37c0ff5e0a07acccd20",
+      "utf8": {
+        "a": "2222",
+        "b": "6e756c6c",
+        "d": "30"
+      },
+      "fields": [
+        {
+          "path": "a",
+          "value": "\"\"",
+          "salt": "0x072b93927f240206ba76f8cb3fb1beb196973b347755ca0ae53efeddb2e82dff",
+          "proof": [
+            "0x6775faa8d71dcc975cc6f530742ed8727c7fb9954c097a871f911951311383db",
+            "0x4664e2451e3c1ac614d559eed7b926ba16fce3cc863d8442b79ef7c81aa6d31f",
+            "0x6e384bcf97fffde8b888a19bac520f656e2caf44d880be5c8f6d983963d3b5fe",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "b",
+          "value": "null",
+          "salt": "0x7c650805a21b3dc69b9dfb68d918b56324a86768213ca19aedb7602f01109a8b",
+          "proof": [
+            "0xeb18d7828753d145790584d9fe96f524698941783c020b366420f2e92f45923c",
+            "0x90e5af469aee76a8830ffb73dc3b9e37f23820b3a59b3145e8dea136f303979c",
+            "0x331169499e9fdff3eac55378b80351292120f61ee00c41d3e2eada018e12f9d9"
+          ]
+        },
+        {
+          "path": "c",
+          "value": "0",
+          "salt": "0x92d39facff98428cd0816a9ed4d973b0cc2d2a8c55b5b966523748818ce4e86b",
+          "proof": [
+            "0xd17fc8ba21c77c298aaffbefab593ba573b994667797edbeaec4e6badfc02988",
+            "0x949d0507ef0e943fafd19163a78f1aed8e7bb533ebee2162e4381a6c6f7b004e",
+            "0x331169499e9fdff3eac55378b80351292120f61ee00c41d3e2eada018e12f9d9"
+          ]
+        },
+        {
+          "path": "d",
+          "value": "0",
+          "salt": "0x8eb0c7cd239453aa9aa798fee7bd9bae4b75cc83b31ce789882b107449115cb2",
+          "proof": [
+            "0x6e18df02741e95c2b4a6264821f17c5ff5505abede16fbc1a2d30c72e68ce987",
+            "0x4664e2451e3c1ac614d559eed7b926ba16fce3cc863d8442b79ef7c81aa6d31f",
+            "0x6e384bcf97fffde8b888a19bac520f656e2caf44d880be5c8f6d983963d3b5fe",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "e",
+          "value": "8.5",
+          "salt": "0xf626a2f4f45e615b50d19fd44f43e3b5e8b440fec2da2f348b9e0f9a9445c2fe",
+          "proof": [
+            "0x5004e9ca33a697051aef92c7e6d794d5c1201ff0b3ddab9adee635b5f269e282",
+            "0x316231bf681d463137e862ba6d5a846c3d2e0a7725a065fc278e8b1300ecab08",
+            "0x19e0c6b10a2db5bf03905bfd33f85d93899ae782b88488272dd34c73ac274970",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "f",
+          "value": "false",
+          "salt": "0x076d65c1110bfe5287dd90e0d8a07a3c9a7568088ce18df00db876d1d0cbfdea",
+          "proof": [
+            "0x97a15eeb73f7c51544b9474d19e817d9dd4d493bd23d6b08188c3a81687d12c0",
+            "0xa44b70642958e05a2d1caf75e59df3fac8351ca1d5e5acf53477d9b048071854",
+            "0x6e384bcf97fffde8b888a19bac520f656e2caf44d880be5c8f6d983963d3b5fe",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "g",
+          "value": "[]",
+          "salt": "0xdc46e878427d61f232505b957c2fefe330794234f51a20c7ec8841834d51874c",
+          "proof": [
+            "0xb1989cc0828cf9f74e1f6d035a5f6c16d1472ecb84fdf4e2bde00282b90e5a9a",
+            "0x949d0507ef0e943fafd19163a78f1aed8e7bb533ebee2162e4381a6c6f7b004e",
+            "0x331169499e9fdff3eac55378b80351292120f61ee00c41d3e2eada018e12f9d9"
+          ]
+        },
+        {
+          "path": "h",
+          "value": "{}",
+          "salt": "0xa347c399bf068ab3623eb495f5fe1956f6af3377ebe77247b8ff91d927fc524c",
+          "proof": [
+            "0x083b1b3e8146969abd24b705928ae3446f4bfdf7c60e555caf0e420dec602954",
+            "0x33bc9f824819c7499f60c2ba8081b0b78cb68729ad5956935cd1e5ce8009bccb",
+            "0x19e0c6b10a2db5bf03905bfd33f85d93899ae782b88488272dd34c73ac274970",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "i[0]",
+          "value": "1",
+          "salt": "0x05e1fa50b8e0b9f1a4b142f5edd7d8921786e82ad09da13787d8402efe139025",
+          "proof": [
+            "0xe5bf920fac375565498dd6348370ab615856607c788fc82b07d8c3789f4034fb",
+            "0x90e5af469aee76a8830ffb73dc3b9e37f23820b3a59b3145e8dea136f303979c",
+            "0x331169499e9fdff3eac55378b80351292120f61ee00c41d3e2eada018e12f9d9"
+          ]
+        },
+        {
+          "path": "i[1]",
+          "value": "\"x\"",
+          "salt": "0xd8f3ce0179b69e69fa97df317050ace402a94090bf376d69c663b3a25eefcc25",
+          "proof": [
+            "0x62c132ccfdc9263cbddf1ec6c6f6f15fffdd5de86e656ceb6abf770aae056eb8",
+            "0x316231bf681d463137e862ba6d5a846c3d2e0a7725a065fc278e8b1300ecab08",
+            "0x19e0c6b10a2db5bf03905bfd33f85d93899ae782b88488272dd34c73ac274970",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "i[2]",
+          "value": "null",
+          "salt": "0x3fe9429256d7181487c76aacb1393c5cad52a8a85f9aadae5d4eef8eecb61e0f",
+          "proof": [
+            "0x9f3cda5a75d3e84d412f12f9fcf12066b8c84463fe040a6c1927f4e1aaa601ef",
+            "0xa44b70642958e05a2d1caf75e59df3fac8351ca1d5e5acf53477d9b048071854",
+            "0x6e384bcf97fffde8b888a19bac520f656e2caf44d880be5c8f6d983963d3b5fe",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        },
+        {
+          "path": "meta.fieldCount",
+          "value": "\"11\"",
+          "salt": "0xd2d85906fe2848bc6841a42556394e88179144636a603cd328c918eb9e6fba7a",
+          "proof": [
+            "0x188f796c23b030de7ef03d78c961c560573d92f6a86166bf590de89593c98c14",
+            "0x33bc9f824819c7499f60c2ba8081b0b78cb68729ad5956935cd1e5ce8009bccb",
+            "0x19e0c6b10a2db5bf03905bfd33f85d93899ae782b88488272dd34c73ac274970",
+            "0x81e0dfbf1d337862ad471f65eb49979e1c17d1fc59a064cbdb11028a5bbed7c4"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "devanagari-emoji-rtl",
+      "documentRoot": "0x600364a0c0a998f9d05952254c53ecd273c2c9d1c4a638a5523836ba2b224695",
+      "utf8": {},
+      "fields": [
+        {
+          "path": "note",
+          "value": "\"🎓\"",
+          "salt": "0x6af979c464bd4d0532c84354f52bb6659852c025e76b4835845ed30c6ae0988c",
+          "proof": [
+            "0x97a6f7b357faef3fa08fc910ca41c647d520e39008b4ad62895b2a9c8543c065",
+            "0x4050b1122ba117c437d55989257ff3c480e48af2959ecba03b6ad8179d995145"
+          ]
+        },
+        {
+          "path": "recipient.name",
+          "value": "\"अनन्या राव\"",
+          "salt": "0xa70fa5cd983abb2d054cd073d29ce4c5319ca881eed7071e676af99eba3c41e3",
+          "proof": [
+            "0x7e1902b7c669dc54061b4765353195bac97c63d72985646e55a48155d4740e85",
+            "0x664646a320665cefb48c2b1836e5db18872bb801ed8c1d78821397bf4a367f97"
+          ]
+        },
+        {
+          "path": "rtl",
+          "value": "\"שלום\"",
+          "salt": "0x4128e4e836ea55f9635cab931858df10071e3237681e4e91d003ba365e062263",
+          "proof": [
+            "0x83a174ccfdecfd96dabe74afbd76824e84c30730b6568aa4fef66e61af97d0ab",
+            "0x4050b1122ba117c437d55989257ff3c480e48af2959ecba03b6ad8179d995145"
+          ]
+        },
+        {
+          "path": "meta.fieldCount",
+          "value": "\"3\"",
+          "salt": "0x5e1f8d7290572752d5371c1fa6d6cdb9c2fd6afca1238b8028f73d94cb311eb0",
+          "proof": [
+            "0x3363c6a10ad3745822e2b0a1406c307f350447e9127b6aac5fabe1cfb6b28c02",
+            "0x664646a320665cefb48c2b1836e5db18872bb801ed8c1d78821397bf4a367f97"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "key-order-shuffled",
+      "documentRoot": "0x45e0d25127f868efe90ab9df64a32a57ace9abbc8833dd06f3fd4460ef511b9c",
+      "utf8": {},
+      "fields": [
+        {
+          "path": "x",
+          "value": "\"4\"",
+          "salt": "0xa3b27f05a7420526123b472bcd5c961fe649b7c9e149475ebadfce76c6e706c9",
+          "proof": [
+            "0x87eea0ffa0638e67a32efd1628d6b23a5629f995ade6b20b6ebbd0a6ad7285d1",
+            "0x74a10a08d279b712ad8695fca009e4557213a659a6bc98b3679fdda3cc6b4eb1"
+          ]
+        },
+        {
+          "path": "y.a",
+          "value": "\"3\"",
+          "salt": "0x4b54dbaab9107e220ccf7b23e5bcd1d07873f57ab44a8cb6dd6a27ffccc7d163",
+          "proof": [
+            "0x1de81b352dbb26bada56cb4dbd0c1ad5e4329fe73ff9edf961b4a984dca3da6c",
+            "0xdd423c1ec658e4aee8293dfcf848579ac578b58ae33fbb929b6d6b6d421178ba",
+            "0x65f835924565af8e831facb324b5a1648bdcbfd359b051ca8df47aef2fe3ea09"
+          ]
+        },
+        {
+          "path": "y.b",
+          "value": "\"2\"",
+          "salt": "0x25b9dfb7417f089ab8647b114cf44218bf31b1952500d11eea5c1f99ddd0c01e",
+          "proof": [
+            "0x53970ca145281345919f72990e2848bf171ac51c15b6b90870d9314bc119f578",
+            "0x74a10a08d279b712ad8695fca009e4557213a659a6bc98b3679fdda3cc6b4eb1"
+          ]
+        },
+        {
+          "path": "z",
+          "value": "\"1\"",
+          "salt": "0xc7ae451612cf8bab3d75a7a3571eab8931f2f7b13914647a1d9eac6be549a96b",
+          "proof": [
+            "0x053247822089d13b7b9f8e8649ae7e223b7d241249a7b4825fbbe9fdd8882159",
+            "0xdd423c1ec658e4aee8293dfcf848579ac578b58ae33fbb929b6d6b6d421178ba",
+            "0x65f835924565af8e831facb324b5a1648bdcbfd359b051ca8df47aef2fe3ea09"
+          ]
+        },
+        {
+          "path": "meta.fieldCount",
+          "value": "\"4\"",
+          "salt": "0x106697aec52aa1f6b1d60dbfb41c0a243a8ad7a0517aaf839110b32cb0a493f0",
+          "proof": [
+            "0xbab097570fa22b95427254dcd509ade3a504686391badb3ca943b80ba5f6e5a2",
+            "0x65f835924565af8e831facb324b5a1648bdcbfd359b051ca8df47aef2fe3ea09"
+          ]
+        }
+      ]
+    }
+  ]
+}
