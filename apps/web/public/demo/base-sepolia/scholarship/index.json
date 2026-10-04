@@ -1,0 +1,123 @@
+{
+  "network": "base-sepolia",
+  "chainId": 84532,
+  "generatedAt": "2026-10-04T15:49:16.590Z",
+  "domain": "mohar-demo.duckdns.org",
+  "total": 27,
+  "issuers": {
+    "institute": "0x41d42A3F396dE5d04b5578A9b97929dfEBd51581",
+    "revenueOffice": "0x566A9951c9C8919fB12041d506dd4bd6fa9e701A",
+    "fakeInstitute": "0x5dA87F97d0FBAb6CaB0184092D2b513fEbcCC096"
+  },
+  "auditCutoff": 1791128198,
+  "studentApplicant": "app-0001",
+  "studentFiles": [
+    "student-enrolment.json",
+    "student-caste.json",
+    "student-income.json"
+  ],
+  "samples": {
+    "good": {
+      "file": "app-0001.mohar",
+      "expected": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      }
+    },
+    "tampered": {
+      "file": "app-0003.mohar",
+      "expected": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "TAMPERED"
+      }
+    },
+    "revoked": {
+      "file": "app-0006.mohar",
+      "expected": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "REVOKED",
+        "income": "OK"
+      }
+    },
+    "suspended": {
+      "file": "app-0009.mohar",
+      "expected": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "SUSPENDED",
+        "st": "OK",
+        "income": "OK"
+      }
+    },
+    "expired": {
+      "file": "app-0012.mohar",
+      "expected": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "EXPIRED",
+        "st": "OK",
+        "income": "OK"
+      }
+    },
+    "fake_institute": {
+      "file": "app-0015.mohar",
+      "expected": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      }
+    },
+    "wrong_issuer_type": {
+      "file": "app-0018.mohar",
+      "expected": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "WRONG_ISSUER_TYPE",
+        "st": "OK",
+        "income": "OK"
+      }
+    },
+    "missing": {
+      "file": "app-0021.mohar",
+      "expected": "INCOMPLETE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "MISSING",
+        "income": "OK"
+      }
+    },
+    "not_eligible_income": {
+      "file": "app-0024.mohar",
+      "expected": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "FLAG_FALSE"
+      }
+    },
+    "not_eligible_category": {
+      "file": "app-0027.mohar",
+      "expected": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "FLAG_FALSE",
+        "income": "OK"
+      }
+    }
+  },
+  "counts": {
+    "ELIGIBLE": 19,
+    "INVALID": 2,
+    "NOT_ELIGIBLE": 5,
+    "INCOMPLETE": 1
+  },
+  "countsAfterAudit": {
+    "ELIGIBLE": 18,
+    "INVALID": 3,
+    "NOT_ELIGIBLE": 5,
+    "INCOMPLETE": 1
+  }
+}
