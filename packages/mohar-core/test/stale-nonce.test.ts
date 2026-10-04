@@ -1,0 +1,37 @@
+import { describe, expect, it } from "vitest";
+import { anchorSingle, prepareCertificate } from "../src";
+
+/** A load-balanced RPC can return the OLD nonce right after our transaction. The signer must retry, not give up. */
+describe("stale nonce from a lagging RPC node", () => {
+  it("re-signs with the fresh nonce after BadSignature", async () => {
+    const signer = "0x1111111111111111111111111111111111111111";
+    let sends = 0;
+    const nonces: bigint[] = [];
+    const w: any = {
+      deployment: { chainId: 84532, certificateRegistry: "0x2222222222222222222222222222222222222222" },
+      publicClient: {
+        // first read is stale (0), later reads are fresh (1)
+        readContract: async () => (nonces.length === 0 ? 0n : 1n),
+        waitForTransactionReceipt: async () => ({ status: "success", gasUsed: 1n, blockNumber: 5n }),
+      },
+      wallet: {
+        account: { address: signer },
+        chain: undefined,
+        signTypedData: async (td: any) => {
+          nonces.push(td.message.nonce);
+          return `0x${"ab".repeat(65)}`;
+        },
+        writeContract: async () => {
+          sends++;
+          if (sends === 1) throw new Error('The contract function "issue" reverted. Error: BadSignature()');
+          return `0x${"cd".repeat(32)}`;
+        },
+      },
+    };
+    const p = prepareCertificate({ version: "mohar/1", issuer: { address: signer }, credential: { title: "t", expiresOn: null } } as any);
+    const r = await anchorSingle(w, p);
+    expect(sends).toBe(2);
+    expect(nonces).toEqual([0n, 1n]);
+    expect(r.txHash).toMatch(/^0x/);
+  });
+});

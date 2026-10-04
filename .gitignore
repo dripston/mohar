@@ -17,3 +17,6 @@ packages/contracts/lib/
 e2e/.fixtures.json
 .sih/
 .seed-keys.*.json
+
+.vercel
+.env*

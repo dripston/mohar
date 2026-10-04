@@ -121,7 +121,13 @@ async function main() {
   entries.push({ id: "expired", label: "Expired", expected: "EXPIRED", file: expiring });
 
   const stolen = await issue(X, "Imran Ali");
-  const issuedAt = Number((await pub.readContract({ address: dep.certificateRegistry, abi: (await import("../src")).certificateRegistryAbi, functionName: "getCert", args: [recordId(X.account.address, stolen.documentRoot)] })).cert.issuedAt);
+  // public RPCs are load balanced: a read right after our write can hit a node that has not seen it, so wait for it
+  let issuedAt = 0;
+  for (let i = 0; i < 20 && !issuedAt; i++) {
+    issuedAt = Number((await pub.readContract({ address: dep.certificateRegistry, abi: (await import("../src")).certificateRegistryAbi, functionName: "getCert", args: [recordId(X.account.address, stolen.documentRoot)] })).cert.issuedAt);
+    if (!issuedAt) await new Promise((r) => setTimeout(r, 1000));
+  }
+  if (!issuedAt) throw new Error("issued certificate not visible on any node after 20 s");
   await rootTx("revokeIssuer", [X.account.address, BigInt(issuedAt), 1]);
   entries.push({ id: "issuer-revoked", label: "Issuer key revoked from before this certificate was issued", expected: "ISSUER_REVOKED", file: stolen });
 

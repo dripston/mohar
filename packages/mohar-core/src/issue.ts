@@ -80,13 +80,50 @@ export interface Writer {
   deployment: Deployment;
 }
 
+/** Newest block in which each signer's last transaction was mined: reads must be at least this fresh. */
+const lastSeen = new Map<string, bigint>();
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * The signer's current nonce. Public RPCs sit behind load balancers, so a read right after our own transaction can
+ * hit a node that has not seen it yet and return the OLD nonce, which signs a message the contract rejects
+ * (BadSignature). So we insist on a block at least as new as the signer's last mined transaction.
+ */
 async function nonceOf(w: Writer, signer: Address): Promise<bigint> {
-  return w.publicClient.readContract({
-    address: w.deployment.certificateRegistry,
-    abi: certificateRegistryAbi,
-    functionName: "nonces",
-    args: [signer],
-  });
+  const min = lastSeen.get(signer.toLowerCase());
+  for (let i = 0; ; i++) {
+    try {
+      return await w.publicClient.readContract({
+        address: w.deployment.certificateRegistry,
+        abi: certificateRegistryAbi,
+        functionName: "nonces",
+        args: [signer],
+        ...(min !== undefined ? { blockNumber: min } : {}),
+      });
+    } catch (e) {
+      if (i >= 12) throw e; // the node does not have that block yet: wait and ask again
+      await sleep(800);
+    }
+  }
+}
+
+const isStaleSig = (e: unknown) => /BadSignature/.test(String((e as Error)?.message ?? e));
+
+/** Sign + send, re-signing with a fresh nonce if a lagging node made us use a stale one. */
+async function signAndSend(w: Writer, signer: Address, sign: (nonce: bigint) => Promise<Hex>, send: (sig: Hex) => Promise<Hex>) {
+  for (let attempt = 0; ; attempt++) {
+    const nonce = await nonceOf(w, signer);
+    const sig = await sign(nonce);
+    try {
+      const hash = await send(sig);
+      const receipt = await w.publicClient.waitForTransactionReceipt({ hash });
+      lastSeen.set(signer.toLowerCase(), receipt.blockNumber);
+      return { hash, receipt };
+    } catch (e) {
+      if (!isStaleSig(e) || attempt >= 5) throw e;
+      await sleep(1000);
+    }
+  }
 }
 
 export type IssueStep = "hashing" | "signing" | "pending" | "confirmed";
@@ -95,25 +132,29 @@ export type IssueStep = "hashing" | "signing" | "pending" | "confirmed";
 export async function anchorSingle(w: Writer, p: PreparedCert, onStep: (s: IssueStep, detail?: string) => void = () => {}) {
   const signer = w.wallet.account.address;
   onStep("hashing");
-  const nonce = await nonceOf(w, signer);
   onStep("signing");
-  const signature = await w.wallet.signTypedData(
-    issueTypedData(w.deployment.chainId, w.deployment.certificateRegistry, {
-      issuer: signer,
-      root: p.built.documentRoot,
-      expiresAt: BigInt(p.expiresAt),
-      nonce,
-    }),
+  const { hash, receipt } = await signAndSend(
+    w,
+    signer,
+    (nonce) =>
+      w.wallet.signTypedData(
+        issueTypedData(w.deployment.chainId, w.deployment.certificateRegistry, {
+          issuer: signer,
+          root: p.built.documentRoot,
+          expiresAt: BigInt(p.expiresAt),
+          nonce,
+        }),
+      ),
+    (signature) =>
+      w.wallet.writeContract({
+        address: w.deployment.certificateRegistry,
+        abi: certificateRegistryAbi,
+        functionName: "issue",
+        args: [signer, p.built.documentRoot, BigInt(p.expiresAt), signature],
+        chain: w.wallet.chain,
+      }),
   );
-  const hash = await w.wallet.writeContract({
-    address: w.deployment.certificateRegistry,
-    abi: certificateRegistryAbi,
-    functionName: "issue",
-    args: [signer, p.built.documentRoot, BigInt(p.expiresAt), signature],
-    chain: w.wallet.chain,
-  });
   onStep("pending", hash);
-  const receipt = await w.publicClient.waitForTransactionReceipt({ hash });
   if (receipt.status !== "success") throw new Error("issuance transaction reverted");
   onStep("confirmed", hash);
   return { txHash: hash, gasUsed: receipt.gasUsed, signer };
@@ -122,25 +163,29 @@ export async function anchorSingle(w: Writer, p: PreparedCert, onStep: (s: Issue
 export async function anchorBatch(w: Writer, b: PreparedBatch, onStep: (s: IssueStep, detail?: string) => void = () => {}) {
   const signer = w.wallet.account.address;
   onStep("hashing");
-  const nonce = await nonceOf(w, signer);
   onStep("signing");
-  const signature = await w.wallet.signTypedData(
-    issueBatchTypedData(w.deployment.chainId, w.deployment.certificateRegistry, {
-      issuer: signer,
-      batchRoot: b.batchRoot,
-      count: b.certs.length,
-      nonce,
-    }),
+  const { hash, receipt } = await signAndSend(
+    w,
+    signer,
+    (nonce) =>
+      w.wallet.signTypedData(
+        issueBatchTypedData(w.deployment.chainId, w.deployment.certificateRegistry, {
+          issuer: signer,
+          batchRoot: b.batchRoot,
+          count: b.certs.length,
+          nonce,
+        }),
+      ),
+    (signature) =>
+      w.wallet.writeContract({
+        address: w.deployment.certificateRegistry,
+        abi: certificateRegistryAbi,
+        functionName: "issueBatch",
+        args: [signer, b.batchRoot, b.certs.length, signature],
+        chain: w.wallet.chain,
+      }),
   );
-  const hash = await w.wallet.writeContract({
-    address: w.deployment.certificateRegistry,
-    abi: certificateRegistryAbi,
-    functionName: "issueBatch",
-    args: [signer, b.batchRoot, b.certs.length, signature],
-    chain: w.wallet.chain,
-  });
   onStep("pending", hash);
-  const receipt = await w.publicClient.waitForTransactionReceipt({ hash });
   if (receipt.status !== "success") throw new Error("batch transaction reverted");
   onStep("confirmed", hash);
   return {
