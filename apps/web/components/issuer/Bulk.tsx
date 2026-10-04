@@ -178,14 +178,15 @@ export function Bulk() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">Bulk issuance</h1>
-        <p className="mt-1 max-w-prose text-sm text-muted">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-gold">One root · one transaction</p>
+        <h1 className="mt-2 font-serif text-4xl leading-none tracking-tight sm:text-5xl">Bulk issuance</h1>
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-muted">
           Upload a CSV and anchor every certificate with a single transaction. One Merkle root covers the whole batch, so the cost per certificate drops as the batch grows.
         </p>
       </div>
 
       {!rows && !done && (
-        <Card className="p-5 sm:p-6">
+        <Card className="rounded-3xl p-3 sm:p-4">
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -197,15 +198,18 @@ export function Bulk() {
               setDrag(false);
               void ingest(e.dataTransfer.files[0]);
             }}
-            className={cn("grid place-items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors sm:p-12", drag ? "border-seal bg-seal/5" : "border-line bg-raised")}
+            className={cn("relative grid place-items-center gap-3 overflow-hidden rounded-2xl border border-dashed p-8 text-center transition-all sm:p-16", drag ? "scale-[1.01] border-gold bg-gold/[0.07]" : "border-line bg-bg/40")}
           >
-            <UploadCloud className="h-10 w-10 text-seal" aria-hidden />
-            <p className="font-serif text-xl font-semibold">Drop your CSV here</p>
-            <p className="max-w-md text-sm text-muted">
+            <div aria-hidden className="grid-bg pointer-events-none absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
+            <span className="relative grid h-16 w-16 place-items-center rounded-2xl border border-line bg-raised shadow-[0_0_50px_-10px_rgb(221_182_104/0.5)]">
+              <UploadCloud className="h-8 w-8 text-gold" aria-hidden />
+            </span>
+            <p className="relative mt-2 font-serif text-4xl">Drop your CSV here</p>
+            <p className="relative max-w-md text-sm text-muted">
               Columns: <span className="font-mono text-xs">recipient_name, recipient_email, title, grade, issued_on, expires_on</span>. Dates look like 2026-06-01. Email, grade and expires_on may be empty.
             </p>
             <input ref={inputRef} type="file" accept=".csv,text/csv" className="sr-only" data-testid="bulk-file" aria-label="Upload CSV file" onChange={(e) => void ingest(e.target.files?.[0])} />
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="relative mt-2 flex flex-wrap justify-center gap-2">
               <Button type="button" onClick={() => inputRef.current?.click()}>
                 <FileSpreadsheet className="h-4 w-4" aria-hidden /> Choose CSV file
               </Button>
@@ -213,7 +217,7 @@ export function Bulk() {
                 href={`data:text/csv;charset=utf-8,${encodeURIComponent(TEMPLATE_CSV + "\n")}`}
                 download="mohar-bulk-template.csv"
                 data-testid="bulk-template"
-                className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium hover:bg-raised"
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-raised/70 px-4 text-sm font-medium hover:bg-raised"
               >
                 <Download className="h-4 w-4" aria-hidden /> Download template
               </a>
@@ -231,7 +235,7 @@ export function Bulk() {
       )}
 
       {rows && !done && (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden rounded-3xl">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4">
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{fileName}</p>
@@ -270,7 +274,7 @@ export function Bulk() {
           )}
 
           <table data-testid="bulk-table" className="block w-full text-left text-sm md:table">
-            <thead className="hidden border-b border-line bg-raised text-xs uppercase tracking-wide text-muted md:table-header-group">
+            <thead className="hidden border-b border-line bg-bg/40 text-[0.65rem] uppercase tracking-[0.16em] text-muted md:table-header-group">
               <tr>
                 <th className="px-3 py-2 font-medium">#</th>
                 {COLS.map((c) => (
@@ -309,7 +313,7 @@ export function Bulk() {
                             disabled={busy}
                             placeholder={c.k === "issuedOn" || c.k === "expiresOn" ? "YYYY-MM-DD" : undefined}
                             className={cn(
-                              "h-9 w-full rounded-lg border bg-surface px-2 text-sm text-ink placeholder:text-muted/60",
+                              "h-9 w-full rounded-lg border bg-bg/50 px-2 text-sm text-ink placeholder:text-muted/50 focus:border-gold/60 focus:outline-none",
                               c.w,
                               err ? "border-bad bg-bad/10" : "border-line",
                             )}
@@ -360,11 +364,11 @@ export function Bulk() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3 border-t border-line bg-raised p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-line bg-bg/40 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
             <p className="text-sm text-muted">
               {invalid > 0 ? `Fix the ${invalid} highlighted row${invalid > 1 ? "s" : ""} (or remove them) to continue.` : n === 0 ? "Add rows by uploading another file." : "All rows are valid. One signature, one transaction."}
             </p>
-            <Button size="lg" disabled={busy || invalid > 0 || n === 0 || tooMany} onClick={anchor} data-testid="bulk-anchor" className="w-full sm:w-auto">
+            <Button variant="seal" size="lg" disabled={busy || invalid > 0 || n === 0 || tooMany} onClick={anchor} data-testid="bulk-anchor" className="w-full sm:w-auto">
               {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <PackageOpen className="h-5 w-5" aria-hidden />}
               Sign & Anchor {n} certificate{n === 1 ? "" : "s"} in 1 transaction
             </Button>
@@ -375,8 +379,8 @@ export function Bulk() {
       <AnimatePresence initial={false}>
         {(progress.step || error) && (
           <motion.div key="p" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
-            <Card className="p-5 sm:p-6" data-testid="progress-card">
-              <h2 className="mb-4 font-serif text-lg font-semibold">Sign & anchor</h2>
+            <Card className="rounded-3xl p-5 sm:p-7" data-testid="progress-card">
+              <h2 className="mb-5 font-serif text-3xl leading-tight">Sign &amp; anchor</h2>
               <StepProgress progress={progress} hashingNote={note} />
               <div aria-live="assertive">
                 {error && (
@@ -391,29 +395,32 @@ export function Bulk() {
 
         {done && (
           <motion.div key="d" initial={reduce ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }} className="space-y-4">
-            <Card className="p-5 sm:p-6" data-testid="bulk-result">
-              <div className="mb-5 flex items-center gap-2 text-ok">
-                <CheckCircle2 className="h-6 w-6" aria-hidden />
-                <h2 className="font-serif text-xl font-semibold text-ink">
+            <Card className="relative overflow-hidden rounded-3xl border-ok/30 p-5 sm:p-8" data-testid="bulk-result">
+              <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-ok/15 blur-3xl" />
+              <div className="relative mb-6 flex items-center gap-3 text-ok">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-ok text-bg shadow-[0_0_40px_-6px_rgb(52_211_153/0.7)]">
+                  <CheckCircle2 className="h-6 w-6" aria-hidden />
+                </span>
+                <h2 className="font-serif text-3xl leading-tight text-ink sm:text-4xl">
                   {done.files.length} certificates anchored in 1 transaction
                 </h2>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-line bg-raised p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted">Certificates</p>
-                  <p className="mt-1 font-serif text-3xl font-semibold tabular-nums" data-testid="bulk-count">
+                <div className="rounded-2xl border border-line bg-bg/50 p-5">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Certificates</p>
+                  <p className="mt-2 font-serif text-5xl leading-none tabular-nums" data-testid="bulk-count">
                     {done.files.length}
                   </p>
                 </div>
-                <div className="rounded-xl border border-line bg-raised p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted">Total gas used</p>
-                  <p className="mt-1 font-serif text-3xl font-semibold tabular-nums" data-testid="gas-used">
+                <div className="rounded-2xl border border-line bg-bg/50 p-5">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Total gas used</p>
+                  <p className="mt-2 font-serif text-5xl leading-none tabular-nums" data-testid="gas-used">
                     {done.gasUsed.toLocaleString("en-US")}
                   </p>
                 </div>
-                <div className="rounded-xl border border-seal/40 bg-seal/5 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-seal">Gas per certificate</p>
-                  <p className="mt-1 font-serif text-3xl font-semibold tabular-nums text-seal" data-testid="gas-per-cert">
+                <div className="rounded-2xl border border-gold/40 bg-gold/[0.07] p-5 shadow-[0_0_50px_-20px_rgb(221_182_104/0.6)]">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-gold">Gas per certificate</p>
+                  <p className="mt-2 font-serif text-5xl leading-none tabular-nums text-gold" data-testid="gas-per-cert">
                     {Math.round(done.gasPerCert).toLocaleString("en-US")}
                   </p>
                 </div>
@@ -423,7 +430,7 @@ export function Bulk() {
                   {zip ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <Download className="h-5 w-5" aria-hidden />}
                   {zip ? "Preparing ZIP" : "Download ZIP (PDFs, JSON, manifest.csv)"}
                 </Button>
-                <Link href="/issuer/dashboard" className="inline-flex h-12 items-center rounded-xl border border-line bg-surface px-5 text-sm font-medium hover:bg-raised">
+                <Link href="/issuer/dashboard" className="inline-flex h-12 items-center rounded-xl border border-line bg-raised/70 px-5 text-sm font-medium hover:bg-raised">
                   Open registry
                 </Link>
                 <Button variant="ghost" onClick={reset} disabled={!!zip}>
@@ -440,7 +447,7 @@ export function Bulk() {
                       </span>
                     </div>
                     <div role="progressbar" aria-valuemin={0} aria-valuemax={zip.total} aria-valuenow={zip.n} aria-label="ZIP preparation" className="h-2 overflow-hidden rounded-full bg-raised">
-                      <div className="h-full rounded-full bg-seal transition-[width] duration-150" style={{ width: `${(zip.n / zip.total) * 100}%` }} />
+                      <div className="h-full rounded-full bg-gradient-to-r from-gold to-seal transition-[width] duration-150" style={{ width: `${(zip.n / zip.total) * 100}%` }} />
                     </div>
                   </div>
                 )}

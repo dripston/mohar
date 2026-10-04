@@ -17,7 +17,7 @@ export function ChecklistSkeleton() {
   return (
     <ol className="space-y-3" aria-hidden>
       {[0, 1, 2, 3, 4].map((i) => (
-        <li key={i} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-3.5">
+        <li key={i} className="glass flex items-start gap-3 rounded-2xl p-4">
           <Skeleton className="h-7 w-7 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-2/3" />
@@ -45,8 +45,8 @@ export function Checklist({ checks }: { checks: CheckT[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : i * 0.25, ease: "easeOut" }}
             className={cn(
-              "flex items-start gap-3 rounded-xl border bg-surface p-3.5",
-              c.status === "fail" ? "border-bad/40" : c.status === "warn" ? "border-warn/40" : "border-line",
+              "glass flex items-start gap-3.5 rounded-2xl p-4",
+              c.status === "fail" ? "!border-bad/45" : c.status === "warn" ? "!border-warn/40" : "",
             )}
           >
             <motion.span

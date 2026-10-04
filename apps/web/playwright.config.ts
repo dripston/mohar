@@ -27,6 +27,6 @@ export default defineConfig({
     url: "http://localhost:3100",
     reuseExistingServer: true,
     timeout: 240_000,
-    env: { NEXT_PUBLIC_APP_ORIGIN: "http://localhost:3100" },
+    env: { NEXT_PUBLIC_APP_ORIGIN: "http://localhost:3100", NEXT_DIST_DIR: ".next-e2e" },
   },
 });

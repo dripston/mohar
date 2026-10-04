@@ -117,9 +117,9 @@ export function ScanDialog({ onResult, onClose }: { onResult: (text: string) => 
       aria-modal="true"
       aria-label="Scan a certificate QR code"
       data-testid="scan-dialog"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 backdrop-blur-md sm:items-center sm:p-4"
     >
-      <div className="flex max-h-[100dvh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-card sm:rounded-2xl">
+      <div className="flex max-h-[100dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-line bg-surface shadow-2xl sm:rounded-3xl">
         <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
           <div className="flex items-center gap-2">
             <ScanLine className="h-4 w-4 text-seal" aria-hidden />
@@ -148,15 +148,15 @@ export function ScanDialog({ onResult, onClose }: { onResult: (text: string) => 
             </Button>
           </div>
         ) : (
-          <div className="relative aspect-square w-full bg-ink">
+          <div className="relative aspect-square w-full bg-black">
             <video ref={video} playsInline muted className="h-full w-full object-cover" aria-label="Camera preview" />
             <canvas ref={canvas} className="hidden" />
             {!ready && (
-              <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-bg">
+              <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-white">
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Starting camera
               </div>
             )}
-            <div className="pointer-events-none absolute inset-[14%] rounded-2xl border-2 border-bg/90 shadow-[0_0_0_9999px_rgb(0_0_0/0.35)]" />
+            <div className="pointer-events-none absolute inset-[14%] rounded-2xl border-2 border-white/90 shadow-[0_0_0_9999px_rgb(0_0_0/0.35)]" />
           </div>
         )}
         {!problem && (

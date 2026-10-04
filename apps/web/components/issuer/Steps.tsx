@@ -41,7 +41,7 @@ export function StepProgress({ progress, hashingNote }: { progress: Progress; ha
       <p className="sr-only" role="status" aria-live="polite">
         {live}
       </p>
-      <ol className="grid gap-3 sm:grid-cols-4">
+      <ol className="relative grid gap-3 sm:grid-cols-4">
         {ORDER.map((s) => {
           const st = stateOf(progress, s);
           const Icon = META[s].icon;
@@ -51,11 +51,11 @@ export function StepProgress({ progress, hashingNote }: { progress: Progress; ha
               data-testid={`step-${s}`}
               data-state={st}
               className={cn(
-                "relative overflow-hidden rounded-xl border p-3 transition-colors",
-                st === "idle" && "border-line bg-surface text-muted",
-                st === "active" && "border-seal/50 bg-seal/5 text-ink",
-                st === "done" && "border-ok/40 bg-ok/5 text-ink",
-                st === "error" && "border-bad/50 bg-bad/5 text-ink",
+                "relative overflow-hidden rounded-2xl border p-4 transition-all duration-500",
+                st === "idle" && "border-line bg-bg/40 text-muted",
+                st === "active" && "border-gold/50 bg-gold/[0.07] text-ink shadow-[0_0_40px_-12px_rgb(221_182_104/0.6)]",
+                st === "done" && "border-ok/35 bg-ok/[0.06] text-ink",
+                st === "error" && "border-bad/50 bg-bad/[0.08] text-ink",
               )}
             >
               <div className="flex items-center gap-2">
@@ -63,9 +63,9 @@ export function StepProgress({ progress, hashingNote }: { progress: Progress; ha
                   className={cn(
                     "grid h-7 w-7 shrink-0 place-items-center rounded-full",
                     st === "idle" && "bg-raised text-muted",
-                    st === "active" && "bg-seal text-white",
-                    st === "done" && "bg-ok text-white",
-                    st === "error" && "bg-bad text-white",
+                    st === "active" && "bg-gold text-bg",
+                    st === "done" && "bg-ok text-bg",
+                    st === "error" && "bg-bad text-bg",
                   )}
                 >
                   <AnimatePresence mode="wait" initial={false}>
@@ -91,7 +91,8 @@ export function StepProgress({ progress, hashingNote }: { progress: Progress; ha
                 </span>
                 <span className="text-sm font-semibold">{META[s].label}</span>
               </div>
-              <p className="mt-2 text-xs text-muted">{s === "hashing" && hashingNote ? hashingNote : META[s].hint}</p>
+              {st === "active" && <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden"><span className="block h-full w-1/2 animate-[marquee_1s_linear_infinite] bg-gradient-to-r from-transparent via-gold to-transparent" /></span>}
+              <p className="mt-2 text-xs leading-relaxed text-muted">{s === "hashing" && hashingNote ? hashingNote : META[s].hint}</p>
             </li>
           );
         })}
@@ -105,7 +106,7 @@ export function StepProgress({ progress, hashingNote }: { progress: Progress; ha
               target="_blank"
               rel="noreferrer"
               data-testid="tx-link"
-              className="inline-flex items-center gap-1 font-medium text-seal underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1 font-medium text-gold underline-offset-2 hover:underline"
             >
               View on explorer <ExternalLink className="h-3.5 w-3.5" aria-hidden />
             </a>

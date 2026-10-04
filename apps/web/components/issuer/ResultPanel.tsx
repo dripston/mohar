@@ -17,10 +17,10 @@ export function ArchiveBanner({ identity, saved = true }: { identity: string; sa
     downloadFile(`mohar-archive-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(all, null, 2), "application/json");
   };
   return (
-    <div role="note" data-testid="archive-banner" className="flex flex-col gap-3 rounded-xl border border-warn/40 bg-warn/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div role="note" data-testid="archive-banner" className="flex flex-col gap-3 rounded-2xl border border-warn/30 bg-warn/[0.07] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
       <div className="flex gap-3">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
-        <p className="text-sm">
+        <p className="text-sm leading-relaxed text-ink/90">
           <strong>Keep a backup of your archive.</strong> Each certificate&apos;s secret salts exist only in its proof file and cannot be regenerated. This browser keeps a copy
           {saved ? "" : " (but storing it here failed, so download the files now)"}; export it regularly so you can still revoke or re-issue copies later.
         </p>
@@ -68,8 +68,8 @@ export function ResultPanel({ file }: { file: ProofFile }) {
   };
 
   return (
-    <div data-testid="result-panel" className="grid gap-5 sm:grid-cols-[auto,1fr]">
-      <div className="mx-auto grid place-items-center rounded-xl bg-white p-3 sm:mx-0">
+    <div data-testid="result-panel" className="relative grid gap-6 sm:grid-cols-[auto,1fr] sm:gap-8">
+      <div className="mx-auto grid place-items-center self-start rounded-2xl bg-white p-3 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.9)] ring-4 ring-white/5 sm:mx-0">
         {qr ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={qr} alt={`QR code that opens the verify page for ${code}`} data-testid="qr-image" className="h-44 w-44" />
@@ -81,14 +81,14 @@ export function ResultPanel({ file }: { file: ProofFile }) {
       </div>
       <div className="min-w-0 space-y-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">Verification code</p>
-          <p className="mt-1 break-all font-mono text-xl font-semibold tracking-wide sm:text-2xl" data-testid="short-code">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted">Verification code</p>
+          <p className="text-foil mt-1 break-all font-mono text-2xl font-semibold tracking-wide sm:text-3xl" data-testid="short-code">
             {code}
           </p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">Verify link</p>
-          <a href={link} data-testid="verify-link" target="_blank" rel="noreferrer" className="mt-1 block max-h-16 overflow-hidden break-all text-sm text-seal underline-offset-2 hover:underline">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted">Verify link</p>
+          <a href={link} data-testid="verify-link" target="_blank" rel="noreferrer" className="mt-1.5 block max-h-16 overflow-hidden break-all rounded-xl border border-line bg-bg/60 p-2.5 text-sm text-gold/90 underline-offset-2 hover:underline">
             <Mono>{link}</Mono>
           </a>
         </div>

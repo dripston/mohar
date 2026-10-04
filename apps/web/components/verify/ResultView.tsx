@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { FileUp, Hash, Info, Link2, RefreshCw, RotateCcw, ScanSearch, Layers, FileCheck2 } from "lucide-react";
+import { FileCheck2, FileUp, Hash, Info, Layers, Link2, RefreshCw, RotateCcw, ScanSearch } from "lucide-react";
 import type { Mode, VerifyResult } from "@mohar/core";
 import { Button, Card, Skeleton } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
@@ -18,24 +18,35 @@ export function ResultSkeleton({ what }: { what: string }) {
   return (
     <div data-testid="verify-loading" className="space-y-5" role="status">
       <span className="sr-only">Verifying {what} against the blockchain</span>
-      <Card className="p-5 sm:p-7">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-14 w-14 shrink-0 rounded-2xl" />
-          <div className="flex-1 space-y-2.5">
-            <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-7 w-3/4" />
+      <Card className="relative overflow-hidden rounded-3xl p-6 sm:p-9">
+        <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
+          <div className="h-full w-1/3 animate-[marquee_1.2s_linear_infinite] bg-gradient-to-r from-transparent via-gold to-transparent" />
+        </div>
+        <div className="flex items-center gap-5">
+          <div className="relative grid h-16 w-16 shrink-0 place-items-center">
+            <span className="absolute inset-0 animate-ping-slow rounded-full bg-gold/20" />
+            <span className="absolute inset-0 animate-spin rounded-full border-2 border-gold/20 border-t-gold" />
+          </div>
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-8 w-3/4" />
           </div>
         </div>
-        <Skeleton className="mt-5 h-4 w-full" />
-        <Skeleton className="mt-2 h-4 w-2/3" />
-        <p className="mt-5 text-sm text-muted" aria-hidden>
-          Verifying {what}: asking independent providers to read the chain…
+        <p className="mt-6 text-sm text-muted" aria-hidden>
+          Verifying <span className="text-ink">{what}</span>: asking independent providers to read the chain…
         </p>
       </Card>
       <ChecklistSkeleton />
     </div>
   );
 }
+
+const GLOW: Record<string, string> = {
+  ok: "from-ok/25",
+  warn: "from-warn/20",
+  bad: "from-bad/25",
+  neutral: "from-muted/10",
+};
 
 export function ResultView({
   result,
@@ -65,56 +76,66 @@ export function ResultView({
     isCodeMode && result.verdict === "NOT_FOUND"
       ? "No single-issued certificate on chain has this code. Batch certificates cannot be found by code alone."
       : meta.sub;
+  const hasFields = !!result.fields && result.fields.length > 0;
 
   return (
     <div className="space-y-5">
       <motion.section
-        initial={reduce ? false : { opacity: 0, scale: 0.97, y: 8 }}
+        initial={reduce ? false : { opacity: 0, scale: 0.97, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: reduce ? 0 : 0.4, ease: "easeOut" }}
+        transition={{ duration: reduce ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
         data-testid="verdict"
         data-verdict={result.verdict}
         data-mode={result.mode}
         aria-label={`Verdict: ${result.headline}`}
-        className={cn("rounded-2xl border-2 p-5 sm:p-7", tone.box)}
+        className={cn("relative overflow-hidden rounded-3xl border p-6 sm:p-9", tone.box)}
       >
-        <div className="flex items-start gap-4">
-          <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl", tone.solid)}>
-            <Icon className="h-8 w-8" aria-hidden strokeWidth={2.2} />
-          </span>
+        <div aria-hidden className={cn("pointer-events-none absolute -left-20 -top-28 h-80 w-80 rounded-full bg-gradient-to-br to-transparent blur-3xl", GLOW[meta.tone])} />
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full border border-current opacity-[0.06]" />
+        <div aria-hidden className="pointer-events-none absolute -right-4 -top-4 h-32 w-32 rounded-full border border-current opacity-[0.06]" />
+
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
+          <motion.span
+            initial={reduce ? false : { scale: 0.3, rotate: -30 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 14, delay: reduce ? 0 : 0.15 }}
+            className={cn("relative grid h-16 w-16 shrink-0 place-items-center rounded-2xl sm:h-20 sm:w-20", tone.solid, tone.glow)}
+          >
+            <Icon className="h-9 w-9 sm:h-11 sm:w-11" aria-hidden strokeWidth={2.2} />
+          </motion.span>
           <div className="min-w-0">
-            <p className={cn("text-xs font-semibold uppercase tracking-[0.16em]", tone.text)} data-testid="verdict-label">
+            <p className={cn("text-xs font-bold uppercase tracking-[0.22em]", tone.text)} data-testid="verdict-label">
               {meta.label}
             </p>
-            <h2 className="mt-1 break-words font-serif text-3xl leading-tight text-ink sm:text-4xl" data-testid="verdict-headline">
+            <h2 className="mt-1.5 break-words font-serif text-4xl leading-[1.02] tracking-tight text-ink sm:text-5xl" data-testid="verdict-headline">
               {result.headline}
             </h2>
           </div>
         </div>
 
-        <p className="mt-4 text-[0.95rem] leading-relaxed text-ink/90">{sub}</p>
+        <p className="relative mt-5 max-w-2xl text-[0.95rem] leading-relaxed text-ink/85">{sub}</p>
         {statusDetail && (
-          <p className="mt-2 rounded-lg bg-surface/70 px-3 py-2 text-sm font-medium text-ink" data-testid="verdict-detail">
+          <p className="relative mt-3 inline-block rounded-xl border border-line bg-bg/60 px-3.5 py-2 text-sm font-medium text-ink" data-testid="verdict-detail">
             {statusDetail}
           </p>
         )}
 
         {result.issuer && (
-          <dl className="mt-5 grid gap-x-6 gap-y-3 border-t border-line/70 pt-4 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="text-xs text-muted">Issuer</dt>
-              <dd className="font-serif text-lg text-ink" data-testid="issuer-name">
+          <dl className="relative mt-6 grid gap-x-8 gap-y-4 border-t border-line/80 pt-5 text-sm sm:grid-cols-3">
+            <div className="min-w-0">
+              <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Issuer</dt>
+              <dd className="mt-1 font-serif text-xl leading-tight text-ink" data-testid="issuer-name">
                 {result.issuer.name}
               </dd>
             </div>
-            <div>
-              <dt className="text-xs text-muted">Domain</dt>
-              <dd className="break-all text-ink">{result.issuer.domain}</dd>
+            <div className="min-w-0">
+              <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Domain</dt>
+              <dd className="mt-1 break-all text-ink">{result.issuer.domain}</dd>
             </div>
             {result.code && (
-              <div>
-                <dt className="text-xs text-muted">Verification code</dt>
-                <dd className="break-all font-mono text-[0.85rem] text-ink" data-testid="result-code">
+              <div className="min-w-0">
+                <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">Verification code</dt>
+                <dd className="mt-1 break-all font-mono text-[0.85rem] text-ink" data-testid="result-code">
                   {result.code}
                 </dd>
               </div>
@@ -122,10 +143,10 @@ export function ResultView({
           </dl>
         )}
 
-        <div className="mt-5 flex flex-wrap items-center gap-2">
+        <div className="relative mt-6 flex flex-wrap items-center gap-2">
           <span
             data-testid="mode-chip"
-            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink"
+            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg/60 px-3 py-1 text-xs font-medium text-ink"
           >
             <ModeIcon className="h-3.5 w-3.5" aria-hidden />
             {mode.label}
@@ -134,7 +155,7 @@ export function ResultView({
         </div>
 
         {result.verdict === "CANNOT_REACH_CHAIN" && (
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="relative mt-5 flex flex-wrap gap-3">
             <Button onClick={onRetry} data-testid="verify-retry">
               <RefreshCw className="h-4 w-4" aria-hidden /> Retry
             </Button>
@@ -146,15 +167,14 @@ export function ResultView({
       </motion.section>
 
       {showUploadCta && (
-        <Card className="flex flex-col gap-3 border-seal/40 p-4 sm:flex-row sm:items-center sm:p-5" data-testid="link-cta">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-seal/12 text-seal">
+        <Card className="flex flex-col gap-4 border-gold/30 p-5 sm:flex-row sm:items-center" data-testid="link-cta">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold/10 text-gold">
             <ScanSearch className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-medium text-ink">Issuer and status verified. Upload the certificate file to verify its contents.</p>
             <p className="mt-1 text-sm text-muted">
-              A link or QR code proves who issued a certificate, not that the printed name and grade are unaltered. Drop the PDF or proof
-              file to check every field.
+              A link or QR proves who issued a certificate, not that the printed name and grade are unaltered. Drop the PDF or proof file to check every field.
             </p>
           </div>
           <Button variant="secondary" onClick={onUpload} data-testid="link-cta-upload" className="shrink-0">
@@ -164,7 +184,7 @@ export function ResultView({
       )}
 
       {isCodeMode && (
-        <Card className="flex gap-3 p-4 sm:p-5" data-testid="code-note">
+        <Card className="flex gap-3 p-5" data-testid="code-note">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-muted" aria-hidden />
           <div className="text-sm leading-relaxed text-muted">
             <p className="font-medium text-ink">A code identifies a certificate. It cannot prove what the document says.</p>
@@ -178,29 +198,39 @@ export function ResultView({
       )}
 
       {result.note && (
-        <Card className="flex gap-3 p-4" data-testid="result-note">
+        <Card className="flex gap-3 border-warn/30 p-5" data-testid="result-note">
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
           <p className="text-sm leading-relaxed text-ink">{result.note}</p>
         </Card>
       )}
 
-      {showChecks && (
-        <section aria-label="Trust checklist">
-          <h3 className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">Five-point trust check</h3>
-          <Checklist checks={result.checks} />
-        </section>
-      )}
-
-      {result.fields && result.fields.length > 0 && <FieldsCard fields={result.fields} hidden={result.hiddenFields} />}
+      <div className={cn("grid gap-5", hasFields && showChecks && "2xl:grid-cols-2")}>
+        {showChecks && (
+          <section aria-label="Trust checklist" className="min-w-0">
+            <h3 className="mb-3 flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted">
+              Five-point trust check <span className="hairline flex-1" />
+            </h3>
+            <Checklist checks={result.checks} />
+          </section>
+        )}
+        {hasFields && (
+          <div className="min-w-0">
+            <h3 className="mb-3 flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted">
+              Field-by-field proof <span className="hairline flex-1" />
+            </h3>
+            <FieldsCard fields={result.fields!} hidden={result.hiddenFields} />
+          </div>
+        )}
+      </div>
 
       {showPanel && <IndependentPanel result={result} />}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/70 pt-4">
         <p className="text-xs text-muted">
           Checked {new Date(result.verifiedAt * 1000).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}. Read directly
           from the chain in your browser, never through our servers.
         </p>
-        <Button variant="ghost" size="sm" onClick={onReset} data-testid="verify-reset">
+        <Button variant="secondary" size="sm" onClick={onReset} data-testid="verify-reset">
           <RotateCcw className="h-4 w-4" aria-hidden /> Verify another
         </Button>
       </div>

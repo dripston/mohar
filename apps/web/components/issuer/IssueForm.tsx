@@ -130,13 +130,14 @@ export function IssueForm() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr),minmax(0,1.1fr)]">
-        <Card className="p-5 sm:p-6">
-          <h1 className="font-serif text-2xl font-semibold tracking-tight">Issue a certificate</h1>
-          <p className="mt-1 text-sm text-muted">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr),minmax(0,1.15fr)] xl:gap-8">
+        <Card className="rounded-3xl p-5 sm:p-8">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-gold">Single issuance</p>
+          <h1 className="mt-2 font-serif text-4xl leading-[1] tracking-tight sm:text-5xl">Issue a certificate</h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
             Issuing as <strong className="text-ink">{issuer.name}</strong>. Fields are salted and hashed in your browser; only the Merkle root reaches the chain, never personal data.
           </p>
-          <form onSubmit={submit} noValidate className="mt-5 space-y-4" aria-label="Issue one certificate">
+          <form onSubmit={submit} noValidate className="mt-7 space-y-5" aria-label="Issue one certificate">
             <Field id={`${uid}-name`} label="Recipient name" error={showErr("name")}>
               <Input data-testid="f-recipient-name" autoComplete="off" placeholder="Rehaan Nawaz" {...fieldProps("name", `${uid}-name`)} />
             </Field>
@@ -158,7 +159,7 @@ export function IssueForm() {
               </Field>
             </div>
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <Button type="submit" size="lg" disabled={busy || !!result} data-testid="sign-anchor" className="w-full sm:w-auto">
+              <Button type="submit" variant="seal" size="lg" disabled={busy || !!result} data-testid="sign-anchor" className="w-full sm:w-auto sm:min-w-[220px]">
                 {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <PenLine className="h-5 w-5" aria-hidden />}
                 {busy ? "Working" : "Sign & Anchor"}
               </Button>
@@ -171,8 +172,14 @@ export function IssueForm() {
           </form>
         </Card>
 
-        <div className="lg:sticky lg:top-20 lg:self-start">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">Live preview</p>
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <p className="mb-3 flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping-slow rounded-full bg-gold/70" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+            </span>
+            Live preview
+          </p>
           {preview}
         </div>
       </div>
@@ -186,8 +193,8 @@ export function IssueForm() {
             exit={reduce ? undefined : { opacity: 0 }}
             transition={{ duration: 0.22 }}
           >
-            <Card className="p-5 sm:p-6" data-testid="progress-card">
-              <h2 className="mb-4 font-serif text-lg font-semibold">Sign & anchor</h2>
+            <Card className="rounded-3xl p-5 sm:p-7" data-testid="progress-card">
+              <h2 className="mb-5 font-serif text-3xl leading-tight">Sign &amp; anchor</h2>
               <StepProgress progress={progress} />
               <div aria-live="assertive">
                 {error && (
@@ -207,13 +214,16 @@ export function IssueForm() {
             transition={{ duration: 0.28 }}
             className="space-y-4"
           >
-            <Card className={cn("p-5 sm:p-6")}>
-              <div className="mb-4 flex items-center gap-2 text-ok">
-                <CheckCircle2 className="h-6 w-6" aria-hidden />
-                <h2 className="font-serif text-xl font-semibold text-ink">Anchored on chain</h2>
+            <Card className={cn("relative overflow-hidden rounded-3xl border-ok/30 p-5 sm:p-8")}>
+              <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-ok/15 blur-3xl" />
+              <div className="relative mb-6 flex items-center gap-3 text-ok">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-ok text-bg shadow-[0_0_40px_-6px_rgb(52_211_153/0.7)]">
+                  <CheckCircle2 className="h-6 w-6" aria-hidden />
+                </span>
+                <h2 className="font-serif text-4xl leading-none text-ink">Sealed on chain</h2>
               </div>
               <ResultPanel file={result} />
-              <div className="mt-5 border-t border-line pt-4">
+              <div className="relative mt-6 border-t border-line pt-5">
                 <Button variant="secondary" onClick={reset} data-testid="issue-another">
                   <RotateCcw className="h-4 w-4" aria-hidden /> Issue another
                 </Button>

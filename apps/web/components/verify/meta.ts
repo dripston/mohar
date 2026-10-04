@@ -107,9 +107,9 @@ export const MODES: Record<Mode, { label: string; hint: string }> = {
   code: { label: "Code lookup", hint: "A short code points at a record but carries no document data." },
 };
 
-export const toneClasses: Record<Tone, { box: string; text: string; solid: string }> = {
-  ok: { box: "border-ok/40 bg-ok/10", text: "text-ok", solid: "bg-ok text-bg" },
-  warn: { box: "border-warn/45 bg-warn/10", text: "text-warn", solid: "bg-warn text-bg" },
-  bad: { box: "border-bad/40 bg-bad/10", text: "text-bad", solid: "bg-bad text-bg" },
-  neutral: { box: "border-line bg-raised", text: "text-muted", solid: "bg-muted text-bg" },
+export const toneClasses: Record<Tone, { box: string; text: string; solid: string; glow: string }> = {
+  ok: { box: "border-ok/35 bg-gradient-to-br from-ok/[0.12] via-surface/80 to-surface/60 text-ok", text: "text-ok", solid: "bg-ok text-bg", glow: "shadow-[0_0_50px_-6px_rgb(52_211_153/0.65)]" },
+  warn: { box: "border-warn/35 bg-gradient-to-br from-warn/[0.10] via-surface/80 to-surface/60 text-warn", text: "text-warn", solid: "bg-warn text-bg", glow: "shadow-[0_0_50px_-6px_rgb(245_181_72/0.55)]" },
+  bad: { box: "border-bad/40 bg-gradient-to-br from-bad/[0.13] via-surface/80 to-surface/60 text-bad", text: "text-bad", solid: "bg-bad text-bg", glow: "shadow-[0_0_50px_-6px_rgb(248_96_86/0.65)]" },
+  neutral: { box: "border-line bg-surface/70 text-muted", text: "text-muted", solid: "bg-raised text-ink border border-line", glow: "" },
 };

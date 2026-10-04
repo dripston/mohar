@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Ban, FileStack, Layers, Loader2, PauseCircle, PlayCircle, RefreshCw, Search } from "lucide-react";
 import { reasonText, reinstateCert, revokeCert, suspendCert, type CertState, type ChainCert, type ProofFile } from "@mohar/core";
-import { Badge, Button, Card, Input, Mono, Skeleton } from "@/components/ui/primitives";
+import { Badge, Button, Card, Input, Mono, Select, Skeleton } from "@/components/ui/primitives";
 import { newReader } from "@/lib/verifier";
 import { cn, formatDate } from "@/lib/utils";
 import { useIssuer } from "./IssuerContext";
@@ -35,11 +35,12 @@ const LABEL: Record<CertState, string> = {
 const FILTERS = ["all", "Active", "Suspended", "Revoked", "Expired", "IssuerRevoked"] as const;
 const DAY = 86400;
 
-function Tile({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
+function Tile({ label, value, tone, bar }: { label: string; value: number | string; tone?: string; bar: string }) {
   return (
-    <Card className="p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className={cn("mt-1 font-serif text-3xl font-semibold tabular-nums", tone)}>{value}</p>
+    <Card className="relative overflow-hidden p-5">
+      <span aria-hidden className={cn("absolute inset-x-0 top-0 h-px", bar)} />
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-muted">{label}</p>
+      <p className={cn("mt-2 font-serif text-5xl leading-none tabular-nums", tone)}>{value}</p>
     </Card>
   );
 }
@@ -168,8 +169,9 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">Registry dashboard</h1>
-          <p className="mt-1 text-sm text-muted">Everything {issuer.name} has issued from this browser, with its live status read from the chain.</p>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-gold">Live from the chain</p>
+          <h1 className="mt-2 font-serif text-4xl leading-none tracking-tight sm:text-5xl">Registry</h1>
+          <p className="mt-3 text-sm text-muted">Everything {issuer.name} has issued from this browser, with its live status read from the chain.</p>
         </div>
         <Button variant="secondary" onClick={() => void refreshAll()} disabled={loading || !rows?.length} data-testid="refresh-all">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <RefreshCw className="h-4 w-4" aria-hidden />}
@@ -178,10 +180,10 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="summary-tiles">
-        <Tile label="Issued" value={stats.issued} />
-        <Tile label="Active" value={stats.active} tone="text-ok" />
-        <Tile label="Revoked" value={stats.revoked} tone={stats.revoked ? "text-bad" : undefined} />
-        <Tile label="Expiring in 30 days" value={stats.expiring} tone={stats.expiring ? "text-warn" : undefined} />
+        <Tile label="Issued" value={stats.issued} bar="bg-gradient-to-r from-transparent via-gold to-transparent" />
+        <Tile label="Active" value={stats.active} tone="text-ok" bar="bg-gradient-to-r from-transparent via-ok to-transparent" />
+        <Tile label="Revoked" value={stats.revoked} tone={stats.revoked ? "text-bad" : undefined} bar="bg-gradient-to-r from-transparent via-bad to-transparent" />
+        <Tile label="Expiring in 30 days" value={stats.expiring} tone={stats.expiring ? "text-warn" : undefined} bar="bg-gradient-to-r from-transparent via-warn to-transparent" />
       </div>
 
       {rows === undefined ? (
@@ -191,14 +193,14 @@ export function Dashboard() {
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <Card className="grid place-items-center gap-3 p-10 text-center" data-testid="registry-empty">
-          <FileStack className="h-10 w-10 text-muted" aria-hidden />
-          <h2 className="font-serif text-xl font-semibold">Nothing issued from this browser yet</h2>
+        <Card className="grid place-items-center gap-3 rounded-3xl p-12 text-center" data-testid="registry-empty">
+          <span className="grid h-16 w-16 place-items-center rounded-2xl border border-line bg-raised"><FileStack className="h-8 w-8 text-gold" aria-hidden /></span>
+          <h2 className="mt-2 font-serif text-3xl">Nothing issued from this browser yet</h2>
           <p className="max-w-md text-sm text-muted">
             Certificates you issue appear here with their live on-chain status. If you issued from another browser, import is not needed: use the verify page with any file you kept.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
-            <Link href="/issuer" className="inline-flex h-10 items-center rounded-xl bg-ink px-4 text-sm font-medium text-bg">
+            <Link href="/issuer" className="inline-flex h-10 items-center rounded-xl bg-ink px-4 text-sm font-medium text-bg hover:bg-white">
               Issue a certificate
             </Link>
             <Link href="/issuer/bulk" className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium">
@@ -210,30 +212,30 @@ export function Dashboard() {
         <>
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-              <Input aria-label="Search by name, title or code" placeholder="Search name, title or MHR code" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} data-testid="registry-search" />
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+              <Input aria-label="Search by name, title or code" placeholder="Search name, title or MHR code" className="pl-10" value={q} onChange={(e) => setQ(e.target.value)} data-testid="registry-search" />
             </div>
-            <select
+            <Select
               aria-label="Filter by status"
               data-testid="registry-filter"
               value={filter}
               onChange={(e) => setFilter(e.target.value as typeof filter)}
-              className="h-10 rounded-xl border border-line bg-surface px-3 text-sm text-ink"
+              className="sm:w-56"
             >
               {FILTERS.map((f) => (
                 <option key={f} value={f}>
                   {f === "all" ? "All statuses" : f === "IssuerRevoked" ? "Issuer key revoked" : f}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           <p className="sr-only" role="status" aria-live="polite">
             {shown.length} of {rows.length} certificates shown
           </p>
 
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden rounded-3xl">
             <table data-testid="registry-table" className="block w-full text-left text-sm md:table">
-              <thead className="hidden border-b border-line bg-raised text-xs uppercase tracking-wide text-muted md:table-header-group">
+              <thead className="hidden border-b border-line bg-bg/40 text-[0.65rem] uppercase tracking-[0.16em] text-muted md:table-header-group">
                 <tr>
                   <th className="px-4 py-3 font-medium">Recipient</th>
                   <th className="px-4 py-3 font-medium">Code</th>
@@ -250,13 +252,13 @@ export function Dashboard() {
                   const busy = pending[r.id];
                   const exp = st ? st.expiresAt : r.file.expiresAt;
                   return (
-                    <tr key={r.id} data-testid={`row-${r.id}`} data-state={st?.state ?? "loading"} className="block border-b border-line p-4 last:border-0 md:table-row md:p-0">
+                    <tr key={r.id} data-testid={`row-${r.id}`} data-state={st?.state ?? "loading"} className="block border-b border-line/70 p-4 transition-colors last:border-0 hover:bg-raised/40 md:table-row md:p-0">
                       <td className="block py-1 md:table-cell md:px-4 md:py-3">
-                        <p className="font-medium">{fieldValue(r.file, "recipient.name")}</p>
-                        <p className="text-muted">{fieldValue(r.file, "credential.title")}</p>
+                        <p className="font-serif text-lg leading-tight text-ink">{fieldValue(r.file, "recipient.name")}</p>
+                        <p className="text-xs text-muted">{fieldValue(r.file, "credential.title")}</p>
                       </td>
                       <td className="block py-1 md:table-cell md:px-4 md:py-3">
-                        <Mono className="block">{codeOf(r.file)}</Mono>
+                        <Mono className="block text-ink/85">{codeOf(r.file)}</Mono>
                         <Badge className="mt-1">{r.file.anchor.kind === "single" ? "Single" : "Batch"}</Badge>
                       </td>
                       <td className="block py-1 md:table-cell md:px-4 md:py-3">
@@ -346,27 +348,26 @@ export function Dashboard() {
           <p className="text-sm">
             Revoke <strong>{fieldValue(target.file, "credential.title")}</strong> issued to <strong>{fieldValue(target.file, "recipient.name")}</strong>?
           </p>
-          <p className="mt-3 rounded-xl bg-bad/10 p-3 text-sm text-bad">
+          <p className="mt-4 rounded-xl border border-bad/30 bg-bad/10 p-3.5 text-sm text-bad">
             <strong>Revocation is permanent.</strong> The certificate can never be valid again. If you only need to pause it, close this and use <strong>Suspend</strong>, which you can undo with
             Reinstate.
           </p>
           <label htmlFor="revoke-reason" className="mb-1 mt-4 block text-xs font-medium uppercase tracking-wide text-muted">
             Reason (recorded on chain)
           </label>
-          <select
+          <Select
             id="revoke-reason"
             data-testid="reason-select"
             data-autofocus
             value={reason}
             onChange={(e) => setReason(Number(e.target.value))}
-            className="h-10 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink"
           >
             {REASON_OPTIONS.map((o) => (
               <option key={o.code} value={o.code}>
                 {o.code} {o.label}
               </option>
             ))}
-          </select>
+          </Select>
           <div aria-live="assertive">
             {modalErr && (
               <p role="alert" className="mt-3 text-sm text-bad">

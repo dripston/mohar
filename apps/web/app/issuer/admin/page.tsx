@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { isAddress, type Address } from "viem";
 import { PauseCircle, PlayCircle, ShieldAlert } from "lucide-react";
 import { certificateRegistryAbi, issuerRegistryAbi } from "@mohar/core";
-import { Badge, Button, Card, Input, Label, Mono } from "@/components/ui/primitives";
+import { Ambient, Badge, Button, Card, Input, Label, Mono, Page, Select } from "@/components/ui/primitives";
 import { deployment, DEV_WALLET_ENABLED } from "@/lib/config";
 import { publicClient, useWallet } from "@/lib/wallet";
 import { formatDate, shortHex } from "@/lib/utils";
@@ -104,20 +104,24 @@ export default function AdminPage() {
     w!.writeContract({ address: deployment.issuerRegistry, abi: issuerRegistryAbi, functionName: functionName as any, args: args as any, chain: w!.chain });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <Page wide className="space-y-8">
+      <Ambient tone="seal" />
       <header>
         <Badge tone="seal">
           <ShieldAlert size={12} /> Accreditation authority
         </Badge>
-        <h1 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Issuer registry</h1>
-        <p className="mt-2 max-w-2xl text-muted">
+        <h1 className="mt-4 font-serif text-5xl leading-[0.95] tracking-tight sm:text-6xl">
+          Authority <span className="italic text-gradient">console</span>
+        </h1>
+        <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-muted">
           The root authority decides who may issue. Revoking a key takes effect from a chosen moment: certificates issued before it stay valid, certificates after it do not. That is how a stolen key is handled without erasing an honest institution's history.
         </p>
       </header>
 
       {!address ? (
-        <Card className="p-6">
-          <p className="mb-4 text-sm text-muted">Connect the accreditation authority wallet.</p>
+        <Card className="rounded-3xl p-6 sm:p-8">
+          <p className="font-serif text-3xl">Connect the authority wallet</p>
+          <p className="mb-6 mt-1 text-sm text-muted">Only the root authority can accredit issuers, revoke and rotate keys, or pause issuance.</p>
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => connect("injected")} data-testid="connect-injected">
               Connect browser wallet
@@ -142,20 +146,20 @@ export default function AdminPage() {
           </p>
         </Card>
       ) : (
-        <Badge tone="ok" className="w-fit" >
+        <Badge tone="ok" className="w-fit px-3 py-1 text-sm">
           <span data-testid="admin-role">Root authority: {shortHex(address)}</span>
         </Badge>
       )}
 
       {msg && (
-        <p role="status" data-testid="admin-msg" className={`rounded-xl px-4 py-3 text-sm ${msg.tone === "ok" ? "bg-ok/10 text-ok" : "bg-bad/10 text-bad"}`}>
+        <p role="status" data-testid="admin-msg" className={`rounded-2xl border px-4 py-3 text-sm ${msg.tone === "ok" ? "border-ok/30 bg-ok/10 text-ok" : "border-bad/30 bg-bad/10 text-bad"}`}>
           {msg.text}
         </p>
       )}
 
-      <div className={isRoot ? "grid gap-6 md:grid-cols-2" : "pointer-events-none grid gap-6 opacity-50 md:grid-cols-2"} aria-disabled={!isRoot}>
-        <Card className="p-6 md:col-span-2">
-          <h2 className="font-serif text-xl font-semibold">Accredit an issuer</h2>
+      <div className={isRoot ? "grid gap-5 lg:grid-cols-3" : "pointer-events-none grid gap-5 opacity-50 lg:grid-cols-3"} aria-disabled={!isRoot}>
+        <Card className="rounded-3xl p-6 sm:p-7 lg:col-span-3">
+          <h2 className="font-serif text-3xl">Accredit an issuer</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
               <Label htmlFor="ra">Signing key address</Label>
@@ -184,8 +188,8 @@ export default function AdminPage() {
           </Button>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="font-serif text-xl font-semibold">Revoke a key</h2>
+        <Card className="rounded-3xl border-bad/20 p-6 sm:p-7">
+          <h2 className="font-serif text-3xl">Revoke a key</h2>
           <p className="mt-1 text-sm text-muted">Effective from the time you choose. It may be in the past, and can only ever be moved earlier.</p>
           <div className="mt-4 space-y-3">
             <div>
@@ -198,16 +202,17 @@ export default function AdminPage() {
             </div>
             <div>
               <Label htmlFor="rr">Reason</Label>
-              <select id="rr" data-testid="admin-revoke-reason" value={rev.reason} onChange={(e) => setRev({ ...rev, reason: e.target.value })} className="h-10 w-full rounded-xl border border-line bg-surface px-3 text-sm">
+              <Select id="rr" data-testid="admin-revoke-reason" value={rev.reason} onChange={(e) => setRev({ ...rev, reason: e.target.value })}>
                 {REASONS.slice(1).map((r, i) => (
                   <option key={r} value={i + 1}>
                     {r}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
             <Button
               variant="danger"
+              className="w-full"
               data-testid="admin-revoke-submit"
               disabled={!!busy || !isAddress(rev.key) || !rev.when}
               onClick={() => run("Key revoked", () => call("revokeIssuer", [rev.key, BigInt(Math.floor(new Date(rev.when).getTime() / 1000)), Number(rev.reason)]))}
@@ -217,8 +222,8 @@ export default function AdminPage() {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="font-serif text-xl font-semibold">Rotate a key</h2>
+        <Card className="rounded-3xl p-6 sm:p-7">
+          <h2 className="font-serif text-3xl">Rotate a key</h2>
           <p className="mt-1 text-sm text-muted">The old key is revoked from now. Its past certificates stay valid, and the new key takes over managing them. Only the authority can rotate, so a thief holding the old key cannot.</p>
           <div className="mt-4 space-y-3">
             <div>
@@ -231,6 +236,7 @@ export default function AdminPage() {
             </div>
             <Button
               variant="secondary"
+              className="w-full"
               data-testid="admin-rotate-submit"
               disabled={!!busy || !isAddress(rot.oldKey) || !isAddress(rot.newKey)}
               onClick={() => run("Key rotated", () => call("rotateIssuerKey", [rot.oldKey, rot.newKey]))}
@@ -240,10 +246,10 @@ export default function AdminPage() {
           </div>
         </Card>
 
-        <Card className="p-6 md:col-span-2">
+        <Card className="rounded-3xl p-6 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-serif text-xl font-semibold">Emergency stop</h2>
+              <h2 className="font-serif text-3xl">Emergency stop</h2>
               <p className="mt-1 max-w-xl text-sm text-muted">
                 Pausing stops new issuance only. Revocation, suspension and all verification keep working, so honest issuers can still withdraw bad certificates during an incident.
               </p>
@@ -269,12 +275,12 @@ export default function AdminPage() {
       </div>
 
       <section aria-labelledby="reg-h">
-        <h2 id="reg-h" className="mb-3 font-serif text-xl font-semibold">
+        <h2 id="reg-h" className="mb-4 font-serif text-4xl">
           Registered issuers
         </h2>
-        <Card className="overflow-x-auto">
+        <Card className="overflow-x-auto rounded-3xl">
           <table className="w-full min-w-[640px] text-left text-sm" data-testid="issuer-table">
-            <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <thead className="border-b border-line bg-bg/40 text-[0.65rem] uppercase tracking-[0.16em] text-muted">
               <tr>
                 <th className="px-4 py-3">Institution</th>
                 <th className="px-4 py-3">Domain</th>
@@ -300,7 +306,7 @@ export default function AdminPage() {
               )}
               {issuers?.map((i) => (
                 <tr key={i.address} data-testid={`issuer-${i.address.toLowerCase()}`}>
-                  <td className="px-4 py-3 font-medium">{i.name}</td>
+                  <td className="px-4 py-3.5 font-serif text-lg">{i.name}</td>
                   <td className="px-4 py-3">{i.domain}</td>
                   <td className="px-4 py-3">
                     <Mono>{shortHex(i.address)}</Mono>
@@ -321,6 +327,6 @@ export default function AdminPage() {
           </table>
         </Card>
       </section>
-    </div>
+    </Page>
   );
 }

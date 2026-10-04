@@ -45,7 +45,7 @@ export function Modal({ title, onClose, children, testId }: { title: string; onC
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-end bg-ink/50 p-0 backdrop-blur-sm sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-50 grid place-items-end bg-black/70 p-0 backdrop-blur-md sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div
         ref={ref}
         role="dialog"
@@ -53,10 +53,10 @@ export function Modal({ title, onClose, children, testId }: { title: string; onC
         aria-label={title}
         tabIndex={-1}
         data-testid={testId}
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-line bg-surface p-5 shadow-card sm:max-w-md sm:rounded-2xl sm:p-6"
+        className="max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-line bg-surface p-6 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-7"
       >
         <div className="mb-3 flex items-start justify-between gap-3">
-          <h2 className="font-serif text-xl font-semibold">{title}</h2>
+          <h2 className="font-serif text-3xl leading-tight tracking-tight">{title}</h2>
           <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-lg p-1 text-muted hover:bg-raised hover:text-ink">
             <X className="h-5 w-5" aria-hidden />
           </button>

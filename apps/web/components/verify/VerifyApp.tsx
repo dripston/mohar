@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, FileUp, Link2, Lock, ServerOff, ShieldCheck, UploadCloud } from "lucide-react";
+import { ArrowRight, Camera, FileUp, Link2, Loader2, Lock, ServerOff, ShieldCheck, UploadCloud } from "lucide-react";
 import { parseProofFile, parseShortCode, parseVerifyInput, type ProofFile, type VerifyResult } from "@mohar/core";
-import { Button, Card, Input, Label } from "@/components/ui/primitives";
+import { Ambient, Button, Card, Input, Label, Page } from "@/components/ui/primitives";
 import { extractProofFromPdf } from "@/lib/pdf";
 import { verify, verifyCode } from "@/lib/verifier";
 import { cn } from "@/lib/utils";
@@ -177,118 +177,138 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
   const busy = state.phase === "loading";
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <header className="pb-6 pt-2 sm:pb-8 sm:pt-6">
-        <p className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted">
-          <ShieldCheck className="h-3.5 w-3.5 text-seal" aria-hidden /> Public verification. No account needed.
-        </p>
-        <h1 className="mt-4 font-serif text-4xl leading-[1.08] text-ink sm:text-5xl">Is this certificate real?</h1>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-muted">
-          Check any Mohar certificate against the blockchain in seconds. Scan its QR code, paste its link or code, or drop in the file.
-        </p>
-      </header>
+    <Page wide className="lg:pt-36">
+      <Ambient tone="ok" />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">
+        {/* console */}
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <header>
+            <p className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/70 px-3 py-1 text-xs font-medium text-muted backdrop-blur">
+              <ShieldCheck className="h-3.5 w-3.5 text-ok" aria-hidden /> Public verification · no account
+            </p>
+            <h1 className="mt-5 font-serif text-5xl leading-[0.95] tracking-tight text-ink sm:text-6xl">
+              Is this certificate <span className="italic text-gradient">real?</span>
+            </h1>
+            <p className="mt-4 text-[0.95rem] leading-relaxed text-muted">
+              Checked against the blockchain from your browser. Scan the QR, paste the link or code, or drop in the file.
+            </p>
+          </header>
 
-      <Card className="p-4 sm:p-6">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            runText(text);
-          }}
-        >
-          <Label htmlFor="verify-input">Link or verification code</Label>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
-              <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-              <Input
-                id="verify-input"
-                data-testid="verify-input"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="MHR-7F3K-92QD-X4MP-C or a verify link"
-                autoComplete="off"
-                autoCapitalize="characters"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="text"
-                className="h-12 pl-10 font-mono text-[0.9rem]"
-              />
-            </div>
-            <Button type="submit" size="lg" disabled={busy || !text.trim()} data-testid="verify-submit" className="sm:w-36">
-              Verify <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-          </div>
-        </form>
-
-        <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.14em] text-muted" aria-hidden>
-          <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-          <div
-            role="button"
-            tabIndex={0}
-            data-testid="verify-drop"
-            data-dragging={dragging ? "true" : "false"}
-            aria-label="Drop a certificate PDF or proof file here, or press Enter to choose a file"
-            onClick={() => fileRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
+          <Card className="mt-7 p-4 sm:p-5">
+            <form
+              onSubmit={(e) => {
                 e.preventDefault();
-                fileRef.current?.click();
-              }
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              const f = e.dataTransfer.files?.[0];
-              if (f) void runUploaded(f);
-            }}
-            className={cn(
-              "flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-7 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
-              dragging ? "border-seal bg-seal/10" : "border-line bg-raised hover:border-ink/40",
-            )}
-          >
-            <UploadCloud className={cn("h-7 w-7", dragging ? "text-seal" : "text-muted")} aria-hidden />
-            <p className="text-sm font-medium text-ink">{dragging ? "Release to verify" : "Drop the certificate PDF or .json file"}</p>
-            <p className="text-xs text-muted">Checks every field, not just the issuer. Or tap to choose a file.</p>
-            <input
-              ref={fileRef}
-              type="file"
-              hidden
-              data-testid="verify-file"
-              accept=".pdf,.json,application/pdf,application/json"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                e.target.value = "";
-                if (f) void runUploaded(f);
+                runText(text);
               }}
-            />
-          </div>
+            >
+              <Label htmlFor="verify-input">Link or verification code</Label>
+              <div className="relative">
+                <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+                <Input
+                  id="verify-input"
+                  data-testid="verify-input"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="MHR-7F3K-92QD-X4MP-C or a link"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode="text"
+                  className="h-12 pl-10 font-mono text-[0.88rem]"
+                />
+              </div>
+              <Button type="submit" variant="seal" size="lg" disabled={busy || !text.trim()} data-testid="verify-submit" className="mt-3 w-full">
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <ShieldCheck className="h-4 w-4" aria-hidden />}
+                {busy ? "Checking the chain" : "Verify"}
+                {!busy && <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5" aria-hidden />}
+              </Button>
+            </form>
 
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => setScanning(true)}
-            data-testid="verify-scan"
-            className="h-auto min-h-12 flex-col gap-1 py-4 sm:w-40"
-          >
-            <Camera className="h-6 w-6" aria-hidden />
-            <span>Scan QR</span>
-          </Button>
+            <div className="my-5 flex items-center gap-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-muted" aria-hidden>
+              <span className="hairline flex-1" /> or <span className="hairline flex-1" />
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto] gap-3">
+              <div
+                role="button"
+                tabIndex={0}
+                data-testid="verify-drop"
+                data-dragging={dragging ? "true" : "false"}
+                aria-label="Drop a certificate PDF or proof file here, or press Enter to choose a file"
+                onClick={() => fileRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileRef.current?.click();
+                  }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  const f = e.dataTransfer.files?.[0];
+                  if (f) void runUploaded(f);
+                }}
+                className={cn(
+                  "group flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed px-3 py-6 text-center transition-all",
+                  dragging ? "scale-[1.02] border-gold bg-gold/10" : "border-line bg-bg/40 hover:border-gold/50 hover:bg-gold/[0.04]",
+                )}
+              >
+                <UploadCloud className={cn("h-6 w-6 transition-transform group-hover:-translate-y-0.5", dragging ? "text-gold" : "text-muted")} aria-hidden />
+                <p className="text-sm font-medium text-ink">{dragging ? "Release to verify" : "Drop PDF or .json"}</p>
+                <p className="text-[0.7rem] text-muted">Checks every field</p>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  hidden
+                  data-testid="verify-file"
+                  accept=".pdf,.json,application/pdf,application/json"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    e.target.value = "";
+                    if (f) void runUploaded(f);
+                  }}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setScanning(true)}
+                data-testid="verify-scan"
+                className="group flex w-28 flex-col items-center justify-center gap-2 rounded-xl border border-line bg-raised/60 text-sm font-medium text-ink transition hover:border-ink/25 hover:bg-raised"
+              >
+                <span className="relative grid h-10 w-10 place-items-center rounded-lg border border-line bg-bg/60">
+                  <Camera className="h-5 w-5" aria-hidden />
+                  <span className="absolute inset-x-1 top-1/2 h-px bg-ok/80 opacity-0 shadow-[0_0_8px_rgb(52_211_153)] transition-opacity group-hover:animate-scan group-hover:opacity-100" />
+                </span>
+                Scan QR
+              </button>
+            </div>
+          </Card>
+
+          <ul className="mt-5 hidden space-y-2.5 text-xs text-muted lg:block">
+            <li className="flex items-center gap-2">
+              <ServerOff className="h-3.5 w-3.5 text-gold" aria-hidden /> Reads the chain directly. Works if our servers vanish.
+            </li>
+            <li className="flex items-center gap-2">
+              <Lock className="h-3.5 w-3.5 text-gold" aria-hidden /> Link data stays in your browser, never uploaded.
+            </li>
+          </ul>
         </div>
-      </Card>
 
-      <div ref={resultRef} aria-live="polite" aria-atomic="false" className="scroll-mt-20 pt-6" data-testid="verify-result-region">
-        {state.phase === "loading" && <ResultSkeleton what={state.what} />}
-        {state.phase === "done" && (
-          <ResultView result={state.result} onRetry={retry} onUpload={() => fileRef.current?.click()} onReset={reset} />
-        )}
-        {state.phase === "idle" && <EmptyState />}
+        {/* result */}
+        <div ref={resultRef} aria-live="polite" aria-atomic="false" className="min-w-0 scroll-mt-24" data-testid="verify-result-region">
+          {state.phase === "loading" && <ResultSkeleton what={state.what} />}
+          {state.phase === "done" && (
+            <ResultView result={state.result} onRetry={retry} onUpload={() => fileRef.current?.click()} onReset={reset} />
+          )}
+          {state.phase === "idle" && <EmptyState />}
+        </div>
       </div>
 
       {scanning && (
@@ -301,9 +321,10 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
           }}
         />
       )}
-    </div>
+    </Page>
   );
 }
+
 
 /** If the link's printed code disagrees with the data it carries, say so rather than silently trusting either. */
 function withCodeNote(r: VerifyResult, expectCode?: string): ShownResult {
@@ -321,19 +342,56 @@ function withCodeNote(r: VerifyResult, expectCode?: string): ShownResult {
 
 function EmptyState() {
   const items = [
-    { icon: ServerOff, title: "No server in the loop", body: "Your browser asks the blockchain directly. It still works if our website goes down." },
-    { icon: Lock, title: "Private by design", body: "The data in a link stays in your browser. It is never uploaded anywhere." },
-    { icon: FileUp, title: "Two depths of proof", body: "A link proves issuer and status. The file also proves every field is untouched." },
+    { icon: ServerOff, title: "No server in the loop", body: "Your browser asks the blockchain directly, through independent providers that must agree." },
+    { icon: Lock, title: "Private by design", body: "Whatever a link carries stays in your browser. Nothing is uploaded, ever." },
+    { icon: FileUp, title: "Two depths of proof", body: "A link or QR proves issuer and status. The file also proves every field is untouched." },
   ];
+  const checks = ["Issuer accredited", "Domain vouches", "Signature valid", "Root anchored", "Status live"];
   return (
-    <div data-testid="verify-empty" className="grid gap-3 sm:grid-cols-3">
-      {items.map(({ icon: I, title, body }) => (
-        <div key={title} className="rounded-2xl border border-line bg-surface/60 p-4">
-          <I className="h-5 w-5 text-seal" aria-hidden />
-          <p className="mt-3 font-serif text-lg text-ink">{title}</p>
-          <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>
+    <div data-testid="verify-empty" className="space-y-4">
+      <div className="glass relative overflow-hidden rounded-3xl p-6 sm:p-10">
+        <div aria-hidden className="grid-bg pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+        <div className="relative grid items-center gap-8 md:grid-cols-[1fr_1.1fr]">
+          {/* a certificate silhouette being scanned */}
+          <div aria-hidden className="relative mx-auto aspect-[1.35] w-full max-w-[300px] overflow-hidden rounded-lg border border-line bg-raised/60 p-4">
+            <div className="h-full rounded border border-dashed border-line/90 p-4">
+              <div className="mx-auto h-2 w-1/2 rounded bg-line" />
+              <div className="mx-auto mt-2 h-1.5 w-1/4 rounded bg-line/70" />
+              <div className="mx-auto mt-6 h-4 w-2/3 rounded bg-line" />
+              <div className="mx-auto mt-3 h-2 w-1/2 rounded bg-line/70" />
+              <div className="mt-6 flex items-end justify-between">
+                <div className="h-1.5 w-1/4 rounded bg-line/70" />
+                <div className="h-9 w-9 rounded-full bg-seal/30" />
+                <div className="h-9 w-9 rounded bg-line/70" />
+              </div>
+            </div>
+            <div className="absolute inset-x-0 h-12 animate-scan bg-gradient-to-b from-transparent via-ok/20 to-transparent">
+              <div className="absolute inset-x-0 top-1/2 h-px bg-ok shadow-[0_0_12px_rgb(52_211_153)]" />
+            </div>
+          </div>
+          <div>
+            <p className="font-serif text-3xl leading-tight sm:text-4xl">Awaiting a certificate</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">Give us a link, code, QR or file. These five checks run in order, against the chain:</p>
+            <ol className="mt-5 space-y-2">
+              {checks.map((c, i) => (
+                <li key={c} className="flex items-center gap-3 text-sm">
+                  <span className="grid h-6 w-6 place-items-center rounded-full border border-line font-mono text-[0.65rem] text-muted">{i + 1}</span>
+                  <span className="text-ink/80">{c}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
-      ))}
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {items.map(({ icon: I, title, body }) => (
+          <div key={title} className="glass rounded-2xl p-5">
+            <I className="h-5 w-5 text-gold" aria-hidden />
+            <p className="mt-4 font-serif text-xl text-ink">{title}</p>
+            <p className="mt-1.5 text-[0.82rem] leading-relaxed text-muted">{body}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
