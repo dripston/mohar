@@ -1,0 +1,173 @@
+{
+  "format": "mohar-proof/1",
+  "chainId": 31337,
+  "signer": "0xE2f68d011923B5E99C8F64A9a5633912415d328F",
+  "documentRoot": "0xa0eae82268bd7e2c5b1cdefdc5ad9cfb8ee7e804cc1238396e40584249e75b5d",
+  "expiresAt": 0,
+  "anchor": {
+    "kind": "batch",
+    "batchRoot": "0x343faf185a025d4458c76629ce37734d08877521b376e13c850b918b7a7a2d2b",
+    "proof": [
+      "0x05f26460052a81f0870e51e215af30d6f47e55d1f30db802cff4c7d01e7f334a",
+      "0xcf7505ac89ac3aa874dc96a627be7f7e2255697e590928da3989d0b03936b56f",
+      "0x258d098fe9a00b0bd4920669bf7700491332f2926c49433bfaa4894747855249",
+      "0x36b316ebc9a0b3ae58d49009609960fbf3d81ddf76cd951679cc986ff741f298",
+      "0x76662df477b88a8c020e9a78c98f22307b03688ef2f87c55ae0ec876f305bc23",
+      "0x9e19569dac0f14b0ff0a280bfed68507b72f6a9dafd9eeef1d1e451b15fd1815",
+      "0x6204263c3434527d642d6f89bdb9420f4695ca869ecd5da5edcd036318ca23e0"
+    ]
+  },
+  "fields": {
+    "credential.address": {
+      "value": "\"synthetic address, not real\"",
+      "salt": "0x1c0554305a5a1875e69851467c1b3b6bf790739d7a475e8c2c7ce39171621eb8",
+      "proof": [
+        "0xf88357172a8bf6c3da1f8171424ad701daf684832c51e81694065f18c70167de",
+        "0x327fe480876e74a8a50fb147bb5e70b37c183153df8da5f6e64f0d6dd11e6ad1",
+        "0x6a221a81f355ffced6c020b8ba4e0351887868aad4aa001e4cbf025c29a61cd8",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "credential.expiresOn": {
+      "value": "null",
+      "salt": "0x1c840be53428f9752792307d11ea01858d8c1b50a5eac1f91cd34db05f983848",
+      "proof": [
+        "0x384c2e40c8ce86889f1a18e92ac47351da0bf2bbc190cf3188aa7f44a9c94a57",
+        "0x88c2739c1b32909818dd0fe15d2d47703954d10478d8d1316a51c94688933edb",
+        "0xaf36d21569d9adfd845c33b725364fd4d4ca928238be4757463983da3370c2ba",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "credential.income": {
+      "value": "\"90000\"",
+      "salt": "0x60a5a3b1f42676d70b09ebb24dd04461fe878040e3f169cfe8a5c2bf0f62f111",
+      "proof": [
+        "0xb46acaf4ec83dd46f3a6c94dafb33586525201c179836441e872ee2952833a78",
+        "0x12ebb8c6a03b8091416cf3735c4dda1b4e96131b0d4c91ea845302638477aa24",
+        "0x3da13750e2e8362445679fac5dfa1b0aab5324669c25589b95b71ee3eaca9746",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "credential.issuedOn": {
+      "value": "\"2026-07-01\"",
+      "salt": "0x67688bd23cc68c417c16597699608decc96490e4484299860b85175ed8f5cad4",
+      "proof": [
+        "0x1048ba012eed81cd2fbab29494725064d808898188a01365b2e93c15727c2a76",
+        "0x9fe00f4e26603ffb9c54988dadb66be3f77121e0ad008205e3557593e39d596f",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "credential.title": {
+      "value": "\"Income Certificate (DEMO)\"",
+      "salt": "0xb57623713e85892fdb88c36fda07afbcbd9f264ecbfb4c77f98ffaf9b209bcc0",
+      "proof": [
+        "0xc11b82b9cddbde1e8dbaa2ede2f6647c5876123d52970823e39cf56d9a8b6844",
+        "0xd629a25515ff89e0807400d01bdb4a019cc14b76821a7b7683ced95aba47246e",
+        "0x6a221a81f355ffced6c020b8ba4e0351887868aad4aa001e4cbf025c29a61cd8",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "credential.type": {
+      "value": "\"income\"",
+      "salt": "0x032f97baace87030b4d7186a1946bfc4ddebc81aa86e01939cc5b1d7ee0f7a4c",
+      "proof": [
+        "0xe91da0ea9c934b66f0194bceaadf9eb75f4c176865c15c6651479ba670fa9383",
+        "0x327fe480876e74a8a50fb147bb5e70b37c183153df8da5f6e64f0d6dd11e6ad1",
+        "0x6a221a81f355ffced6c020b8ba4e0351887868aad4aa001e4cbf025c29a61cd8",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "flags.income_lte_250000": {
+      "value": "true",
+      "salt": "0xf47cd095326a79d91899f7046905a4a351741913550c2b23bf67c02f572a7119",
+      "proof": [
+        "0xbaa119ea818b223f234097b407d03eb9a4df7f4d33265883144e75cd9c6bde1a",
+        "0x12ebb8c6a03b8091416cf3735c4dda1b4e96131b0d4c91ea845302638477aa24",
+        "0x3da13750e2e8362445679fac5dfa1b0aab5324669c25589b95b71ee3eaca9746",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "flags.income_lte_600000": {
+      "value": "true",
+      "salt": "0x6e09ecbbf75b2c66b8060612da17178a6117b75c24c4b97a53dee808df157d11",
+      "proof": [
+        "0x0a1b54bc827b0c5b9930e47979ca3dec7a47f97616584be8bb497336c9edd6ae",
+        "0xf913e8884e1ec804cbb387b5b3757c6379c1c4cf2bba0bbe36a3ac925b5689ed",
+        "0x9fe00f4e26603ffb9c54988dadb66be3f77121e0ad008205e3557593e39d596f",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "issuer.address": {
+      "value": "\"0xE2f68d011923B5E99C8F64A9a5633912415d328F\"",
+      "salt": "0x2187f22b9f1be030db890d97f5307580d8c68e6bd264722e8220c9b73a699d95",
+      "proof": [
+        "0x815a8e0d76c5c8a4d50ec22d02fa65a4ebd585182d49552bdac22c667e35d00e",
+        "0x8738e8777fc9df213d55ee11292a2c0cbba0aa352e47eaa5cfc3eeb1b22cc235",
+        "0xaf36d21569d9adfd845c33b725364fd4d4ca928238be4757463983da3370c2ba",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "issuer.domain": {
+      "value": "\"scholarship.demo\"",
+      "salt": "0x4ef746e27f63d47c5b3417b605cb985847e18448772a16ea2d6f5d61a4d442c1",
+      "proof": [
+        "0x2a74f4cd072b9865b86d9e1f449381c6906594edbddca735523ad0634b55bc6d",
+        "0xf913e8884e1ec804cbb387b5b3757c6379c1c4cf2bba0bbe36a3ac925b5689ed",
+        "0x9fe00f4e26603ffb9c54988dadb66be3f77121e0ad008205e3557593e39d596f",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "issuer.name": {
+      "value": "\"Demo Revenue Office (demo)\"",
+      "salt": "0x48fc9f935cb3b139ede3ce9bc3f4088520c4bed757574c9b07ebc7ebba125f4e",
+      "proof": [
+        "0xa6fa0432f1141266933974da6cf9224c68b358a260f40eebabfd93a004c861a3",
+        "0x5729afa31a27aa22aa1a41b6ae3218937fb46e37b404e53a6c069feafc062b1a",
+        "0x3da13750e2e8362445679fac5dfa1b0aab5324669c25589b95b71ee3eaca9746",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "recipient.applicantId": {
+      "value": "\"APP-0001\"",
+      "salt": "0xc0631ea363e74df608469541be9e670196087c0e82ed85795ceaca287d173f8a",
+      "proof": [
+        "0xc1df3a8b07d38a349959a55846cc4363df78ff1ef97f45934657b5f7576f49ab",
+        "0xd629a25515ff89e0807400d01bdb4a019cc14b76821a7b7683ced95aba47246e",
+        "0x6a221a81f355ffced6c020b8ba4e0351887868aad4aa001e4cbf025c29a61cd8",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    },
+    "recipient.name": {
+      "value": "\"Applicant 0001\"",
+      "salt": "0x1762cd57bf5ce3939c557dad982149b8af99128693bc10bcf480b45d1853cc42",
+      "proof": [
+        "0x55da45da3e6ddd304426b5cd5336ea3c6bb03aa002f037f2cda77d533aa41f05",
+        "0x8738e8777fc9df213d55ee11292a2c0cbba0aa352e47eaa5cfc3eeb1b22cc235",
+        "0xaf36d21569d9adfd845c33b725364fd4d4ca928238be4757463983da3370c2ba",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "version": {
+      "value": "\"mohar/1\"",
+      "salt": "0x5cd90fbb3a30e75b6008693d6626c54541abb697970f1b44cf787ad6e29969bd",
+      "proof": [
+        "0x3d21b4ce097d0bca1c0e17148ee6ed32cd99a3a526bfbc85f258b74b8ea5fcd1",
+        "0x88c2739c1b32909818dd0fe15d2d47703954d10478d8d1316a51c94688933edb",
+        "0xaf36d21569d9adfd845c33b725364fd4d4ca928238be4757463983da3370c2ba",
+        "0xb9db15f0354c4ababb19c9a42b36242169dfaaf245498116672d93fcf38dcc0c"
+      ]
+    },
+    "meta.fieldCount": {
+      "value": "\"14\"",
+      "salt": "0x39f9143d94bdc55eefc410dad7004153a5d61890207576df209e90d6ba70d67a",
+      "proof": [
+        "0xa70d5fdafe811d9dd557e60b38b1cad78f39eebed7117ce5809ecd59a2000b77",
+        "0x5729afa31a27aa22aa1a41b6ae3218937fb46e37b404e53a6c069feafc062b1a",
+        "0x3da13750e2e8362445679fac5dfa1b0aab5324669c25589b95b71ee3eaca9746",
+        "0xc76e0dcc5d0810983314cffcb047e29671c4569e9f4a8fdd9b2b5f6c0fb9f240"
+      ]
+    }
+  },
+  "partial": false,
+  "txHash": "0xb5c33b06d2171302ab786e15ef32c51e19df50336adfa492dc9627293bb5f5fd"
+}

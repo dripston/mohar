@@ -9,3 +9,7 @@ export * from "./chain";
 export * from "./dns";
 export * from "./verify";
 export * from "./issue";
+export * from "./scheme";
+export * from "./screen";
+export * from "./receipt";
+export * from "./scenario";

@@ -69,7 +69,7 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
     (file: ProofFile, what: string, expectCode?: string) =>
       execute(what, async () => {
         const r: ShownResult = await verify({ file });
-        return withCodeNote(r, expectCode);
+        return withCodeNote({ ...r, share: file.share }, expectCode);
       }),
     [execute],
   );
@@ -327,7 +327,7 @@ export function VerifyApp({ initialCode }: { initialCode?: string }) {
 
 
 /** If the link's printed code disagrees with the data it carries, say so rather than silently trusting either. */
-function withCodeNote(r: VerifyResult, expectCode?: string): ShownResult {
+function withCodeNote(r: ShownResult, expectCode?: string): ShownResult {
   if (!expectCode || !r.code) return r;
   const norm = (s: string) => s.replace(/[-\s]/g, "").toUpperCase();
   const typed = parseShortCode(expectCode);

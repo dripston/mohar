@@ -2,9 +2,11 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { FileCheck2, FileUp, Hash, Info, Layers, Link2, RefreshCw, RotateCcw, ScanSearch } from "lucide-react";
-import type { Mode, VerifyResult } from "@mohar/core";
+import type { Mode, ShareMeta, VerifyResult } from "@mohar/core";
+import { shareExpired } from "@mohar/core";
+import { ReceiptButtons } from "./ReceiptButtons";
 import { Button, Card, Skeleton } from "@/components/ui/primitives";
-import { cn, stripUnsafe } from "@/lib/utils";
+import { cn, formatDate, stripUnsafe } from "@/lib/utils";
 import { ISSUER_TYPE_LABEL } from "@mohar/core";
 import { deployment } from "@/lib/config";
 import { Checklist, ChecklistSkeleton } from "./Checklist";
@@ -12,7 +14,7 @@ import { FieldsCard } from "./FieldsCard";
 import { IndependentPanel } from "./IndependentPanel";
 import { MODES, VERDICTS, toneClasses } from "./meta";
 
-export type ShownResult = VerifyResult & { needsLink?: boolean; note?: string };
+export type ShownResult = VerifyResult & { needsLink?: boolean; note?: string; share?: ShareMeta };
 
 const MODE_ICON: Record<Mode, typeof Link2> = { link: Link2, full: FileCheck2, partial: Layers, code: Hash };
 
@@ -190,6 +192,22 @@ export function ResultView({
           </div>
         )}
       </motion.section>
+
+      {result.share && (
+        <Card className="p-4 text-sm" data-testid="share-meta">
+          <p className="font-medium">Shared by the holder</p>
+          <p className="mt-1 text-muted">
+            Purpose: {stripUnsafe(result.share.purpose ?? "-")} · For: {stripUnsafe(result.share.recipient ?? "-")}
+            {result.share.validUntil ? ` · Advisory expiry: ${formatDate(result.share.validUntil)}` : ""}
+          </p>
+          {shareExpired(result.share, result.chainTime?.timestamp ?? result.verifiedAt) && (
+            <p className="mt-2 font-semibold text-warn" data-testid="share-expired">The holder's advisory expiry has passed. Ask for a fresh share.</p>
+          )}
+          <p className="mt-2 text-xs text-muted">Purpose, recipient and expiry are labels, not locks: a copied link carries them along, so they cannot be enforced.</p>
+        </Card>
+      )}
+
+      {result.verdict !== "MALFORMED" && !result.needsLink && <ReceiptButtons result={result} share={result.share} />}
 
       {showUploadCta && (
         <Card className="flex flex-col gap-4 border-gold/30 p-5 sm:flex-row sm:items-center" data-testid="link-cta">

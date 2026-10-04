@@ -1,6 +1,8 @@
 {
-  "network": "base-sepolia",
+  "certificateRegistry": "0x7A08A61DaE82f1bEdE7003fc83B8B09D26030135",
   "chainId": 84532,
-  "deployed": false,
-  "note": "Placeholder. packages/contracts/script/Deploy.s.sol overwrites this file when you run it with NETWORK=base-sepolia."
+  "deployBlock": 47676033,
+  "issuerRegistry": "0xA623d307e423aa090f9B397209fc9ab6086955AC",
+  "network": "base-sepolia",
+  "rootAuthority": "0x567317bAA6a131633759e999EFaEC538b85c6F37"
 }

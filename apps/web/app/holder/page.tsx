@@ -40,6 +40,9 @@ export default function HolderPage() {
   const [copied, setCopied] = useState<string>();
   const [qr, setQr] = useState<string>();
   const [link, setLink] = useState<string>();
+  const [purpose, setPurpose] = useState("");
+  const [forWho, setForWho] = useState("");
+  const [days, setDays] = useState("");
   const input = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async (f: File) => {
@@ -72,7 +75,11 @@ export default function HolderPage() {
 
   async function generate() {
     if (!file) return;
-    const presentation: ProofFile = { ...file, fields: discloseFields(file.fields, [...reveal]), partial: hiddenCount > 0 };
+    const d = Number(days);
+    const share = purpose.trim() || forWho.trim() || d > 0
+      ? { purpose: purpose.trim() || undefined, recipient: forWho.trim() || undefined, validUntil: d > 0 ? Math.floor(Date.now() / 1000) + d * 86400 : undefined }
+      : undefined;
+    const presentation: ProofFile = { ...file, fields: discloseFields(file.fields, [...reveal]), partial: hiddenCount > 0, ...(share ? { share } : {}) };
     const url = `${APP_ORIGIN}/verify/${code}#${encodePresentation(presentation)}`;
     setLink(url);
     setQr(fitsQr(url) ? await qrDataUrl(url, 360) : undefined);
@@ -236,6 +243,12 @@ export default function HolderPage() {
                     ))}
                 </dl>
               </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3" data-testid="share-labels">
+                <input className="h-10 rounded-xl border border-line bg-bg/60 px-3 text-sm" placeholder="Purpose (optional)" maxLength={120} value={purpose} onChange={(e) => setPurpose(e.target.value)} data-testid="share-purpose" />
+                <input className="h-10 rounded-xl border border-line bg-bg/60 px-3 text-sm" placeholder="For (optional)" maxLength={120} value={forWho} onChange={(e) => setForWho(e.target.value)} data-testid="share-for" />
+                <input className="h-10 rounded-xl border border-line bg-bg/60 px-3 text-sm" placeholder="Advisory expiry, days" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} data-testid="share-days" />
+              </div>
+              <p className="mt-2 text-xs text-muted">Purpose and expiry are advisory labels. A copied link keeps them, so they warn but cannot stop reuse.</p>
               <Button variant="seal" className="mt-5 w-full" size="lg" onClick={generate} data-testid="generate-share">
                 Create share link
               </Button>

@@ -1,0 +1,668 @@
+{
+  "truth": {
+    "app-0001.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0002.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0003.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0004.mohar": {
+      "aggregate": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "TAMPERED"
+      },
+      "kind": "tampered"
+    },
+    "app-0005.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0006.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0007.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0008.mohar": {
+      "aggregate": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "REVOKED",
+        "income": "OK"
+      },
+      "kind": "revoked"
+    },
+    "app-0009.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0010.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0011.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0012.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "SUSPENDED",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "suspended"
+    },
+    "app-0013.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0014.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0015.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0016.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "EXPIRED",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "expired"
+    },
+    "app-0017.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0018.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0019.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0020.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "fake_institute"
+    },
+    "app-0021.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0022.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0023.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0024.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "WRONG_ISSUER_TYPE",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "wrong_issuer_type"
+    },
+    "app-0025.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0026.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0027.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0028.mohar": {
+      "aggregate": "INCOMPLETE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "MISSING",
+        "income": "OK"
+      },
+      "kind": "missing"
+    },
+    "app-0029.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0030.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0031.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0032.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "FLAG_FALSE"
+      },
+      "kind": "not_eligible_income"
+    },
+    "app-0033.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0034.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0035.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0036.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "FLAG_FALSE",
+        "income": "OK"
+      },
+      "kind": "not_eligible_category"
+    }
+  },
+  "truthAfterAudit": {
+    "app-0001.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0002.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0003.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0004.mohar": {
+      "aggregate": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "TAMPERED"
+      },
+      "kind": "tampered"
+    },
+    "app-0005.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0006.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0007.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0008.mohar": {
+      "aggregate": "INVALID",
+      "codes": {
+        "enrolled": "OK",
+        "st": "REVOKED",
+        "income": "OK"
+      },
+      "kind": "revoked"
+    },
+    "app-0009.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0010.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0011.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0012.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "SUSPENDED",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "suspended"
+    },
+    "app-0013.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0014.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0015.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0016.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "EXPIRED",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "expired"
+    },
+    "app-0017.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0018.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0019.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0020.mohar": {
+      "aggregate": "INVALID",
+      "codes": {
+        "enrolled": "ISSUER_REVOKED",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "fake_institute"
+    },
+    "app-0021.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0022.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0023.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0024.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "WRONG_ISSUER_TYPE",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "wrong_issuer_type"
+    },
+    "app-0025.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0026.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0027.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0028.mohar": {
+      "aggregate": "INCOMPLETE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "MISSING",
+        "income": "OK"
+      },
+      "kind": "missing"
+    },
+    "app-0029.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0030.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0031.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0032.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "FLAG_FALSE"
+      },
+      "kind": "not_eligible_income"
+    },
+    "app-0033.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0034.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0035.mohar": {
+      "aggregate": "ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "OK",
+        "income": "OK"
+      },
+      "kind": "good"
+    },
+    "app-0036.mohar": {
+      "aggregate": "NOT_ELIGIBLE",
+      "codes": {
+        "enrolled": "OK",
+        "st": "FLAG_FALSE",
+        "income": "OK"
+      },
+      "kind": "not_eligible_category"
+    }
+  },
+  "fakeInstituteKey": "0x525dD1447B122fD28183c52b1Ae85fBe7bd67d81",
+  "pick": {
+    "good": "app-0001.mohar",
+    "tampered": "app-0004.mohar",
+    "revoked": "app-0008.mohar",
+    "suspended": "app-0012.mohar",
+    "expired": "app-0016.mohar",
+    "fake_institute": "app-0020.mohar",
+    "wrong_issuer_type": "app-0024.mohar",
+    "missing": "app-0028.mohar",
+    "not_eligible_income": "app-0032.mohar",
+    "not_eligible_category": "app-0036.mohar"
+  },
+  "total": 36
+}

@@ -14,7 +14,8 @@
     "vectors": "tsx scripts/gen-vectors.ts",
     "abi": "tsx scripts/export-abi.ts",
     "seed": "tsx scripts/seed.ts",
-    "gas": "tsx scripts/gas-batch.ts"
+    "gas": "tsx scripts/gas-batch.ts",
+    "bench": "tsx scripts/bulk-bench.ts"
   },
   "dependencies": {
     "@openzeppelin/merkle-tree": "^1.0.8",

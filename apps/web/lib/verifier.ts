@@ -24,7 +24,8 @@ const DEMO_ZONE: Record<string, string[]> = {
 
 export const demoDnsResolver: DnsResolver = async (domain, identity) => {
   const ids = (DEMO_ZONE[domain] ?? []).map((a) => a.toLowerCase());
-  return ids.includes(identity.toLowerCase())
+  // "*" = any identity may claim this stand-in domain (scholarship demo issuers are created on the fly). Anvil only.
+  return ids.includes("*") || ids.includes(identity.toLowerCase())
     ? { status: "match", provider: "local-demo-zone", demo: true }
     : { status: "mismatch", provider: "local-demo-zone", found: [], demo: true };
 };

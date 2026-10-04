@@ -124,15 +124,39 @@ export const STALE_SECS = 120;
  *   3. >= 2 identical answers = quorum. One answer when several providers are configured = `degraded` (flagged,
  *      still returned). Several answers with no majority = `split` (never a verdict). Nothing = `down`.
  */
-export function makeReader(deployment: Deployment, clients: PublicClient[], fanout = 3): Reader {
+export interface ReaderOptions {
+  /**
+   * Bulk mode: take ONE head snapshot and reuse it for `pinMs`, so thousands of reads cost one round of head
+   * lookups, every verdict in the run is judged at the same block, and issuer lookups are cached.
+   */
+  pinMs?: number;
+}
+
+export function makeReader(deployment: Deployment, clients: PublicClient[], fanout = 3, opts: ReaderOptions = {}): Reader {
   const agreement: Agreement = { providers: 0, agreed: 0, answered: 0, stale: 0, down: 0, dissent: 0, degraded: false };
   const pool = clients.slice(0, fanout);
+
+  let pinned: { at: number; heads: PromiseSettledResult<{ number: bigint; timestamp: bigint }>[] } | undefined;
+  let pinning: Promise<PromiseSettledResult<{ number: bigint; timestamp: bigint }>[]> | undefined;
+  const headsOf = async () => {
+    const fetchHeads = () => Promise.allSettled(pool.map((c) => c.getBlock({ blockTag: "latest" })));
+    if (!opts.pinMs) return fetchHeads();
+    if (pinned && Date.now() - pinned.at < opts.pinMs) return pinned.heads;
+    pinning ??= fetchHeads().then((h) => {
+      pinned = { at: Date.now(), heads: h };
+      issuerCache.clear();
+      pinning = undefined;
+      return h;
+    });
+    return pinning;
+  };
+  const issuerCache = new Map<string, Promise<ChainIssuer | null>>();
 
   const quorum = async <T>(fn: (c: PublicClient, blockNumber: bigint) => Promise<T>): Promise<T> => {
     const errors: string[] = [];
     const msg = (r: unknown) => (r as Error)?.message?.split("\n")[0] ?? String(r);
 
-    const heads = await Promise.allSettled(pool.map((c) => c.getBlock({ blockTag: "latest" })));
+    const heads = await headsOf();
     const live: { i: number; number: bigint; timestamp: number }[] = [];
     heads.forEach((h, i) => {
       if (h.status === "fulfilled") live.push({ i, number: h.value.number, timestamp: Number(h.value.timestamp) });
@@ -179,14 +203,8 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
     return best.v;
   };
 
-  const certAddr = deployment.certificateRegistry;
-  const regAddr = deployment.issuerRegistry;
-
-  return {
-    deployment,
-    agreement,
-    async getIssuerByKey(key) {
-      return quorum(async (c, blockNumber) => {
+  const readIssuer = (key: Address): Promise<ChainIssuer | null> =>
+    quorum(async (c, blockNumber) => {
         const identity = (await c.readContract({
           address: regAddr,
           abi: issuerRegistryAbi,
@@ -211,6 +229,23 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
           keyRevokeReason: Number(k.reason),
         } satisfies ChainIssuer;
       });
+
+  const certAddr = deployment.certificateRegistry;
+  const regAddr = deployment.issuerRegistry;
+
+  return {
+    deployment,
+    agreement,
+    getIssuerByKey(key) {
+      if (!opts.pinMs) return readIssuer(key);
+      const k = key.toLowerCase();
+      let p = issuerCache.get(k);
+      if (!p) {
+        p = readIssuer(key);
+        issuerCache.set(k, p);
+        p.catch(() => issuerCache.delete(k));
+      }
+      return p;
     },
     async getCert(rid) {
       return quorum(async (c, blockNumber) =>
@@ -252,6 +287,12 @@ export function makeReader(deployment: Deployment, clients: PublicClient[], fano
 }
 
 /** One viem client per RPC URL, 4 s timeout each. */
-export function clientsFromUrls(urls: string[], timeoutMs = 4000): PublicClient[] {
-  return urls.map((u) => createPublicClient({ transport: http(u, { timeout: timeoutMs, retryCount: 0 }) }) as PublicClient);
+export function clientsFromUrls(urls: string[], timeoutMs = 4000, opts: { batch?: boolean } = {}): PublicClient[] {
+  // `batch`: JSON-RPC batching, many reads in one HTTP request. Used by the bulk screener.
+  return urls.map(
+    (u) =>
+      createPublicClient({
+        transport: http(u, { timeout: timeoutMs, retryCount: 0, ...(opts.batch ? { batch: { wait: 8, batchSize: 100 } } : {}) }),
+      }) as PublicClient,
+  );
 }

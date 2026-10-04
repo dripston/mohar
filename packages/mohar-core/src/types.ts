@@ -26,6 +26,14 @@ export interface DisclosedField {
 /** Where the document root is anchored on chain. */
 export type Anchor = { kind: "single" } | { kind: "batch"; batchRoot: Hex; proof: Hex[] };
 
+/** Advisory label a holder attaches to a share. Links can be copied, so none of this is enforced, only displayed. */
+export interface ShareMeta {
+  purpose?: string;
+  recipient?: string;
+  /** unix seconds */
+  validUntil?: number;
+}
+
 export interface ProofFile {
   format: "mohar-proof/1";
   chainId: number;
@@ -40,6 +48,7 @@ export interface ProofFile {
   /** true when the holder withheld fields; the verdict is then labelled "partial" */
   partial: boolean;
   txHash?: Hex;
+  share?: ShareMeta;
 }
 
 /** Reserved leaf committing to the number of real fields. */

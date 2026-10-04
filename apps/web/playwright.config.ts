@@ -29,6 +29,6 @@ export default defineConfig({
     stdout: "pipe",
     stderr: "pipe",
     timeout: 240_000,
-    env: { NEXT_PUBLIC_APP_ORIGIN: "http://localhost:3100", NEXT_DIST_DIR: ".next-e2e", NEXT_PUBLIC_EXTRA_RPC_URLS: "http://127.0.0.1:8545/?p=2,http://127.0.0.1:8545/?p=3" },
+    env: { NEXT_PUBLIC_APP_ORIGIN: "http://localhost:3100", NEXT_DIST_DIR: ".next-e2e", NEXT_PUBLIC_DEV_DNS_JSON: '{"scholarship.demo":["*"]}', NEXT_PUBLIC_EXTRA_RPC_URLS: "http://127.0.0.1:8545/?p=2,http://127.0.0.1:8545/?p=3" },
   },
 });

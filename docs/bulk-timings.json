@@ -1,0 +1,70 @@
+{
+  "when": "2026-10-04T13:15:48.042Z",
+  "network": "anvil (local, 1 provider)",
+  "machine": "Intel(R) Core(TM) i5-7300U CPU @ 2.60GHz x4",
+  "n": 300,
+  "seedMs": 49607,
+  "runs": [
+    {
+      "concurrency": 8,
+      "ms": 7193,
+      "perSecond": 42,
+      "counts": {
+        "ELIGIBLE": 289,
+        "NOT_ELIGIBLE": 6,
+        "INVALID": 4,
+        "INCOMPLETE": 1,
+        "UNREACHABLE": 0,
+        "ROW_ERROR": 0
+      },
+      "wrong": 0
+    },
+    {
+      "concurrency": 24,
+      "ms": 7171,
+      "perSecond": 42,
+      "counts": {
+        "ELIGIBLE": 289,
+        "NOT_ELIGIBLE": 6,
+        "INVALID": 4,
+        "INCOMPLETE": 1,
+        "UNREACHABLE": 0,
+        "ROW_ERROR": 0
+      },
+      "wrong": 0
+    },
+    {
+      "concurrency": 64,
+      "ms": 5416,
+      "perSecond": 55,
+      "counts": {
+        "ELIGIBLE": 289,
+        "NOT_ELIGIBLE": 6,
+        "INVALID": 4,
+        "INCOMPLETE": 1,
+        "UNREACHABLE": 0,
+        "ROW_ERROR": 0
+      },
+      "wrong": 0
+    },
+    {
+      "concurrency": 128,
+      "ms": 6211,
+      "perSecond": 48,
+      "counts": {
+        "ELIGIBLE": 289,
+        "NOT_ELIGIBLE": 6,
+        "INVALID": 4,
+        "INCOMPLETE": 1,
+        "UNREACHABLE": 0,
+        "ROW_ERROR": 0
+      },
+      "wrong": 0
+    }
+  ],
+  "audit": {
+    "invalidBefore": 4,
+    "invalidAfter": 5,
+    "rescreenMs": 6321
+  }
+}

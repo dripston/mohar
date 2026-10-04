@@ -42,9 +42,13 @@ const docFor = (issuer: Address, name: string, over: Record<string, unknown> = {
   credential: { title: "B.E. AI Engineering", grade: "8.34", issuedOn: "2028-06-01", expiresOn: null, ...over },
 });
 
+import { seedScheme } from "./scheme-setup";
+
 export default async function globalSetup() {
   const code = await pub.getCode({ address: dep.certificateRegistry });
   if (!code || code === "0x") throw new Error("No contracts on the local chain. Run: powershell -File scripts/dev-chain.ps1");
+
+  await seedScheme();
 
   // Reuse fixtures if they still exist on this very chain (a fresh chain invalidates them and re-seeds).
   try {

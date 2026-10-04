@@ -12,3 +12,10 @@
 ## phase-8 (prepared, blocked on credentials)
 - Seed script (`pnpm seed`) and gas script (`pnpm gas`) work on Anvil; Sepolia runs need `PRIVATE_KEY`, a domain and an app origin.
 - Not done: Sepolia deploy, BaseScan verification, real DNS TXT, Vercel hosting, phone test, demo video.
+
+## phase-9/10/11 (scholarship layer, bulk screening, privacy receipt)
+- Scheme checklist, templates (enrolment/caste/income with attested flag leaves, not ZK), bundles, officer view: `SCHEME.md`.
+- Bulk screener (pinned block, issuer cache, JSON-RPC batching, worker pool, zip limits, formula-safe CSV): 1000 synthetic applications, bulk verdict equals single verdict for all, 0 false flags, all planted bad items flagged. Timings in `docs/bulk-timings.json` (local Anvil only).
+- Privacy receipt (JSON/PDF, hash for tamper evidence), advisory share labels, test that blocks everything but RPC/DoH.
+- Base Sepolia deployed and source-verified on BaseScan (`deployments/base-sepolia.json`).
+- Tests: forge 71, core vitest 138, Playwright scheme.spec 16 (not yet a full re-run of every spec).

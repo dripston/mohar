@@ -1,6 +1,6 @@
 import { bytesToHex, getAddress, hexToBytes, type Address, type Hex } from "viem";
 import { Gunzip, Unzlib, gzipSync, strFromU8, strToU8 } from "fflate";
-import type { Anchor, DisclosedField, ProofFile } from "./types";
+import type { Anchor, DisclosedField, ProofFile, ShareMeta } from "./types";
 
 /**
  * Link mode: a tiny binary header (issuer key, root, expiry, batch proof) in the URL fragment.
@@ -181,6 +181,7 @@ export function parseProofFile(json: string | unknown): ProofFile {
     fields[p] = { value: d.value, salt: d.salt, proof: [...d.proof] };
   }
   const txHash = typeof f.txHash === "string" && HEX32.test(f.txHash) ? f.txHash : undefined;
+  const share = parseShare(f.share);
   return {
     format: "mohar-proof/1",
     chainId: f.chainId,
@@ -191,7 +192,17 @@ export function parseProofFile(json: string | unknown): ProofFile {
     fields: { ...fields },
     partial: f.partial === true,
     ...(txHash ? { txHash } : {}),
+    ...(share ? { share } : {}),
   };
+}
+
+/** Share labels are display-only text: clipped, never interpreted. */
+export function parseShare(s: unknown): ShareMeta | undefined {
+  if (!s || typeof s !== "object") return undefined;
+  const o = s as ShareMeta;
+  const text = (x: unknown) => (typeof x === "string" && x.length > 0 ? x.slice(0, 120) : undefined);
+  const out: ShareMeta = { purpose: text(o.purpose), recipient: text(o.recipient), validUntil: Number.isSafeInteger(o.validUntil) && o.validUntil! > 0 ? o.validUntil : undefined };
+  return out.purpose || out.recipient || out.validUntil ? out : undefined;
 }
 
 /** Compact, gzip'd, URL-safe presentation (what a holder shares after hiding fields). Prefix `P`. */

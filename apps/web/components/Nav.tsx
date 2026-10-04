@@ -14,6 +14,8 @@ const LINKS = [
   { href: "/verify", label: "Verify" },
   { href: "/issuer", label: "Issuer" },
   { href: "/holder", label: "Holder" },
+  { href: "/scheme", label: "Scheme" },
+  { href: "/bulk", label: "Bulk" },
   { href: "/issuer/admin", label: "Authority" },
 ];
 
