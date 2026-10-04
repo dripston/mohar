@@ -47,8 +47,8 @@ Demo wallets (local network only): "Use demo issuer wallet" on `/issuer`, "Use d
 ### Tests
 
 ```bash
-cd packages/contracts && forge test                  # 51 tests: unit, fuzz (1000 runs), invariants, TS<->Solidity cross-checks
-pnpm --filter @mohar/core test                       # 37 unit + golden-vector tests, plus the live-chain attack matrix (needs the local chain)
+cd packages/contracts && forge test                  # 71 tests: unit, fuzz (1000 runs), invariants, TS<->Solidity cross-checks
+pnpm --filter @mohar/core test                       # 125 tests: unit, golden-vector and review tests, plus the live-chain attack matrix (needs the local chain)
 pnpm --filter @mohar/web e2e                         # Playwright against the real app + chain
 pnpm --filter @mohar/core vectors                    # regenerate cross-language vectors
 ```

@@ -595,3 +595,48 @@ describe.skipIf(!live)("contract v2 (live chain)", () => {
     expect(r.issuer?.issuerType).toBe("OTHER");
   });
 });
+
+// ====================================================================================================================
+// VERIFY.md claim: "no personal data on chain".
+describe.skipIf(!live)("no personal data on chain (live chain)", () => {
+  it("V3 recipient name, email and roll number never appear in any transaction input or log, anywhere on the chain", async () => {
+    const startBlock = await pub.getBlockNumber({ cacheTime: 0 }); // scan only what this test wrote: the shared chain keeps growing across runs
+    const key = generatePrivateKey();
+    const account = privateKeyToAccount(key);
+    await fund(account.address);
+    await rootTx("registerIssuer", [account.address, DOMAIN, "PII Test College", true, 1, "test"]);
+    identities.add(account.address.toLowerCase());
+    const w: Writer = { wallet: createWalletClient({ account, chain, transport: http(RPC) }), publicClient: pub, deployment: dep };
+    const marker = `Zyxwv${Date.now().toString(36)}`;
+    const doc = docFor(account.address, { title: `Title ${marker}` }) as any;
+    doc.recipient = { name: `Name ${marker}`, email: `${marker}@example.com`, rollNo: `ROLL-${marker}` };
+    const single = prepareCertificate(doc);
+    await anchorSingle(w, single);
+    const batch = prepareBatch([doc, { ...doc, recipient: { ...doc.recipient, name: `Other ${marker}` } }]);
+    await anchorBatch(w, batch);
+
+    // positive control: plant the marker in one transaction so we know the scan CAN find it
+    const control = await w.wallet.sendTransaction({ to: account.address, data: `0x${Buffer.from(marker, "utf8").toString("hex")}`, chain } as any);
+    await pub.waitForTransactionReceipt({ hash: control });
+    let controlFound = false;
+    const needles = [`Name ${marker}`, `${marker}@example.com`, `ROLL-${marker}`, `Title ${marker}`, marker].map((s) => Buffer.from(s, "utf8").toString("hex"));
+    const latest = await pub.getBlockNumber({ cacheTime: 0 }); // viem caches block numbers for a few seconds; a stale value hides the newest blocks
+    let scanned = 0;
+    for (let n = startBlock; n <= latest; n++) {
+      const block = await pub.getBlock({ blockNumber: n, includeTransactions: true });
+      for (const tx of block.transactions) {
+        const rc = await pub.getTransactionReceipt({ hash: tx.hash });
+        const haystack = [tx.input, ...rc.logs.flatMap((l) => [l.data, ...l.topics])].join("").toLowerCase().replace(/0x/g, "");
+        for (const needle of needles) {
+          const isMarker = needle === needles[4];
+          if (tx.hash === control && isMarker) controlFound = haystack.includes(needle);
+          else expect(haystack.includes(needle), `${needle} found in tx ${tx.hash}`).toBe(false);
+        }
+        scanned++;
+      }
+    }
+    expect(controlFound, "the scan must detect a planted marker, otherwise this test proves nothing").toBe(true);
+    expect(scanned).toBeGreaterThanOrEqual(5);
+    rows.push({ id: "V3", attack: `No personal data on chain: scanned ${scanned} transactions and their logs`, expected: "none found", actual: "none found", pass: true });
+  });
+});

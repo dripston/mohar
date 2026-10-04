@@ -1,0 +1,6 @@
+{
+  "network": "base-sepolia",
+  "chainId": 84532,
+  "deployed": false,
+  "note": "Placeholder. packages/contracts/script/Deploy.s.sol overwrites this file when you run it with NETWORK=base-sepolia."
+}

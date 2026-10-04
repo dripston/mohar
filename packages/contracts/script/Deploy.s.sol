@@ -10,6 +10,7 @@ import {CertificateRegistry} from "../src/CertificateRegistry.sol";
 ///   Base Sepolia: PRIVATE_KEY=0x... NETWORK=base-sepolia forge script script/Deploy.s.sol --rpc-url $BASE_SEPOLIA_RPC --broadcast --verify
 /// The deployer becomes the ROOT_AUTHORITY (demo: the accreditation body). Optional demo issuer:
 ///   DEMO_ISSUER=0xAddress DEMO_ISSUER_NAME="Acharya Institute" DEMO_ISSUER_DOMAIN=acharya.ac.in
+///   DEMO_ISSUER_TYPE=1 (0 other, 1 institute, 2 revenue office, 3 employer) DEMO_ISSUER_SOURCE="..."
 contract Deploy is Script {
     function run() external {
         uint256 pk = vm.envUint("PRIVATE_KEY");
@@ -26,7 +27,9 @@ contract Deploy is Script {
                 demo,
                 vm.envOr("DEMO_ISSUER_DOMAIN", string("acharya.ac.in")),
                 vm.envOr("DEMO_ISSUER_NAME", string("Acharya Institute")),
-                true
+                true,
+                IssuerRegistry.IssuerType(uint8(vm.envOr("DEMO_ISSUER_TYPE", uint256(1)))),
+                vm.envOr("DEMO_ISSUER_SOURCE", string("Demo list (not a real accreditation)"))
             );
         }
         vm.stopBroadcast();

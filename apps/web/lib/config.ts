@@ -1,6 +1,7 @@
 import { defineChain } from "viem";
 import type { Deployment } from "@mohar/core";
 import anvil from "../../../deployments/anvil.json";
+import baseSepolia from "../../../deployments/base-sepolia.json";
 
 /**
  * One place that says which chain and which contracts the app talks to.
@@ -33,11 +34,13 @@ function load(): Deployment {
   if (process.env.NEXT_PUBLIC_DEPLOYMENT_JSON) {
     return { ...(JSON.parse(process.env.NEXT_PUBLIC_DEPLOYMENT_JSON) as Deployment) };
   }
-  if (NETWORK !== "anvil") {
-    throw new Error(
-      `No deployment for "${NETWORK}". Deploy with packages/contracts/script/Deploy.s.sol and set NEXT_PUBLIC_DEPLOYMENT_JSON.`,
-    );
+  if (NETWORK === "base-sepolia") {
+    if ((baseSepolia as { deployed?: boolean }).deployed === false) {
+      throw new Error("Base Sepolia is selected but deployments/base-sepolia.json is still the placeholder. Run the deploy script first.");
+    }
+    return baseSepolia as unknown as Deployment;
   }
+  if (NETWORK !== "anvil") throw new Error(`Unknown NEXT_PUBLIC_NETWORK "${NETWORK}". Use "anvil" or "base-sepolia".`);
   return anvil as unknown as Deployment;
 }
 
