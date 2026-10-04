@@ -11,7 +11,8 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "vectors": "tsx scripts/gen-vectors.ts"
+    "vectors": "tsx scripts/gen-vectors.ts",
+    "abi": "tsx scripts/export-abi.ts"
   },
   "dependencies": {
     "@openzeppelin/merkle-tree": "^1.0.8",

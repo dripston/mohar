@@ -4,3 +4,8 @@ export * from "./merkle";
 export * from "./ids";
 export * from "./link";
 export * from "./eip712";
+export * from "./abi.generated";
+export * from "./chain";
+export * from "./dns";
+export * from "./verify";
+export * from "./issue";
